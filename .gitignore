@@ -1,0 +1,32 @@
+# Java/Spring Boot (Backend)
+/backend/target/
+/backend/*.log
+/backend/*.jar
+/backend/.idea/
+/backend/*.iml
+/backend/src/main/resources/application.properties
+
+# Flutter (Frontend)
+/frontend/.dart_tool/
+/frontend/.flutter-plugins
+/frontend/.flutter-plugins-dependencies
+/frontend/.packages
+/frontend/.pub-cache/
+/frontend/build/
+/frontend/.idea/
+/frontend/*.iml
+/frontend/.metadata
+/frontend/ios/Flutter/flutter_export_environment.sh
+/frontend/ios/Runner.xcworkspace/xcshareddata/
+/frontend/android/.gradle/
+/frontend/android/app/build/
+/frontend/android/local.properties
+/frontend/android/key.properties
+/frontend/lib/generated_plugin_registrant.dart
+/frontend/*.g.dart
+/frontend/*.freezed.dart
+
+# General
+*.DS_Store
+*.env
+*.sql
