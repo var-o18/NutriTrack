@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nutritack/presentation/pages/resgistro2.dart';
+//import 'package:nutritack/presentation/pages/Registro/registroGenero.dart';
+import 'package:nutritack/presentation/pages/Registro/resgistro2.dart';
 
 class RegistroObjetivos extends StatefulWidget {
   const RegistroObjetivos({super.key});
@@ -159,7 +160,10 @@ class _RegistroObjetivosState extends State<RegistroObjetivos> {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        // Acción siguiente
+                        //Navigator.pushReplacement(
+                          //context,
+                          //MaterialPageRoute(builder: (context) => const RegistroGenero()),
+                        //);
                       },
                       child: Container(
                         height: 50,

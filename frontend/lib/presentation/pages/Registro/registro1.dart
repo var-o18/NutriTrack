@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nutritack/presentation/pages/resgistro2.dart';
-import '../widgets/botones/botonescontinuarcongoogleblancos.dart';
+import 'package:nutritack/presentation/pages/Registro/resgistro2.dart';
+import 'package:nutritack/presentation/widgets/botones/botonescontinuarcongoogleblancos.dart';
 
 
 class Registro1 extends StatelessWidget {

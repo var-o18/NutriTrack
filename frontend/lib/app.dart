@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:nutritack/presentation/pages/resgistro2.dart';
-import 'presentation/pages/bienvenida1.dart';
-import 'presentation/pages/bienvenida2.dart';
-import 'presentation/pages/registro1.dart';
-import 'presentation/pages/registroObjetivos.dart';
+//import 'package:nutritack/presentation/pages/Registro/registroGenero.dart';
+import 'package:nutritack/presentation/pages/Registro/resgistro2.dart';
+import 'presentation/pages/Bienvenida/bienvenida1.dart';
+import 'presentation/pages/Bienvenida/bienvenida2.dart';
+import 'package:nutritack/presentation/pages/Registro/registro1.dart';
+import 'package:nutritack/presentation/pages/Registro/registroObjetivos.dart';
 
 
 class MyApp extends StatelessWidget {
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
         '/registro1': (context) => const Registro1(),
         '/registro2': (context) => const Registro2(),
         '/registroObjetivos': (context) => const RegistroObjetivos(),
+        //'/registroGenero': (context) => const RegistroGenero(),
 
 
       },
