@@ -25,4 +25,8 @@ public class UsuarioResponse {
 
     private String objetivo_personal;
 
+    private String nombre;
+
+    private String apellidos;
+
 }

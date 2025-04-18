@@ -42,4 +42,10 @@ public class Usuario {
     @Column(name = "objetivo_personal")
     private String objetivo_personal;
 
+    @Column(name = "nombre")
+    private String nombre;
+
+    @Column(name = "apellidos")
+    private String apellidos;
+
 }
