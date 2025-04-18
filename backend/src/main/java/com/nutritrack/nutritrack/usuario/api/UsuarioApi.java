@@ -2,6 +2,7 @@ package com.nutritrack.nutritrack.usuario.api;
 
 import com.nutritrack.nutritrack.usuario.api.request.PostUsuarioRegistro;
 import com.nutritrack.nutritrack.usuario.api.response.UsuarioResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +15,6 @@ public interface UsuarioApi {
     ResponseEntity<UsuarioResponse> findById(@PathVariable(value = "id") Long id);
 
     @PostMapping("/usuarios")
-    ResponseEntity<UsuarioResponse> save(@RequestBody PostUsuarioRegistro postUsuarioRegistro);
+    ResponseEntity<UsuarioResponse> save(@RequestBody @Valid PostUsuarioRegistro postUsuarioRegistro);
 
 }
