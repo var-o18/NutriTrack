@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nutritack/presentation/pages/Registro/registroEdad.dart';
 import 'package:nutritack/presentation/pages/Registro/registroGenero.dart';
 import 'package:nutritack/presentation/pages/Registro/resgistro2.dart';
 import 'presentation/pages/Bienvenida/bienvenida1.dart';
@@ -23,6 +24,8 @@ class MyApp extends StatelessWidget {
         '/registro2': (context) => const Registro2(),
         '/registroObjetivos': (context) => const RegistroObjetivos(),
         '/registroGenero': (context) => const RegistroGenero(),
+        '/registroEdad': (context) => const RegistroEdad(),
+
 
 
 
