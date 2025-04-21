@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nutritack/presentation/pages/registro1.dart';
-import 'package:nutritack/presentation/pages/registroObjetivos.dart';
+import 'package:nutritack/presentation/pages/Registro/registro1.dart';
+import 'package:nutritack/presentation/pages/Registro/registroObjetivos.dart';
 
 class Registro2 extends StatelessWidget {
   const Registro2({super.key});
@@ -16,7 +16,7 @@ class Registro2 extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 10),
-              const SizedBox(height: 10),
+              const SizedBox(height: 30),
               const Center(
                 child: Text(
                   'Bienvenido',
