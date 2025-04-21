@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nutritack/presentation/pages/Registro/registroEdad.dart';
-import 'package:nutritack/presentation/pages/Registro/registroGenero.dart';
+import 'package:nutritack/presentation/pages/Registro/registroObjetivos.dart';
 
 
 class RegistroGenero extends StatefulWidget {
@@ -148,7 +148,7 @@ class _RegistroGeneroState extends State<RegistroGenero> {
                     onTap: () {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => const RegistroGenero()),
+                        MaterialPageRoute(builder: (context) => const RegistroObjetivos()),
                       );
                     },
                     child: Container(
