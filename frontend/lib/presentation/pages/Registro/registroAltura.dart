@@ -1,23 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:nutritack/presentation/pages/Registro/registroGenero.dart';
 import 'package:nutritack/presentation/pages/Registro/registroPeso.dart';
 
-class RegistroEdad extends StatefulWidget {
-  const RegistroEdad({super.key});
+class Registroaltura extends StatefulWidget {
+  const Registroaltura({super.key});
 
   @override
-  State<RegistroEdad> createState() => _RegistroEdadState();
+  State<Registroaltura> createState() => _RegistroAlturaState();
 }
 
-class _RegistroEdadState extends State<RegistroEdad> {
-  final List<int> edades = List.generate(91, (index) => index + 16);
-  int edadSeleccionada = 18;
+class _RegistroAlturaState extends State<Registroaltura> {
+  final List<int> alturas = List.generate(250, (index) => index + 100);
+  int alturaSeleccionada = 170; // Valor por defecto
   late FixedExtentScrollController scrollController;
 
   @override
   void initState() {
     super.initState();
-    scrollController = FixedExtentScrollController(initialItem: edadSeleccionada - 10);
+    scrollController = FixedExtentScrollController(initialItem: alturaSeleccionada - 100);
   }
 
   @override
@@ -36,7 +35,7 @@ class _RegistroEdadState extends State<RegistroEdad> {
               const SizedBox(height: 30),
               const Center(
                 child: Text(
-                  'Edad',
+                  'Altura',
                   style: TextStyle(
                     fontSize: 14,
                     fontFamily: 'Montserrat',
@@ -65,7 +64,7 @@ class _RegistroEdadState extends State<RegistroEdad> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Image.asset(
-                  'assets/images/edad.png',
+                  'assets/images/altura.png',
                   width: screenWidth * (100 / 390),
                   height: screenHeight * (100 / 844),
                   fit: BoxFit.contain,
@@ -73,7 +72,7 @@ class _RegistroEdadState extends State<RegistroEdad> {
               ),
               const SizedBox(height: 16),
               const Text(
-                '¿Cuántos años tienes?',
+                '¿Cuánto mides?',
                 style: TextStyle(
                   fontSize: 22,
                   fontFamily: 'Montserrat',
@@ -82,7 +81,7 @@ class _RegistroEdadState extends State<RegistroEdad> {
               ),
               const SizedBox(height: 10),
               const Text(
-                'Selecciona tu edad',
+                'Selecciona tu altura',
                 style: TextStyle(
                   color: Color(0xFF979797),
                   fontSize: 13,
@@ -103,20 +102,22 @@ class _RegistroEdadState extends State<RegistroEdad> {
                         perspective: 0.005,
                         onSelectedItemChanged: (index) {
                           setState(() {
-                            edadSeleccionada = edades[index];
+                            alturaSeleccionada = alturas[index];
                           });
                         },
                         childDelegate: ListWheelChildBuilderDelegate(
-                          childCount: edades.length,
+                          childCount: alturas.length,
                           builder: (context, index) {
-                            final isSelected = edades[index] == edadSeleccionada;
+                            final isSelected = alturas[index] == alturaSeleccionada;
                             return Center(
                               child: Text(
-                                '${edades[index]}',
+                                '${alturas[index]}',
                                 style: TextStyle(
                                   fontSize: isSelected ? 24 : 18,
                                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                  color: isSelected ? Color(0xFF5A99D6) : Color(0xFFD3E3F1),
+                                  color: isSelected
+                                      ? Color(0xFF5A99D6)
+                                      : Color(0xFFD3E3F1),
                                   fontFamily: 'Montserrat',
                                 ),
                               ),
@@ -127,7 +128,7 @@ class _RegistroEdadState extends State<RegistroEdad> {
                     ),
                     const SizedBox(width: 8),
                     const Text(
-                      'años',
+                      'cm',
                       style: TextStyle(
                         fontSize: 18,
                         fontFamily: 'Montserrat',
@@ -144,7 +145,7 @@ class _RegistroEdadState extends State<RegistroEdad> {
                     onTap: () {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => const RegistroGenero()),
+                        MaterialPageRoute(builder: (context) => const RegistroPeso()),
                       );
                     },
                     child: Container(
@@ -161,10 +162,7 @@ class _RegistroEdadState extends State<RegistroEdad> {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => const RegistroPeso()),
-                        );
+                        // Aquí puedes pasar alturaSeleccionada si lo necesitas
                       },
                       child: Container(
                         height: 50,

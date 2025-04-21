@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nutritack/presentation/pages/Registro/registroEdad.dart';
+import 'package:nutritack/presentation/pages/Registro/registroAltura.dart';
 
 class RegistroPeso extends StatefulWidget {
   const RegistroPeso({super.key});
@@ -9,9 +10,15 @@ class RegistroPeso extends StatefulWidget {
 }
 
 class _RegistroPesoState extends State<RegistroPeso> {
-  final List<int> pesos = List.generate(200, (index) => index + 10);
-  int pesoSeleccionado = 18;
-  FixedExtentScrollController scrollController = FixedExtentScrollController(initialItem: 15);
+  final List<int> pesos = List.generate(200, (index) => index + 30);
+  int pesoSeleccionado = 60;
+  late FixedExtentScrollController scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    scrollController = FixedExtentScrollController(initialItem: pesoSeleccionado - 10);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -154,10 +161,10 @@ class _RegistroPesoState extends State<RegistroPeso> {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        /*Navigator.pushReplacement(
+                        Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => const ()),
-                        );*/
+                          MaterialPageRoute(builder: (context) => const Registroaltura()),
+                        );
                       },
                       child: Container(
                         height: 50,
@@ -172,7 +179,6 @@ class _RegistroPesoState extends State<RegistroPeso> {
                             ),
                           ],
                         ),
-                        //todo añadir navegacion
                         child: const Center(
                           child: Text(
                             'Siguiente',
