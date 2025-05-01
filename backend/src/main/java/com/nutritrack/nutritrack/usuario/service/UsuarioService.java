@@ -25,6 +25,17 @@ public class UsuarioService {
     public Optional<Usuario> findById(Long id) {
         return usuarioRepository.findById(id);
     }
+    
+    public Usuario login(String email, String rawPassword) {
+        Usuario usuario = usuarioRepository.findByCorreo(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (!passwordEncoder.matches(rawPassword, usuario.getContrasena())) {
+            throw new RuntimeException("Contraseña incorrecta");
+        }
+
+        return usuario;
+    }
 
     public Long save(PostUsuarioRegistro postUsuarioRegistro) {
         if (usuarioRepository.findByCorreo(postUsuarioRegistro.getCorreo()).isPresent()) {
@@ -36,5 +47,6 @@ public class UsuarioService {
         Usuario usuario = usuarioMapper.toEntity(postUsuarioRegistro);
         return usuarioRepository.save(usuario).getId();
     }
+
 
 }
