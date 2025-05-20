@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nutritack/presentation/pages/Bienvenida/bienvenida1.dart';
 import 'package:nutritack/presentation/pages/Registro/resgistro2.dart';
 import '../../widgets/botones/botonescontinuarcongoogleblancos.dart';
 
@@ -22,6 +23,16 @@ class Registro1 extends StatelessWidget {
         backgroundColor: Colors.white,
         foregroundColor: const Color(0xFF1E1E1E),
         elevation: 0,
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => Bienvenida1()),
+            );
+          },
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
@@ -93,13 +104,13 @@ class Registro1 extends StatelessWidget {
             botonesBlancosRegistro(
               iconAsset: 'assets/images/logoapple.png',
               label: 'Continuar con Apple',
-              iconWidth: 50,
-              iconHeight: 50,
+              iconWidth: 27,
+              iconHeight: 27,
             ),
             const SizedBox(height: 150),
             GestureDetector(
               onTap: () {
-                // Navegar a política
+                // navegar a política
               },
               child: const Text(
                 'Política de privacidad de NutriTrack',

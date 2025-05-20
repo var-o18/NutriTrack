@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:nutritack/presentation/pages/Registro/registroEdad.dart';
 import 'package:nutritack/presentation/pages/Registro/registroObjetivos.dart';
+import 'package:provider/provider.dart';
+
+import '../../../data/registro_data.dart';
 
 
 class RegistroGenero extends StatefulWidget {
@@ -16,6 +19,11 @@ class _RegistroGeneroState extends State<RegistroGenero> {
 
   @override
   Widget build(BuildContext context) {
+    final generoSeleccionado = Provider.of<RegistroData>(context).datos.genero;
+
+    if (generoSeleccionado != null) {
+      seleccionadoIndex = generos.indexOf(generoSeleccionado);
+    }
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
@@ -165,11 +173,25 @@ class _RegistroGeneroState extends State<RegistroGenero> {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => const RegistroEdad()),
-                        );
+                        if (seleccionadoIndex != null) {
+                          final generoSeleccionado = generos[seleccionadoIndex!];
+
+                          Provider.of<RegistroData>(context, listen: false)
+                              .actualizarRegistro(genero: generoSeleccionado);
+
+                          print('Género guardado: $generoSeleccionado');
+
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => const RegistroEdad()),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Por favor selecciona un género")),
+                          );
+                        }
                       },
+
                       child: Container(
                         height: 50,
                         decoration: BoxDecoration(

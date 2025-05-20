@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:nutritack/presentation/pages/Registro/registroGenero.dart';
 import 'package:nutritack/presentation/pages/Registro/registroPeso.dart';
+import 'package:provider/provider.dart';
+
+import '../../../data/registro_data.dart';
 
 class RegistroEdad extends StatefulWidget {
   const RegistroEdad({super.key});
@@ -17,7 +20,13 @@ class _RegistroEdadState extends State<RegistroEdad> {
   @override
   void initState() {
     super.initState();
-    scrollController = FixedExtentScrollController(initialItem: edadSeleccionada - 10);
+
+    final edadGuardada = Provider.of<RegistroData>(context, listen: false).datos.edad;
+    if (edadGuardada != null) {
+      edadSeleccionada = edadGuardada;
+    }
+
+    scrollController = FixedExtentScrollController(initialItem: edadSeleccionada - 16);
   }
 
   @override
@@ -161,6 +170,11 @@ class _RegistroEdadState extends State<RegistroEdad> {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
+                        Provider.of<RegistroData>(context, listen: false)
+                            .actualizarRegistro(edad: edadSeleccionada);
+
+                        print('Edad guardada: $edadSeleccionada');
+
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(builder: (context) => const RegistroPeso()),

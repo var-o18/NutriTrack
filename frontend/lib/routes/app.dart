@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:nutritack/presentation/pages/Registro/registroActividadFisica.dart';
+import 'package:nutritack/presentation/pages/Registro/registroAlergenos.dart';
 import 'package:nutritack/presentation/pages/Registro/registroAltura.dart';
 import 'package:nutritack/presentation/pages/Registro/registroEdad.dart';
 import 'package:nutritack/presentation/pages/Registro/registroGenero.dart';
 import 'package:nutritack/presentation/pages/Registro/registroPeso.dart';
 import 'package:nutritack/presentation/pages/Registro/resgistro2.dart';
-import 'presentation/pages/Bienvenida/bienvenida1.dart';
-import 'presentation/pages/Bienvenida/bienvenida2.dart';
-import 'presentation/pages/Registro/registro1.dart';
-import 'presentation/pages/Registro/registroObjetivos.dart';
+import '../presentation/pages/Bienvenida/bienvenida1.dart';
+import '../presentation/pages/Bienvenida/bienvenida2.dart';
+import '../presentation/pages/Registro/registro1.dart';
+import '../presentation/pages/Registro/registroObjetivos.dart';
+import '../presentation/pages/Registro/registroCampos.dart';
+import '../presentation/pages/Login/login.dart';
+
+
 
 
 class MyApp extends StatelessWidget {
@@ -29,13 +35,13 @@ class MyApp extends StatelessWidget {
         '/registroEdad': (context) => const RegistroEdad(),
         '/registroPeso': (context) => const RegistroPeso(),
         '/registroAltura': (context) => const Registroaltura(),
+        '/registroActividadFisica': (context) => const RegistroActividadFisica(),
+        '/registroAlergenos': (context) => const RegistroRestriccionesAlimentarias(),
+        '/registroCampos': (context) => const RegistroCampos(),
+        '/login': (context) => const LoginScreen(),
 
 
-
-
-
-
-    },
+      },
     );
   }
 }

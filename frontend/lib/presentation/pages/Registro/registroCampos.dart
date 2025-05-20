@@ -1,0 +1,201 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../data/registro_data.dart';
+import '../../../data/services/registro_service.dart';
+import 'package:nutritack/presentation/pages/Registro/registroAlergenos.dart';
+
+class RegistroCampos extends StatefulWidget {
+  const RegistroCampos({Key? key}) : super(key: key);
+
+  @override
+  State<RegistroCampos> createState() => _RegistroCamposState();
+}
+
+class _RegistroCamposState extends State<RegistroCampos> {
+  final TextEditingController nombreController = TextEditingController();
+  final TextEditingController apellidosController = TextEditingController();
+  final TextEditingController correoController = TextEditingController();
+  final TextEditingController contrasenaController = TextEditingController();
+
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Center(
+          child: Container(
+            width: screenWidth * 0.9,
+            height: screenHeight,
+            child: Stack(
+              children: [
+                // Back button
+                Positioned(
+                  top: screenHeight * 0.02,
+                  left: screenWidth * 0.02,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const RegistroRestriccionesAlimentarias()),
+                      );
+                    },
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFCCE1F6),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.arrow_back, color: Color(0xFF1E1E1E)),
+                    ),
+                  ),
+                ),
+
+                // Logo
+                Positioned(
+                  top: screenHeight * 0.05,
+                  left: (screenWidth * 0.9 - 200) / 2,
+                  child: SizedBox(
+                    width: 200,
+                    height: 100,
+                    child: Image.asset(
+                      'assets/images/logonutritracknegro.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+
+                // Title
+                Positioned(
+                  top: screenHeight * 0.18,
+                  left: (screenWidth * 0.9 - 100) / 2, // Center the title
+                  child: const Text(
+                    'Registro',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontFamily: 'Montserrat',
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF232323),
+                    ),
+                  ),
+                ),
+
+                // Form
+                Positioned(
+                  top: screenHeight * 0.25,
+                  left: screenWidth * 0.05,
+                  right: screenWidth * 0.05,
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildTextField('Apellidos', apellidosController),
+                        const SizedBox(height: 20), // Consistent spacing between fields
+                        _buildTextField('Nombre', nombreController),
+                        const SizedBox(height: 20),
+                        _buildTextField('Correo', correoController),
+                        const SizedBox(height: 20),
+                        _buildTextField('Contraseña', contrasenaController, obscureText: true),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // Create account button
+                Positioned(
+                  bottom: screenHeight * 0.1,
+                  left: screenWidth * 0.05,
+                  right: screenWidth * 0.05,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF5A99D6),
+                      minimumSize: const Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      elevation: 4,
+                    ),
+                    onPressed: () async {
+                      if (_formKey.currentState?.validate() ?? false) {
+                        Provider.of<RegistroData>(context, listen: false).actualizarRegistro(
+                          nombre: nombreController.text,
+                          apellidos: apellidosController.text,
+                          correo: correoController.text,
+                          contrasena: contrasenaController.text,
+                        );
+
+                        print('Nombre guardado: ${nombreController.text}');
+                        print('Apellidos guardados: ${apellidosController.text}');
+                        print('Correo guardado: ${correoController.text}');
+                        print('Contraseña guardada: ${contrasenaController.text}');
+                        final registroData = Provider.of<RegistroData>(context, listen: false);
+                        final registroModel = registroData.datos;
+
+                        await enviarRegistro(registroModel);
+                      }
+                    },
+                    child: const Text(
+                      'Crear cuenta',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF232323),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(String label, TextEditingController controller, {bool obscureText = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontFamily: 'Montserrat',
+            color: Color(0xFF232323),
+          ),
+        ),
+        const SizedBox(height: 6),
+        TextFormField(
+          controller: controller,
+          obscureText: obscureText,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: Color(0xFF5A99D6)),
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+            hintText: 'Ingresa tu $label',
+            hintStyle: const TextStyle(
+              fontSize: 14,
+              fontFamily: 'Montserrat',
+              color: Color(0xFF979797),
+            ),
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Por favor ingrese un $label';
+            }
+            return null;
+          },
+        ),
+      ],
+    );
+  }
+}

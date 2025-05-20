@@ -1,9 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:nutritack/presentation/pages/Registro/registro1.dart';
 import 'package:nutritack/presentation/pages/Registro/registroObjetivos.dart';
+import 'package:nutritack/data/registro_data.dart';
+import 'package:provider/provider.dart';
 
-class Registro2 extends StatelessWidget {
+class Registro2 extends StatefulWidget {
   const Registro2({super.key});
+
+  @override
+  State<Registro2> createState() => _Registro2State();
+}
+
+class _Registro2State extends State<Registro2> {
+  final TextEditingController _nombreController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nombreController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +43,6 @@ class Registro2 extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 15),
-              // Barra de progreso
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(5, (index) {
@@ -65,6 +79,7 @@ class Registro2 extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               TextField(
+                controller: _nombreController,
                 decoration: InputDecoration(
                   hintText: 'Ingresa tu nombre',
                   border: OutlineInputBorder(
@@ -80,7 +95,7 @@ class Registro2 extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => Registro1()),
+                        MaterialPageRoute(builder: (context) => const Registro1()),
                       );
                     },
                     child: Container(
@@ -97,10 +112,22 @@ class Registro2 extends StatelessWidget {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => RegistroObjetivos()),
-                        );
+                        final nombre = _nombreController.text.trim();
+                        if (nombre.isNotEmpty) {
+                          Provider.of<RegistroData>(context, listen: false)
+                              .actualizarRegistro(nombre: nombre);
+
+                          print('Nombre guardado: $nombre');
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const RegistroObjetivos()),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Por favor ingresa tu nombre")),
+                          );
+                        }
                       },
                       child: Container(
                         height: 50,

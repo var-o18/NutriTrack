@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:nutritack/presentation/pages/Registro/registroGenero.dart';
 import 'package:nutritack/presentation/pages/Registro/resgistro2.dart';
+import 'package:provider/provider.dart';
+
+import '../../../data/registro_data.dart';
 
 class RegistroObjetivos extends StatefulWidget {
   const RegistroObjetivos({super.key});
@@ -22,6 +25,12 @@ class _RegistroObjetivosState extends State<RegistroObjetivos> {
 
   @override
   Widget build(BuildContext context) {
+    final objetivoSeleccionado = Provider.of<RegistroData>(context).datos.objetivos;
+
+    if (objetivoSeleccionado != null) {
+      seleccionadoIndex = objetivos.indexOf(objetivoSeleccionado);
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -90,6 +99,13 @@ class _RegistroObjetivosState extends State<RegistroObjetivos> {
                           setState(() {
                             seleccionadoIndex = index;
                           });
+
+                          final objetivoSeleccionado = objetivos[index];
+
+                          Provider.of<RegistroData>(context, listen: false)
+                              .actualizarRegistro(objetivos: objetivoSeleccionado);
+
+                          print('Objetivo guardado: $objetivoSeleccionado');
                         },
                         child: AnimatedOpacity(
                           duration: const Duration(milliseconds: 200),
@@ -160,10 +176,20 @@ class _RegistroObjetivosState extends State<RegistroObjetivos> {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => const RegistroGenero()),
-                        );
+                        if (seleccionadoIndex != null) {
+                          final objetivoSeleccionado = objetivos[seleccionadoIndex!];
+
+                          Provider.of<RegistroData>(context, listen: false)
+                              .actualizarRegistro(objetivos: objetivoSeleccionado);
+
+                          print('Objetivo guardado: $objetivoSeleccionado');
+
+                          Navigator.pushNamed(context, '/registroGenero');
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Por favor selecciona un objetivo")),
+                          );
+                        }
                       },
                       child: Container(
                         height: 50,

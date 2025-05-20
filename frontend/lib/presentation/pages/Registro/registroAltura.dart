@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:nutritack/presentation/pages/Registro/registroPeso.dart';
+import 'package:nutritack/presentation/pages/Registro/registroActividadFisica.dart';
+import 'package:provider/provider.dart';
+
+import '../../../data/registro_data.dart';
 
 class Registroaltura extends StatefulWidget {
   const Registroaltura({super.key});
@@ -10,12 +14,16 @@ class Registroaltura extends StatefulWidget {
 
 class _RegistroAlturaState extends State<Registroaltura> {
   final List<int> alturas = List.generate(250, (index) => index + 100);
-  int alturaSeleccionada = 170; // Valor por defecto
+  int alturaSeleccionada = 170;
   late FixedExtentScrollController scrollController;
 
   @override
   void initState() {
     super.initState();
+    final alturaGuardada = Provider.of<RegistroData>(context, listen: false).datos.altura;
+    if (alturaGuardada != null) {
+      alturaSeleccionada = alturaGuardada;
+    }
     scrollController = FixedExtentScrollController(initialItem: alturaSeleccionada - 100);
   }
 
@@ -162,7 +170,14 @@ class _RegistroAlturaState extends State<Registroaltura> {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        // Aquí puedes pasar alturaSeleccionada si lo necesitas
+                        Provider.of<RegistroData>(context, listen: false)
+                            .actualizarRegistro(altura: alturaSeleccionada);
+
+                        print('Altura guardada: $alturaSeleccionada');
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => const RegistroActividadFisica()),
+                        );
                       },
                       child: Container(
                         height: 50,
