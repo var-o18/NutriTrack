@@ -1,26 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:nutritack/presentation/pages/resgistro2.dart';
+import 'package:nutritack/presentation/pages/Registro/registroGenero.dart';
+import 'package:nutritack/presentation/pages/Registro/registroPeso.dart';
+import 'package:provider/provider.dart';
 
-class RegistroObjetivos extends StatefulWidget {
-  const RegistroObjetivos({super.key});
+import '../../../data/registro_data.dart';
+
+class RegistroEdad extends StatefulWidget {
+  const RegistroEdad({super.key});
 
   @override
-  State<RegistroObjetivos> createState() => _RegistroObjetivosState();
+  State<RegistroEdad> createState() => _RegistroEdadState();
 }
 
-class _RegistroObjetivosState extends State<RegistroObjetivos> {
-  final List<String> objetivos = [
-    'Bajar peso',
-    'Bajar peso lentamente',
-    'Mantener mi peso actual',
-    'Subir masa muscular lentamente',
-    'Subir masa muscular',
-  ];
+class _RegistroEdadState extends State<RegistroEdad> {
+  final List<int> edades = List.generate(91, (index) => index + 16);
+  int edadSeleccionada = 18;
+  late FixedExtentScrollController scrollController;
 
-  int? seleccionadoIndex;
+  @override
+  void initState() {
+    super.initState();
+
+    final edadGuardada = Provider.of<RegistroData>(context, listen: false).datos.edad;
+    if (edadGuardada != null) {
+      edadSeleccionada = edadGuardada;
+    }
+
+    scrollController = FixedExtentScrollController(initialItem: edadSeleccionada - 16);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -32,7 +45,7 @@ class _RegistroObjetivosState extends State<RegistroObjetivos> {
               const SizedBox(height: 30),
               const Center(
                 child: Text(
-                  'Objetivos',
+                  'Edad',
                   style: TextStyle(
                     fontSize: 14,
                     fontFamily: 'Montserrat',
@@ -49,7 +62,7 @@ class _RegistroObjetivosState extends State<RegistroObjetivos> {
                     width: 30,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: index == 1
+                      color: index == 3
                           ? const Color(0xFF5A99D6)
                           : const Color(0xFFD3E3F1),
                       borderRadius: BorderRadius.circular(2),
@@ -57,9 +70,19 @@ class _RegistroObjetivosState extends State<RegistroObjetivos> {
                   );
                 }),
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 70),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Image.asset(
+                  'assets/images/edad.png',
+                  width: screenWidth * (100 / 390),
+                  height: screenHeight * (100 / 844),
+                  fit: BoxFit.contain,
+                ),
+              ),
+              const SizedBox(height: 16),
               const Text(
-                'Queremos saber cuales son tus objetivos',
+                '¿Cuántos años tienes?',
                 style: TextStyle(
                   fontSize: 22,
                   fontFamily: 'Montserrat',
@@ -68,7 +91,7 @@ class _RegistroObjetivosState extends State<RegistroObjetivos> {
               ),
               const SizedBox(height: 10),
               const Text(
-                'Selecciona el objetivo más importante que quieres cumplir',
+                'Selecciona tu edad',
                 style: TextStyle(
                   color: Color(0xFF979797),
                   fontSize: 13,
@@ -76,73 +99,61 @@ class _RegistroObjetivosState extends State<RegistroObjetivos> {
                 ),
               ),
               const SizedBox(height: 30),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: objetivos.length,
-                  itemBuilder: (context, index) {
-                    final isSelected = seleccionadoIndex == index;
-
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 15),
-                      child: GestureDetector(
-                        onTap: () {
+              SizedBox(
+                height: 150,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: ListWheelScrollView.useDelegate(
+                        controller: scrollController,
+                        itemExtent: 40,
+                        physics: const FixedExtentScrollPhysics(),
+                        perspective: 0.005,
+                        onSelectedItemChanged: (index) {
                           setState(() {
-                            seleccionadoIndex = index;
+                            edadSeleccionada = edades[index];
                           });
                         },
-                        child: AnimatedOpacity(
-                          duration: const Duration(milliseconds: 200),
-                          opacity: seleccionadoIndex == null || isSelected ? 1.0 : 0.5,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFEAEFF4),
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Color(0x26000000),
-                                  blurRadius: 4,
-                                  offset: Offset(0, 4),
+                        childDelegate: ListWheelChildBuilderDelegate(
+                          childCount: edades.length,
+                          builder: (context, index) {
+                            final isSelected = edades[index] == edadSeleccionada;
+                            return Center(
+                              child: Text(
+                                '${edades[index]}',
+                                style: TextStyle(
+                                  fontSize: isSelected ? 24 : 18,
+                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                  color: isSelected ? Color(0xFF5A99D6) : Color(0xFFD3E3F1),
+                                  fontFamily: 'Montserrat',
                                 ),
-                              ],
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 15,
-                              horizontal: 20,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  objetivos[index],
-                                  style: TextStyle(
-                                    fontFamily: 'Montserrat',
-                                    fontSize: 15,
-                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                  ),
-                                ),
-                                Icon(
-                                  isSelected
-                                      ? Icons.check_circle
-                                      : Icons.circle_outlined,
-                                  color: isSelected ? const Color(0xFF5A99D6) : Colors.grey,
-                                )
-                              ],
-                            ),
-                          ),
+                              ),
+                            );
+                          },
                         ),
                       ),
-                    );
-                  },
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'años',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontFamily: 'Montserrat',
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 10),
+              const Spacer(),
               Row(
                 children: [
                   GestureDetector(
                     onTap: () {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => const Registro2()),
+                        MaterialPageRoute(builder: (context) => const RegistroGenero()),
                       );
                     },
                     child: Container(
@@ -159,7 +170,15 @@ class _RegistroObjetivosState extends State<RegistroObjetivos> {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        // Acción siguiente
+                        Provider.of<RegistroData>(context, listen: false)
+                            .actualizarRegistro(edad: edadSeleccionada);
+
+                        print('Edad guardada: $edadSeleccionada');
+
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => const RegistroPeso()),
+                        );
                       },
                       child: Container(
                         height: 50,
