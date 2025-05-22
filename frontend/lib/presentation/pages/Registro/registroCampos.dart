@@ -20,6 +20,27 @@ class _RegistroCamposState extends State<RegistroCampos> {
   final _formKey = GlobalKey<FormState>();
 
   @override
+  void initState() {
+    super.initState();
+
+    final registroModel = Provider.of<RegistroData>(context, listen: false).datos;
+
+    nombreController.text = registroModel.nombre ?? '';
+    apellidosController.text = registroModel.apellidos ?? '';
+    correoController.text = registroModel.correo ?? '';
+    contrasenaController.text = registroModel.contrasena ?? '';
+  }
+
+  @override
+  void dispose() {
+    nombreController.dispose();
+    apellidosController.dispose();
+    correoController.dispose();
+    contrasenaController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
@@ -73,7 +94,7 @@ class _RegistroCamposState extends State<RegistroCampos> {
                 // Title
                 Positioned(
                   top: screenHeight * 0.18,
-                  left: (screenWidth * 0.9 - 100) / 2, // Center the title
+                  left: (screenWidth * 0.9 - 100) / 2,
                   child: const Text(
                     'Registro',
                     style: TextStyle(
@@ -84,8 +105,6 @@ class _RegistroCamposState extends State<RegistroCampos> {
                     ),
                   ),
                 ),
-
-                // Form
                 Positioned(
                   top: screenHeight * 0.25,
                   left: screenWidth * 0.05,
@@ -96,7 +115,7 @@ class _RegistroCamposState extends State<RegistroCampos> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _buildTextField('Apellidos', apellidosController),
-                        const SizedBox(height: 20), // Consistent spacing between fields
+                        const SizedBox(height: 20),
                         _buildTextField('Nombre', nombreController),
                         const SizedBox(height: 20),
                         _buildTextField('Correo', correoController),
@@ -122,20 +141,31 @@ class _RegistroCamposState extends State<RegistroCampos> {
                       elevation: 4,
                     ),
                     onPressed: () async {
+                    final registroData = Provider.of<RegistroData>(context, listen: false);
+                    final registroModel = registroData.datos;
                       if (_formKey.currentState?.validate() ?? false) {
                         Provider.of<RegistroData>(context, listen: false).actualizarRegistro(
-                          nombre: nombreController.text,
+                          nombre: registroModel.nombre,
                           apellidos: apellidosController.text,
                           correo: correoController.text,
                           contrasena: contrasenaController.text,
                         );
 
-                        print('Nombre guardado: ${nombreController.text}');
-                        print('Apellidos guardados: ${apellidosController.text}');
-                        print('Correo guardado: ${correoController.text}');
-                        print('Contraseña guardada: ${contrasenaController.text}');
-                        final registroData = Provider.of<RegistroData>(context, listen: false);
-                        final registroModel = registroData.datos;
+
+
+
+                        print('--- DATOS REGISTRADOS ---');
+                        print('Nombre: ${registroModel.nombre}');
+                        print('Apellidos: ${registroModel.apellidos}');
+                        print('Correo: ${registroModel.correo}');
+                        print('Contraseña: ${registroModel.contrasena}');
+                        print('Género: ${registroModel.genero}');
+                        print('Edad: ${registroModel.edad}');
+                        print('Peso: ${registroModel.peso}');
+                        print('Altura: ${registroModel.altura}');
+                        print('Objetivos: ${registroModel.objetivos}');
+                        print('Actividad Física: ${registroModel.actividadFisica}');
+                        print('Alergenos: ${registroModel.alergenos}');
 
                         await enviarRegistro(registroModel);
                       }
@@ -198,4 +228,65 @@ class _RegistroCamposState extends State<RegistroCampos> {
       ],
     );
   }
+}
+
+Widget _buildTextField(String label, TextEditingController controller, {bool obscureText = false}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        label,
+        style: const TextStyle(
+          fontSize: 14,
+          fontFamily: 'Montserrat',
+          color: Color(0xFF232323),
+        ),
+      ),
+      const SizedBox(height: 6),
+      TextFormField(
+        controller: controller,
+        obscureText: obscureText,
+        decoration: InputDecoration(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Color(0xFF5A99D6)),
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+          hintText: 'Ingresa tu $label',
+          hintStyle: const TextStyle(
+            fontSize: 14,
+            fontFamily: 'Montserrat',
+            color: Color(0xFF979797),
+          ),
+        ),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Por favor ingrese un $label';
+          }
+
+          if (label == 'Apellidos' || label == 'Nombre') {
+            final regex = RegExp(r'^[a-zA-Z\s]+$');
+            if (!regex.hasMatch(value)) {
+              return '$label no puede contener números ni caracteres especiales';
+            }
+          }
+
+          if (label == 'Correo') {
+            final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+            if (!emailRegex.hasMatch(value)) {
+              return 'Ingrese un correo válido';
+            }
+          }
+
+          if (label == 'Contraseña') {
+            if (value.length < 8) {
+              return 'La contraseña debe tener al menos 8 caracteres';
+            }
+          }
+
+          return null;
+        },
+      ),
+    ],
+  );
 }

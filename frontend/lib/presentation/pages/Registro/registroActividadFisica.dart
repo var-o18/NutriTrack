@@ -24,6 +24,21 @@ class _RegistroActividadFisicaState extends State<RegistroActividadFisica> {
   int? seleccionadoIndex;
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (seleccionadoIndex == null) {
+      final actividadGuardada =
+          Provider.of<RegistroData>(context, listen: false).datos.actividadFisica;
+      if (actividadGuardada != null) {
+        final index = actividades.indexOf(actividadGuardada);
+        if (index != -1) {
+          seleccionadoIndex = index;
+        }
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -167,7 +182,7 @@ class _RegistroActividadFisicaState extends State<RegistroActividadFisica> {
                         if (seleccionadoIndex != null) {
                           final objetivoSeleccionado = actividades[seleccionadoIndex!];
                           Provider.of<RegistroData>(context, listen: false)
-                              .actualizarRegistro(objetivos: objetivoSeleccionado);
+                              .actualizarRegistro(actividadFisica: objetivoSeleccionado);
 
                           print('Objetivo guardado: $objetivoSeleccionado');
 

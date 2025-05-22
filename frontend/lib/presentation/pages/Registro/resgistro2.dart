@@ -15,6 +15,13 @@ class _Registro2State extends State<Registro2> {
   final TextEditingController _nombreController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    final nombreGuardado = Provider.of<RegistroData>(context, listen: false).datos.nombre;
+    _nombreController.text = nombreGuardado ?? '';
+  }
+
+  @override
   void dispose() {
     _nombreController.dispose();
     super.dispose();
@@ -111,7 +118,7 @@ class _Registro2State extends State<Registro2> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: GestureDetector(
-                      onTap: () {
+                      onTap: () async {
                         final nombre = _nombreController.text.trim();
                         if (nombre.isNotEmpty) {
                           Provider.of<RegistroData>(context, listen: false)
@@ -119,10 +126,17 @@ class _Registro2State extends State<Registro2> {
 
                           print('Nombre guardado: $nombre');
 
-                          Navigator.push(
+                          final resultado = await Navigator.push<String>(
                             context,
                             MaterialPageRoute(builder: (context) => const RegistroObjetivos()),
                           );
+
+                          if (resultado != null && resultado != nombre) {
+                            Provider.of<RegistroData>(context, listen: false)
+                                .actualizarRegistro(nombre: resultado);
+                            _nombreController.text = resultado;
+                            print('Nombre actualizado al volver: $resultado');
+                          }
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text("Por favor ingresa tu nombre")),

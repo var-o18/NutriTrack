@@ -29,7 +29,24 @@ class _RegistroRestriccionesAlimentariasState extends State<RegistroRestriccione
     'Cacahuetes': 'assets/images/cacahuetes.png',
   };
 
-  final Set<int> seleccionadosAlergenos = {};
+  late Set<int> seleccionadosAlergenos;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final registro = Provider.of<RegistroData>(context, listen: false);
+    final alergenosGuardados = registro.datos.alergenos ?? [];
+
+    seleccionadosAlergenos = {};
+
+    for (int i = 0; i < restricciones.length; i++) {
+      if (alergenosGuardados.contains(restricciones[i])) {
+        seleccionadosAlergenos.add(i);
+      }
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -193,19 +210,16 @@ class _RegistroRestriccionesAlimentariasState extends State<RegistroRestriccione
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        if (seleccionadosAlergenos.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Por favor selecciona al menos una restricción alimentaria")),
-                          );
-                          return;
-                        }
                         final restriccionesSeleccionadas = seleccionadosAlergenos
                             .map((index) => restricciones[index])
                             .toList();
+
                         Provider.of<RegistroData>(context, listen: false)
                             .actualizarRegistro(alergenos: restriccionesSeleccionadas);
 
-                        print('Restricciones seleccionadas: $restriccionesSeleccionadas');
+                        print('Objetivo guardado: $restriccionesSeleccionadas');
+
+
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(builder: (context) => const RegistroCampos()),
