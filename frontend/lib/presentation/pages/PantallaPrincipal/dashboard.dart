@@ -123,23 +123,40 @@ class DashboardScreen extends StatelessWidget {
           children: [
             const Text("Calorías", style: TextStyle(color: Colors.white, fontSize: 20, fontFamily: 'Montserrat')),
             const Text("Restantes = Objetivo - Alimentos + Ejercicio", style: TextStyle(color: Colors.white70, fontSize: 12)),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildCalorieItem('assets/images/fuegocalorias.png', "Objetivo base", "2130"),
-                _buildCalorieItem(Icons.restaurant, "Alimentos", "-"),
-                _buildCalorieItem(Icons.fitness_center, "Ejercicios", "-"),
+                Expanded(child: _buildCalorieItem('assets/images/fuegocalorias.png', "Objetivo\nbase", "2130")),
+                Expanded(child: _buildCalorieItem(Icons.restaurant, "Alimentos", "-")),
+                Expanded(child: _buildCalorieItem(Icons.fitness_center, "Ejercicios", "-")),
                 Container(
-                  width: size.width * 0.2,
-                  height: size.width * 0.2,
-                  decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.blueGrey.withOpacity(0.3)),
+                  width: size.width * 0.22,
+                  height: size.width * 0.22,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.blueGrey.withOpacity(0.3),
+                  ),
                   child: const Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("2130", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                        Text("Restantes", style: TextStyle(color: Colors.white, fontSize: 10)),
+                        Text(
+                            "2130",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold
+                            )
+                        ),
+                        Text(
+                            "Restantes",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10
+                            )
+                        ),
                       ],
                     ),
                   ),
@@ -218,14 +235,39 @@ class DashboardScreen extends StatelessWidget {
 
   Widget _buildCalorieItem(dynamic icon, String title, String value) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        icon is String
-            ? Image.asset(icon, width: 24)
-            : Icon(icon, color: Colors.white, size: 24),
+        Container(
+          width: 50,
+          height: 50,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Center(
+            child: icon is String
+                ? Image.asset(icon, width: 28, height: 28)
+                : Icon(icon, color: Colors.white, size: 28),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 12
+            )
+        ),
         const SizedBox(height: 4),
-        Text(title, style: const TextStyle(color: Colors.white70, fontSize: 12)),
-        const SizedBox(height: 4),
-        Text(value, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+        Text(
+            value,
+            style: const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.bold
+            )
+        ),
       ],
     );
   }
@@ -292,7 +334,11 @@ class DashboardScreen extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: const BoxDecoration(color: Color(0xFF80C0FF), shape: BoxShape.circle),
-                child: Image.asset('assets/images/anadiralimento.png', width: 24, color: Colors.black),
+                child: Image.asset(
+                  'assets/images/anadiralimento.png',
+                  width: 24,
+                  color: Colors.black,
+                ),
               ),
               label: "",
             ),
@@ -306,8 +352,8 @@ class DashboardScreen extends StatelessWidget {
 
   BottomNavigationBarItem _buildBarItem(String asset, String label) {
     return BottomNavigationBarItem(
-      icon: Image.asset('assets/images/$asset', width: 24, color: Colors.grey),
-      activeIcon: Image.asset('assets/images/$asset', width: 24, color: const Color(0xFF80C0FF)),
+      icon: Image.asset('assets/images/$asset', width: 24),
+      activeIcon: Image.asset('assets/images/$asset', width: 24),
       label: label,
     );
   }
