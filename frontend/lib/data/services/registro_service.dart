@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/registro_model.dart';
 
 Future<void> enviarRegistro(RegistroModel registro) async {
-  final url = Uri.parse('http://127.0.0.1:8080/api/registro');
+  final url = Uri.parse('http://192.168.56.1:8080/api/usuarios/registro');
 
   try {
     final response = await http.post(

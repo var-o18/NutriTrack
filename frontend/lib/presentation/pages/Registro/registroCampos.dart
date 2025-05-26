@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../../../data/registro_data.dart';
 import '../../../data/services/registro_service.dart';
 import 'package:nutritack/presentation/pages/Registro/registroAlergenos.dart';
+import 'package:nutritack/presentation/pages/PantallaPrincipal/dashboard.dart';
+
 
 class RegistroCampos extends StatefulWidget {
   const RegistroCampos({Key? key}) : super(key: key);
@@ -152,22 +154,25 @@ class _RegistroCamposState extends State<RegistroCampos> {
                         );
 
 
-
-
                         print('--- DATOS REGISTRADOS ---');
                         print('Nombre: ${registroModel.nombre}');
                         print('Apellidos: ${registroModel.apellidos}');
                         print('Correo: ${registroModel.correo}');
                         print('Contraseña: ${registroModel.contrasena}');
-                        print('Género: ${registroModel.genero}');
+                        print('Género: ${registroModel.sexo}');
                         print('Edad: ${registroModel.edad}');
                         print('Peso: ${registroModel.peso}');
                         print('Altura: ${registroModel.altura}');
-                        print('Objetivos: ${registroModel.objetivos}');
-                        print('Actividad Física: ${registroModel.actividadFisica}');
+                        print('Objetivos: ${registroModel.objetivo_personal}');
+                        print('Actividad Física: ${registroModel.nivel_actividad_fisica}');
                         print('Alergenos: ${registroModel.alergenos}');
 
                         await enviarRegistro(registroModel);
+
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => DashboardScreen()),
+                        );
                       }
                     },
                     child: const Text(

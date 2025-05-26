@@ -5,8 +5,8 @@ class RegistroModel {
   String? _contrasena;
   String? _genero;
   int? _edad;
-  int? _peso;
-  int? _altura;
+  double? _peso;
+  double? _altura;
   String? _objetivos;
   String? _actividadFisica;
   List<String>? _alergenos;
@@ -15,12 +15,12 @@ class RegistroModel {
   String? get apellidos => _apellidos;
   String? get correo => _correo;
   String? get contrasena => _contrasena;
-  String? get genero => _genero;
+  String? get sexo => _genero;
   int? get edad => _edad;
-  int? get peso => _peso;
-  int? get altura => _altura;
-  String? get objetivos => _objetivos;
-  String? get actividadFisica => _actividadFisica;
+  double? get peso => _peso;
+  double? get altura => _altura;
+  String? get objetivo_personal => _objetivos;
+  String? get nivel_actividad_fisica => _actividadFisica;
   List<String>? get alergenos => _alergenos;
 
   set nombre(String? value) => _nombre = value;
@@ -29,8 +29,8 @@ class RegistroModel {
   set contrasena(String? value) => _contrasena = value;
   set genero(String? value) => _genero = value;
   set edad(int? value) => _edad = value;
-  set peso(int? value) => _peso = value;
-  set altura(int? value) => _altura = value;
+  set peso(double? value) => _peso = value;
+  set altura(double? value) => _altura = value;
   set objetivos(String? value) => _objetivos = value;
   set actividadFisica(String? value) => _actividadFisica = value;
   set alergenos(List<String>? value) => _alergenos = value;
@@ -41,12 +41,12 @@ class RegistroModel {
       'apellidos': _apellidos,
       'correo': _correo,
       'contrasena': _contrasena,
-      'genero': _genero,
+      'sexo': _genero,
       'edad': _edad,
       'peso': _peso,
       'altura': _altura,
-      'objetivos': _objetivos,
-      'actividadFisica': _actividadFisica,
+      'objetivo_personal': _objetivos,
+      'nivel_actividad_fisica': _actividadFisica,
       'alergenos': _alergenos,
     };
   }
