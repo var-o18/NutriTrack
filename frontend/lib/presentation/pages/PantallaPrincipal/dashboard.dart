@@ -18,7 +18,6 @@ class DashboardScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Custom Header (Profile + Logo)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Row(
@@ -34,7 +33,7 @@ class DashboardScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 40), // Spacer to balance the Row visually
+                  const SizedBox(width: 40),
                 ],
               ),
             ),
@@ -44,7 +43,7 @@ class DashboardScreen extends StatelessWidget {
                 "Hoy",
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 24,
+                  fontSize: 20,
                   fontFamily: 'Montserrat',
                 ),
               ),
@@ -142,21 +141,8 @@ class DashboardScreen extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                            "2130",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold
-                            )
-                        ),
-                        Text(
-                            "Restantes",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 10
-                            )
-                        ),
+                        Text("2130", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                        Text("Restantes", style: TextStyle(color: Colors.white, fontSize: 10))
                       ],
                     ),
                   ),
@@ -174,22 +160,36 @@ class DashboardScreen extends StatelessWidget {
       color: kCardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(14),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text("Ejercicio", style: TextStyle(color: Colors.white, fontSize: 15)),
-                Image.asset('assets/images/controltiempo.png', width: 24),
+              children: const [
+                Text("Ejercicio", style: TextStyle(color: Colors.white, fontSize: 15)),
+                Icon(Icons.add, color: Colors.white, size: 20),
               ],
             ),
             const SizedBox(height: 16),
-            const Column(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("0 Cal", style: TextStyle(color: Colors.white70, fontSize: 14)),
-                SizedBox(height: 8),
-                Text("00:00", style: TextStyle(color: Colors.white70, fontSize: 14)),
+                Row(
+                  children: [
+                    Image.asset('assets/images/fuegocalorias.png', width: 22),
+                    const SizedBox(width: 8),
+                    const Text("0 Cal", style: TextStyle(color: Colors.white70, fontSize: 14)),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Image.asset('assets/images/controltiempo.png', width: 22),
+                    const SizedBox(width: 8),
+                    const Text("00:00", style: TextStyle(color: Colors.white70, fontSize: 14)),
+                  ],
+                ),
               ],
             ),
           ],
@@ -251,56 +251,91 @@ class DashboardScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        Text(
-            title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 12
-            )
-        ),
+        Text(title, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70, fontSize: 12)),
         const SizedBox(height: 4),
-        Text(
-            value,
-            style: const TextStyle(
+        Text(value, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+      ],
+    );
+  }
+
+  Widget _buildMacroCircle(String label, String value, Color color) {
+    return Column(
+      children: [
+        Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: color.withOpacity(0.7),
+          ),
+          child: Center(
+            child: Text(
+              value,
+              style: const TextStyle(
                 color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.bold
-            )
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
         ),
+        const SizedBox(height: 8),
+        Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12)),
       ],
     );
   }
 
   Widget _simpleCard(String title, {String? subtitle, String? iconPath}) {
+    if (title == "Macros") {
+      return Card(
+        color: kCardColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        margin: const EdgeInsets.symmetric(horizontal: 8),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text("Macros", style: TextStyle(color: Colors.white, fontSize: 18)),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildMacroCircle("Carbs", "150g", Colors.blue),
+                  _buildMacroCircle("Proteína", "90g", Colors.green),
+                  _buildMacroCircle("Grasa", "60g", Colors.orange),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Card(
       color: kCardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       margin: const EdgeInsets.symmetric(horizontal: 8),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(14),
         child: title == "Pasos" && iconPath != null
             ? Row(
           children: [
             Image.asset(iconPath, width: 40),
-            const SizedBox(width: 12),
+            const SizedBox(width: 9),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(title, style: const TextStyle(color: Colors.white, fontSize: 18)),
                   const SizedBox(height: 8),
-                  Text(
-                    subtitle ?? '',
-                    style: const TextStyle(color: Colors.white70, fontSize: 12),
-                  ),
+                  Text(subtitle ?? '', style: const TextStyle(color: Colors.white70, fontSize: 12)),
                 ],
               ),
             ),
           ],
         )
             : Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(title, style: const TextStyle(color: Colors.white, fontSize: 18)),
             if (subtitle != null) ...[
@@ -333,12 +368,7 @@ class DashboardScreen extends StatelessWidget {
               icon: Container(
                 width: 40,
                 height: 40,
-                decoration: const BoxDecoration(color: Color(0xFF80C0FF), shape: BoxShape.circle),
-                child: Image.asset(
-                  'assets/images/anadiralimento.png',
-                  width: 24,
-                  color: Colors.black,
-                ),
+                child: Image.asset('assets/images/anadiralimento.png', width: 24),
               ),
               label: "",
             ),

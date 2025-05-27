@@ -1,14 +1,17 @@
 class LoginModel {
-  String? _correoelectronico;
+  String? _correo;
   String? _contrasena;
 
-  String? get correoelectronico => _correoelectronico;
-  set correoelectronico(String? value) {
-    _correoelectronico = value;
-  }
-
+  String? get correo => _correo;
   String? get contrasena => _contrasena;
-  set contrasena(String? value) {
-    _contrasena = value;
+
+  set correo(String? value) => _correo = value;
+  set contrasena(String? value) => _contrasena = value;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'correo': _correo,
+      'contrasena': _contrasena,
+    };
   }
 }
