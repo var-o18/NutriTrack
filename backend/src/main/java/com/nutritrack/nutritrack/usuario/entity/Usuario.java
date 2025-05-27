@@ -6,7 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity(name = "usuarios")
+@Entity
+@Table(name = "usuarios")
 @Data
 @Builder
 @AllArgsConstructor
@@ -47,5 +48,8 @@ public class Usuario {
 
     @Column(name = "apellidos")
     private String apellidos;
+
+    @Column(name = "calorias_diarias")
+    private Long calorias_diarias;
 
 }

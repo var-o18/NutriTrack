@@ -29,4 +29,6 @@ public class UsuarioResponse {
 
     private String apellidos;
 
+    private Long calorias_diarias;
+
 }
