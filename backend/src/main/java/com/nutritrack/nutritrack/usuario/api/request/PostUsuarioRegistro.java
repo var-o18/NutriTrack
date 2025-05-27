@@ -44,4 +44,6 @@ public class PostUsuarioRegistro {
 
     private String apellidos;
 
+    private Long calorias_diarias;
+
 }

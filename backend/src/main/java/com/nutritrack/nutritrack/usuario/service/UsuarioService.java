@@ -25,7 +25,7 @@ public class UsuarioService {
     public Optional<Usuario> findById(Long id) {
         return usuarioRepository.findById(id);
     }
-    
+
     public Usuario login(String email, String rawPassword) {
         Usuario usuario = usuarioRepository.findByCorreo(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -43,6 +43,62 @@ public class UsuarioService {
         }
 
         postUsuarioRegistro.setContrasena(passwordEncoder.encode(postUsuarioRegistro.getContrasena()));
+
+        double tmb;
+        if (postUsuarioRegistro.getSexo().equalsIgnoreCase("masculino")) {
+            tmb = 10 * postUsuarioRegistro.getPeso() + 6.25 * (postUsuarioRegistro.getAltura() * 100) - 5 * postUsuarioRegistro.getEdad() + 5;
+        } else if (postUsuarioRegistro.getSexo().equalsIgnoreCase("femenino")) {
+            tmb = 10 * postUsuarioRegistro.getPeso() + 6.25 * (postUsuarioRegistro.getAltura() * 100) - 5 * postUsuarioRegistro.getEdad() - 161;
+        } else {
+
+            double tmbH = 10 * postUsuarioRegistro.getPeso() + 6.25 * (postUsuarioRegistro.getAltura() * 100) - 5 * postUsuarioRegistro.getEdad() + 5;
+            double tmbM = 10 * postUsuarioRegistro.getPeso() + 6.25 * (postUsuarioRegistro.getAltura() * 100) - 5 * postUsuarioRegistro.getEdad() - 161;
+            tmb = (tmbH + tmbM) / 2.0;
+        }
+
+        // Paso 2: Ajuste por nivel de actividad
+        double factorActividad;
+        switch (postUsuarioRegistro.getNivel_actividad_fisica().toLowerCase()) {
+            case "sedentario":
+                factorActividad = 1.2;
+                break;
+            case "ligero":
+                factorActividad = 1.375;
+                break;
+            case "moderado":
+                factorActividad = 1.55;
+                break;
+            case "activo":
+                factorActividad = 1.725;
+                break;
+            case "muy activo":
+                factorActividad = 1.9;
+                break;
+            default:
+                throw new IllegalArgumentException("Nivel de actividad no válido.");
+        }
+
+        double tdee = tmb * factorActividad;
+
+        switch (postUsuarioRegistro.getObjetivo_personal().toLowerCase()) {
+            case "mantenimiento":
+                postUsuarioRegistro.setCalorias_diarias(Math.round(tdee));
+                break;
+            case "ganancia muscular":
+                postUsuarioRegistro.setCalorias_diarias(Math.round(tdee) + 250);
+                break;
+            case "ganancia muscular rapida":
+                postUsuarioRegistro.setCalorias_diarias(Math.round(tdee) + 500);
+                break;
+            case "pérdida de grasa":
+                postUsuarioRegistro.setCalorias_diarias(Math.round(tdee) - 250);
+                break;
+            case "pérdida de grasa rapida":
+                postUsuarioRegistro.setCalorias_diarias(Math.round(tdee) - 550);
+                break;
+            default:
+                throw new IllegalArgumentException("Objetivo no válido.");
+        }
 
         Usuario usuario = usuarioMapper.toEntity(postUsuarioRegistro);
         return usuarioRepository.save(usuario).getId();
