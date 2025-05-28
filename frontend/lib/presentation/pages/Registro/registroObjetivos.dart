@@ -14,7 +14,7 @@ class RegistroObjetivos extends StatefulWidget {
 
 class _RegistroObjetivosState extends State<RegistroObjetivos> {
   final List<String> objetivos = [
-    'Ganancia Muscula',
+    'Ganancia Muscular',
     'Ganancia Muscular Rapida',
     'Pérdida de Grasa',
     'Pérdida de Grasa Rapida',
@@ -103,7 +103,7 @@ class _RegistroObjetivosState extends State<RegistroObjetivos> {
                           final objetivoSeleccionado = objetivos[index];
 
                           Provider.of<RegistroData>(context, listen: false)
-                              .actualizarRegistro(objetivos: objetivoSeleccionado);
+                              .actualizarRegistro(objetivo_personal: objetivoSeleccionado);
 
                           print('Objetivo guardado: $objetivoSeleccionado');
                         },
@@ -180,7 +180,7 @@ class _RegistroObjetivosState extends State<RegistroObjetivos> {
                           final objetivoSeleccionado = objetivos[seleccionadoIndex!];
 
                           Provider.of<RegistroData>(context, listen: false)
-                              .actualizarRegistro(objetivos: objetivoSeleccionado);
+                              .actualizarRegistro(objetivo_personal: objetivoSeleccionado);
 
                           print('Objetivo guardado: $objetivoSeleccionado');
 

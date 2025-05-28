@@ -11,25 +11,25 @@ class RegistroData with ChangeNotifier {
     String? apellidos,
     String? correo,
     String? contrasena,
-    String? genero,
+    String? sexo,
     int? edad,
     double? peso,
     double? altura,
-    String? objetivos,
-    String? actividadFisica,
-    List<String>? alergenos,
+    String? objetivo_personal,
+    String? nivel_actividad_fisica,
+    int? calorias_diarias,
   }) {
     if (nombre != null) _registro.nombre = nombre;
     if (apellidos != null) _registro.apellidos = apellidos;
     if (correo != null) _registro.correo = correo;
     if (contrasena != null) _registro.contrasena = contrasena;
-    if (genero != null) _registro.genero = genero;
+    if (sexo != null) _registro.genero = sexo;
     if (edad != null) _registro.edad = edad;
     if (peso != null) _registro.peso = peso;
     if (altura != null) _registro.altura = altura;
-    if (objetivos != null) _registro.objetivos = objetivos;
-    if (actividadFisica != null) _registro.actividadFisica = actividadFisica;
-    if (alergenos != null) _registro.alergenos = alergenos;
+    if (objetivo_personal != null) _registro.objetivos = objetivo_personal;
+    if (nivel_actividad_fisica != null) _registro.actividadFisica = nivel_actividad_fisica;
+    if (calorias_diarias != null) _registro.calorias_diarias = calorias_diarias;
 
     notifyListeners();
   }

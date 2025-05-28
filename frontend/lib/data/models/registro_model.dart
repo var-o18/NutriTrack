@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 class RegistroModel {
   String? _nombre;
   String? _apellidos;
@@ -9,7 +11,7 @@ class RegistroModel {
   double? _altura;
   String? _objetivos;
   String? _actividadFisica;
-  List<String>? _alergenos;
+  int? _calorias_diarias;
 
   String? get nombre => _nombre;
   String? get apellidos => _apellidos;
@@ -21,7 +23,7 @@ class RegistroModel {
   double? get altura => _altura;
   String? get objetivo_personal => _objetivos;
   String? get nivel_actividad_fisica => _actividadFisica;
-  List<String>? get alergenos => _alergenos;
+  int? get calorias_diarias => _calorias_diarias;
 
   set nombre(String? value) => _nombre = value;
   set apellidos(String? value) => _apellidos = value;
@@ -33,7 +35,7 @@ class RegistroModel {
   set altura(double? value) => _altura = value;
   set objetivos(String? value) => _objetivos = value;
   set actividadFisica(String? value) => _actividadFisica = value;
-  set alergenos(List<String>? value) => _alergenos = value;
+  set calorias_diarias(int? value) => _calorias_diarias = value;
 
   Map<String, dynamic> toJson() {
     return {
@@ -47,7 +49,7 @@ class RegistroModel {
       'altura': _altura,
       'objetivo_personal': _objetivos,
       'nivel_actividad_fisica': _actividadFisica,
-      'alergenos': _alergenos,
+      'calorias_diarias': _calorias_diarias,
     };
   }
 }

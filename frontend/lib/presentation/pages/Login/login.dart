@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../data/services/login_service.dart';
+import '../PantallaPrincipal/dashboard.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -31,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return RegExp(r'^[\w\.-]+@[\w\.-]+\.\w{2,4}$').hasMatch(email.trim());
   }
 
-  void _handleLogin() {
+  void _handleLogin() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
@@ -55,12 +58,33 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Inicio de sesión exitoso'),
-        backgroundColor: Colors.green,
-      ),
-    );
+
+    try {
+      await Future.delayed(const Duration(seconds: 1));
+
+      bool loginExitoso = true;
+
+      if (loginExitoso) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const DashboardScreen()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Credenciales incorrectas'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Ocurrió un error al iniciar sesión'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override

@@ -182,7 +182,7 @@ class _RegistroActividadFisicaState extends State<RegistroActividadFisica> {
                         if (seleccionadoIndex != null) {
                           final objetivoSeleccionado = actividades[seleccionadoIndex!];
                           Provider.of<RegistroData>(context, listen: false)
-                              .actualizarRegistro(actividadFisica: objetivoSeleccionado);
+                              .actualizarRegistro(nivel_actividad_fisica: objetivoSeleccionado);
 
                           print('Objetivo guardado: $objetivoSeleccionado');
 

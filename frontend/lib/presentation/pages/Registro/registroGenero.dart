@@ -177,7 +177,7 @@ class _RegistroGeneroState extends State<RegistroGenero> {
                           final generoSeleccionado = generos[seleccionadoIndex!];
 
                           Provider.of<RegistroData>(context, listen: false)
-                              .actualizarRegistro(genero: generoSeleccionado);
+                              .actualizarRegistro(sexo: generoSeleccionado);
 
                           print('Género guardado: $generoSeleccionado');
 
