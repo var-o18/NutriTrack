@@ -40,8 +40,10 @@ public class PostUsuarioRegistro {
     private String objetivoPersonal;
 
     @NotBlank(message = "El nombre es obligatorio")
+    @Pattern(regexp = "^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\\s]+$", message = "El nombre solo puede contener letras y espacios")
     private String nombre;
 
+    @Pattern(regexp = "^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\\s]+$", message = "Los apellidos solo pueden contener letras y espacios")
     private String apellidos;
 
     private Long caloriasDiarias;
