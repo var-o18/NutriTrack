@@ -38,10 +38,10 @@ public class Usuario {
     private double altura;
 
     @Column(name = "nivel_actividad_fisica")
-    private String nivel_actividad_fisica;
+    private String nivelActividadFisica;
 
     @Column(name = "objetivo_personal")
-    private String objetivo_personal;
+    private String objetivoPersonal;
 
     @Column(name = "nombre")
     private String nombre;
@@ -50,6 +50,6 @@ public class Usuario {
     private String apellidos;
 
     @Column(name = "calorias_diarias")
-    private Long calorias_diarias;
+    private Long caloriasDiarias;
 
 }

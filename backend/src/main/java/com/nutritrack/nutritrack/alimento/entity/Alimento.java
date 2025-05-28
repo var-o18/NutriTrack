@@ -35,9 +35,9 @@ public class Alimento {
     private Double grasas;
 
     @Column(name = "codigo_barras")
-    private String codigo_barras;
+    private String codigoBarras;
 
     @Column(name = "ingredientes")
     private String ingredientes;
-    
+
 }

@@ -21,14 +21,16 @@ public class UsuarioResponse {
 
     private double altura;
 
-    private String nivel_actividad_fisica;
+    private String nivelActividadFisica;
 
-    private String objetivo_personal;
+    private String objetivoPersonal;
 
     private String nombre;
 
     private String apellidos;
 
-    private Long calorias_diarias;
+    private Long caloriasDiarias;
+
+    private Long caloriasRestantes;
 
 }

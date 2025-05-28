@@ -34,16 +34,18 @@ public class PostUsuarioRegistro {
     private double altura;
 
     @NotBlank(message = "El nivel de actividad física es obligatorio")
-    private String nivel_actividad_fisica;
+    private String nivelActividadFisica;
 
     @NotBlank(message = "El nivel objetivo personal es obligatorio")
-    private String objetivo_personal;
+    private String objetivoPersonal;
 
     @NotBlank(message = "El nombre es obligatorio")
+    @Pattern(regexp = "^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\\s]+$", message = "El nombre solo puede contener letras y espacios")
     private String nombre;
 
+    @Pattern(regexp = "^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\\s]+$", message = "Los apellidos solo pueden contener letras y espacios")
     private String apellidos;
 
-    private Long calorias_diarias;
+    private Long caloriasDiarias;
 
 }
