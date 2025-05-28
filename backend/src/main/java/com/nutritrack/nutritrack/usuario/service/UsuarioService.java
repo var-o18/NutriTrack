@@ -57,7 +57,7 @@ public class UsuarioService {
         }
 
         double factorActividad;
-        switch (postUsuarioRegistro.getNivel_actividad_fisica().toLowerCase()) {
+        switch (postUsuarioRegistro.getNivelActividadFisica().toLowerCase()) {
             case "sedentario":
                 factorActividad = 1.2;
                 break;
@@ -79,21 +79,21 @@ public class UsuarioService {
 
         double tdee = tmb * factorActividad;
 
-        switch (postUsuarioRegistro.getObjetivo_personal().toLowerCase()) {
+        switch (postUsuarioRegistro.getObjetivoPersonal().toLowerCase()) {
             case "mantenimiento":
-                postUsuarioRegistro.setCalorias_diarias(Math.round(tdee));
+                postUsuarioRegistro.setCaloriasDiarias(Math.round(tdee));
                 break;
             case "ganancia muscular":
-                postUsuarioRegistro.setCalorias_diarias(Math.round(tdee) + 250);
+                postUsuarioRegistro.setCaloriasDiarias(Math.round(tdee) + 250);
                 break;
             case "ganancia muscular rapida":
-                postUsuarioRegistro.setCalorias_diarias(Math.round(tdee) + 500);
+                postUsuarioRegistro.setCaloriasDiarias(Math.round(tdee) + 500);
                 break;
             case "pérdida de grasa":
-                postUsuarioRegistro.setCalorias_diarias(Math.round(tdee) - 250);
+                postUsuarioRegistro.setCaloriasDiarias(Math.round(tdee) - 250);
                 break;
             case "pérdida de grasa rapida":
-                postUsuarioRegistro.setCalorias_diarias(Math.round(tdee) - 550);
+                postUsuarioRegistro.setCaloriasDiarias(Math.round(tdee) - 550);
                 break;
             default:
                 throw new IllegalArgumentException("Objetivo no válido.");

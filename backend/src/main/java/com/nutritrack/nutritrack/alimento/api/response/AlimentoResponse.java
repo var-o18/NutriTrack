@@ -23,7 +23,7 @@ public class AlimentoResponse {
 
     private Double grasas;
 
-    private String codigo_barras;
+    private String codigoBarras;
 
     private String ingredientes;
 

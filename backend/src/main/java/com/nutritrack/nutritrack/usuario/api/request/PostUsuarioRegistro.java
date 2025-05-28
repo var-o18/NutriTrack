@@ -34,16 +34,16 @@ public class PostUsuarioRegistro {
     private double altura;
 
     @NotBlank(message = "El nivel de actividad física es obligatorio")
-    private String nivel_actividad_fisica;
+    private String nivelActividadFisica;
 
     @NotBlank(message = "El nivel objetivo personal es obligatorio")
-    private String objetivo_personal;
+    private String objetivoPersonal;
 
     @NotBlank(message = "El nombre es obligatorio")
     private String nombre;
 
     private String apellidos;
 
-    private Long calorias_diarias;
+    private Long caloriasDiarias;
 
 }

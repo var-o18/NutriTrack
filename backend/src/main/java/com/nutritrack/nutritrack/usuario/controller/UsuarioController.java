@@ -1,6 +1,7 @@
 package com.nutritrack.nutritrack.usuario.controller;
 
 import com.nutritrack.nutritrack.config.JwtUtil;
+import com.nutritrack.nutritrack.ingesta.repository.IngestaRepository;
 import com.nutritrack.nutritrack.usuario.api.UsuarioApi;
 import com.nutritrack.nutritrack.usuario.api.request.LoginRequest;
 import com.nutritrack.nutritrack.usuario.api.request.PostUsuarioRegistro;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
+import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
@@ -25,10 +27,23 @@ public class UsuarioController implements UsuarioApi {
     private final UsuarioMapper usuarioMapper;
     private final JwtUtil jwtUtil;
 
+    private final IngestaRepository ingestaRepository;
+
     @Override
     public ResponseEntity<UsuarioResponse> findById(Long id) {
-        return usuarioService.findById(id).map(usuarioMapper::toUsuarioResponse).map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Optional<Usuario> usuario = usuarioService.findById(id);
+
+        if (usuario.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        } else {
+            Long caloriasConsumidas = ingestaRepository.caloriasConsumidasHoy(usuario.get().getId());
+            Long caloriasRestantes = usuario.get().getCaloriasDiarias() - caloriasConsumidas;
+
+            UsuarioResponse usuarioResponse = usuarioMapper.toUsuarioResponse(usuario.get());
+            usuarioResponse.setCaloriasRestantes(caloriasRestantes);
+
+            return ResponseEntity.ok(usuarioResponse);
+        }
     }
 
     @SneakyThrows
