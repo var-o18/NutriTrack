@@ -147,6 +147,7 @@ class _RegistroCamposState extends State<RegistroCampos> {
                     onPressed: () async {
                       final registroData = Provider.of<RegistroData>(context, listen: false);
                       final registroModel = registroData.datos;
+
                       if (_formKey.currentState?.validate() ?? false) {
                         registroData.actualizarRegistro(
                           nombre: nombreController.text,
@@ -157,34 +158,26 @@ class _RegistroCamposState extends State<RegistroCampos> {
                           edad: registroModel.edad,
                           peso: registroModel.peso,
                           altura: registroModel.altura,
-                          objetivo_personal: registroModel.objetivo_personal,
-                          nivel_actividad_fisica: registroModel.nivel_actividad_fisica,
+                          objetivo_personal: registroModel.objetivoPersonal,
+                          nivel_actividad_fisica: registroModel.nivelActividadFisica,
                         );
 
-                        print('--- DATOS REGISTRADOS ---');
-                        print('Nombre: ${registroModel.nombre}');
-                        print('Apellidos: ${registroModel.apellidos}');
-                        print('Correo: ${registroModel.correo}');
-                        print('Contraseña: ${registroModel.contrasena}');
-                        print('Género: ${registroModel.sexo}');
-                        print('Edad: ${registroModel.edad}');
-                        print('Peso: ${registroModel.peso}');
-                        print('Altura: ${registroModel.altura}');
-                        print('Objetivos: ${registroModel.objetivo_personal}');
-                        print('Actividad Física: ${registroModel.nivel_actividad_fisica}');
+                        final resultado = await registrarUsuario(registroModel);
 
-                        final response = await enviarRegistro(registroModel);
-                        print('Respuesta: ${response}');
-                        if (response.statusCode == 200 || response.statusCode == 201) {
-                          Navigator.pushReplacement(
+                        if (resultado['success'] == true) {
+                          Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(builder: (context) => DashboardScreen()),
+                                (route) => false,
                           );
                         } else {
-                          final errorMessage = response.body.isNotEmpty ? response.body : 'Error al registrar. Inténtalo de nuevo.';
+                          final statusCode = resultado['statusCode'];
+                          final body = resultado['body'] ?? '';
+                          final errorMsg = body.isNotEmpty ? body : 'Error al registrar. Código: $statusCode';
+
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(errorMessage),
+                              content: Text(errorMsg),
                               backgroundColor: Colors.redAccent,
                             ),
                           );

@@ -58,29 +58,25 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
+    final loginExitoso = await loginUsuario(email, password);
 
-    try {
-      await Future.delayed(const Duration(seconds: 1));
-
-      bool loginExitoso = true;
-
-      if (loginExitoso) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const DashboardScreen()),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Credenciales incorrectas'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } catch (e) {
+    if (loginExitoso) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Ocurrió un error al iniciar sesión'),
+          content: Text('Inicio de sesión exitoso'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => DashboardScreen()),
+            (route) => false,
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Credenciales incorrectas'),
           backgroundColor: Colors.red,
         ),
       );

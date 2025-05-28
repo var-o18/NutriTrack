@@ -1,41 +1,43 @@
-import 'dart:ffi';
-
 class RegistroModel {
   String? _nombre;
   String? _apellidos;
   String? _correo;
   String? _contrasena;
-  String? _genero;
+  String? _sexo;
   int? _edad;
   double? _peso;
   double? _altura;
-  String? _objetivos;
-  String? _actividadFisica;
-  int? _calorias_diarias;
+  String? _objetivoPersonal;
+  String? _nivelActividadFisica;
+  int? _caloriasDiarias;
 
+  RegistroModel();
+
+  // Getters
   String? get nombre => _nombre;
   String? get apellidos => _apellidos;
   String? get correo => _correo;
   String? get contrasena => _contrasena;
-  String? get sexo => _genero;
+  String? get sexo => _sexo;
   int? get edad => _edad;
   double? get peso => _peso;
   double? get altura => _altura;
-  String? get objetivo_personal => _objetivos;
-  String? get nivel_actividad_fisica => _actividadFisica;
-  int? get calorias_diarias => _calorias_diarias;
+  String? get objetivoPersonal => _objetivoPersonal;
+  String? get nivelActividadFisica => _nivelActividadFisica;
+  int? get caloriasDiarias => _caloriasDiarias;
 
+  // Setters
   set nombre(String? value) => _nombre = value;
   set apellidos(String? value) => _apellidos = value;
   set correo(String? value) => _correo = value;
   set contrasena(String? value) => _contrasena = value;
-  set genero(String? value) => _genero = value;
+  set sexo(String? value) => _sexo = value;
   set edad(int? value) => _edad = value;
   set peso(double? value) => _peso = value;
   set altura(double? value) => _altura = value;
-  set objetivos(String? value) => _objetivos = value;
-  set actividadFisica(String? value) => _actividadFisica = value;
-  set calorias_diarias(int? value) => _calorias_diarias = value;
+  set objetivoPersonal(String? value) => _objetivoPersonal = value;
+  set nivelActividadFisica(String? value) => _nivelActividadFisica = value;
+  set caloriasDiarias(int? value) => _caloriasDiarias = value;
 
   Map<String, dynamic> toJson() {
     return {
@@ -43,13 +45,28 @@ class RegistroModel {
       'apellidos': _apellidos,
       'correo': _correo,
       'contrasena': _contrasena,
-      'sexo': _genero,
+      'sexo': _sexo,
       'edad': _edad,
       'peso': _peso,
       'altura': _altura,
-      'objetivo_personal': _objetivos,
-      'nivel_actividad_fisica': _actividadFisica,
-      'calorias_diarias': _calorias_diarias,
+      'objetivoPersonal': _objetivoPersonal,
+      'nivelActividadFisica': _nivelActividadFisica,
+      'caloriasDiarias': _caloriasDiarias,
     };
+  }
+
+  factory RegistroModel.fromJson(Map<String, dynamic> json) {
+    return RegistroModel()
+      ..nombre = json['nombre']
+      ..apellidos = json['apellidos']
+      ..correo = json['correo']
+      ..contrasena = json['contrasena']
+      ..sexo = json['sexo']
+      ..edad = json['edad']
+      ..peso = (json['peso'] as num?)?.toDouble()
+      ..altura = (json['altura'] as num?)?.toDouble()
+      ..objetivoPersonal = json['objetivoPersonal']
+      ..nivelActividadFisica = json['nivelActividadFisica']
+      ..caloriasDiarias = json['caloriasDiarias'];
   }
 }

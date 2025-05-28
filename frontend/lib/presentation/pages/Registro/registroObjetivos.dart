@@ -25,7 +25,7 @@ class _RegistroObjetivosState extends State<RegistroObjetivos> {
 
   @override
   Widget build(BuildContext context) {
-    final objetivoSeleccionado = Provider.of<RegistroData>(context).datos.objetivo_personal;
+    final objetivoSeleccionado = Provider.of<RegistroData>(context).datos.objetivoPersonal;
 
     if (objetivoSeleccionado != null) {
       seleccionadoIndex = objetivos.indexOf(objetivoSeleccionado);

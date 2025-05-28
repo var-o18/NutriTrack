@@ -28,7 +28,7 @@ class _RegistroActividadFisicaState extends State<RegistroActividadFisica> {
     super.didChangeDependencies();
     if (seleccionadoIndex == null) {
       final actividadGuardada =
-          Provider.of<RegistroData>(context, listen: false).datos.nivel_actividad_fisica;
+          Provider.of<RegistroData>(context, listen: false).datos.nivelActividadFisica;
       if (actividadGuardada != null) {
         final index = actividades.indexOf(actividadGuardada);
         if (index != -1) {

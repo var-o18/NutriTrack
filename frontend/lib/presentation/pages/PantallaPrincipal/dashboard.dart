@@ -1,9 +1,58 @@
 import 'package:flutter/material.dart';
+import 'package:pedometer/pedometer.dart';
+import '../../../data/models/registro_model.dart';
+import '../../../data/services/login_service.dart';
+import 'package:permission_handler/permission_handler.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
-  static const Color kCardColor = Color(0x4D5A99D6); // 30% opacity
+  static const Color kCardColor = Color(0x4D5A99D6);
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  RegistroModel? usuarioDatos;
+  late Stream<StepCount> _stepCountStream;
+  int _stepCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _requestActivityRecognitionPermission().then((_) {
+      _loadDatosUsuario();
+      _initPedometer();
+    });
+  }
+
+  void _initPedometer() {
+    _stepCountStream = Pedometer.stepCountStream;
+    _stepCountStream.listen(_onStepCount).onError(_onStepCountError);
+  }
+
+  void _onStepCount(StepCount event) {
+    setState(() {
+      _stepCount = event.steps;
+    });
+  }
+
+  void _onStepCountError(error) {
+    print('Error del pedómetro: $error');
+  }
+
+  Future<void> _loadDatosUsuario() async {
+    print("Iniciando consulta al backend...");
+    final datos = await getDatosUsuario();
+    print("Datos recibidos del backend: $datos");
+    if (datos != null) {
+      setState(() {
+        usuarioDatos = datos;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +114,43 @@ class DashboardScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Row(
                 children: [
-                  Expanded(child: _simpleCard("Pasos", subtitle: "Conéctate para\nregistrar los pasos", iconPath: 'assets/images/zapatillapasos.png')),
+                  Expanded(
+                    child: Card(
+                      color: DashboardScreen.kCardColor,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      margin: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Padding(
+                        padding: const EdgeInsets.all(14),
+                        child: Row(
+                          children: [
+                            Image.asset('assets/images/zapatillapasos.png', width: 40),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text("Pasos",
+                                      style: TextStyle(color: Colors.white, fontSize: 16)),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    _stepCount > 0
+                                        ? "$_stepCount pasos"
+                                        : "Conéctate para\nregistrar los pasos",
+                                    style: TextStyle(
+                                      color: _stepCount > 0 ? Colors.white : Colors.white70,
+                                      fontSize: _stepCount > 0 ? 18 : 12,
+                                      fontWeight:
+                                      _stepCount > 0 ? FontWeight.bold : FontWeight.normal,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                   const SizedBox(width: 16),
                   Expanded(child: _buildExerciseCard(size)),
                 ],
@@ -111,8 +196,10 @@ class DashboardScreen extends StatelessWidget {
   }
 
   Widget _buildCaloriesCard(Size size) {
+    int? calorias = usuarioDatos?.caloriasDiarias;
+    String caloriasTexto = calorias?.toString() ?? '0';
     return Card(
-      color: kCardColor,
+      color: DashboardScreen.kCardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       margin: const EdgeInsets.symmetric(horizontal: 8),
       child: Padding(
@@ -120,14 +207,27 @@ class DashboardScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Calorías", style: TextStyle(color: Colors.white, fontSize: 20, fontFamily: 'Montserrat')),
-            const Text("Restantes = Objetivo - Alimentos + Ejercicio", style: TextStyle(color: Colors.white70, fontSize: 12)),
+            const Text(
+              "Calorías",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontFamily: 'Montserrat',
+              ),
+            ),
+            const Text(
+              "Restantes = Objetivo - Alimentos + Ejercicio",
+              style: TextStyle(color: Colors.white70, fontSize: 12),
+            ),
             const SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(child: _buildCalorieItem('assets/images/fuegocalorias.png', "Objetivo\nbase", "2130")),
+                Expanded(
+                  child: _buildCalorieItem(
+                      'assets/images/fuegocalorias.png', "Objetivo\nbase", caloriasTexto),
+                ),
                 Expanded(child: _buildCalorieItem(Icons.restaurant, "Alimentos", "-")),
                 Expanded(child: _buildCalorieItem(Icons.fitness_center, "Ejercicios", "-")),
                 Container(
@@ -137,12 +237,25 @@ class DashboardScreen extends StatelessWidget {
                     shape: BoxShape.circle,
                     color: Colors.blueGrey.withOpacity(0.3),
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("2130", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                        Text("Restantes", style: TextStyle(color: Colors.white, fontSize: 10))
+                        Text(
+                          caloriasTexto,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const Text(
+                          "Restantes",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -157,7 +270,7 @@ class DashboardScreen extends StatelessWidget {
 
   Widget _buildExerciseCard(Size size) {
     return Card(
-      color: kCardColor,
+      color: DashboardScreen.kCardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(14),
@@ -167,7 +280,8 @@ class DashboardScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: const [
-                Text("Ejercicio", style: TextStyle(color: Colors.white, fontSize: 15)),
+                Text("Ejercicio",
+                    style: TextStyle(color: Colors.white, fontSize: 15)),
                 Icon(Icons.add, color: Colors.white, size: 20),
               ],
             ),
@@ -179,7 +293,8 @@ class DashboardScreen extends StatelessWidget {
                   children: [
                     Image.asset('assets/images/fuegocalorias.png', width: 22),
                     const SizedBox(width: 8),
-                    const Text("0 Cal", style: TextStyle(color: Colors.white70, fontSize: 14)),
+                    const Text("0 Cal",
+                        style: TextStyle(color: Colors.white70, fontSize: 14)),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -187,7 +302,8 @@ class DashboardScreen extends StatelessWidget {
                   children: [
                     Image.asset('assets/images/controltiempo.png', width: 22),
                     const SizedBox(width: 8),
-                    const Text("00:00", style: TextStyle(color: Colors.white70, fontSize: 14)),
+                    const Text("00:00",
+                        style: TextStyle(color: Colors.white70, fontSize: 14)),
                   ],
                 ),
               ],
@@ -200,7 +316,7 @@ class DashboardScreen extends StatelessWidget {
 
   Widget _buildStepsChartCard(Size size, String subtitle) {
     return Card(
-      color: kCardColor,
+      color: DashboardScreen.kCardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.symmetric(horizontal: 16),
       child: Padding(
@@ -208,14 +324,18 @@ class DashboardScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Pasos", style: TextStyle(color: Colors.white, fontSize: 15)),
+            const Text("Pasos",
+                style: TextStyle(color: Colors.white, fontSize: 15)),
             const SizedBox(height: 8),
-            Text(subtitle, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+            Text(subtitle,
+                style: const TextStyle(color: Colors.white70, fontSize: 12)),
             const SizedBox(height: 16),
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: ["96", "90", "84", "78"].map(_buildChartRow).toList(),
+                children: ["96", "90", "84", "78"]
+                    .map(_buildChartRow)
+                    .toList(),
               ),
             ),
           ],
@@ -227,7 +347,10 @@ class DashboardScreen extends StatelessWidget {
   Widget _buildChartRow(String label) {
     return Row(
       children: [
-        SizedBox(width: 30, child: Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12))),
+        SizedBox(
+            width: 30,
+            child: Text(label,
+                style: const TextStyle(color: Colors.white70, fontSize: 12))),
         const Expanded(child: Divider(color: Colors.white24)),
       ],
     );
@@ -251,9 +374,13 @@ class DashboardScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        Text(title, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+        Text(title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.white70, fontSize: 12)),
         const SizedBox(height: 4),
-        Text(value, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+        Text(value,
+            style: const TextStyle(
+                color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
       ],
     );
   }
@@ -279,7 +406,8 @@ class DashboardScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+        Text(label,
+            style: const TextStyle(color: Colors.white70, fontSize: 12)),
       ],
     );
   }
@@ -287,7 +415,7 @@ class DashboardScreen extends StatelessWidget {
   Widget _simpleCard(String title, {String? subtitle, String? iconPath}) {
     if (title == "Macros") {
       return Card(
-        color: kCardColor,
+        color: DashboardScreen.kCardColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         margin: const EdgeInsets.symmetric(horizontal: 8),
         child: Padding(
@@ -295,7 +423,8 @@ class DashboardScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text("Macros", style: TextStyle(color: Colors.white, fontSize: 18)),
+              const Text("Macros",
+                  style: TextStyle(color: Colors.white, fontSize: 18)),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -312,7 +441,7 @@ class DashboardScreen extends StatelessWidget {
     }
 
     return Card(
-      color: kCardColor,
+      color: DashboardScreen.kCardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       margin: const EdgeInsets.symmetric(horizontal: 8),
       child: Padding(
@@ -326,9 +455,13 @@ class DashboardScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(color: Colors.white, fontSize: 18)),
+                  Text(title,
+                      style:
+                      const TextStyle(color: Colors.white, fontSize: 18)),
                   const SizedBox(height: 8),
-                  Text(subtitle ?? '', style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                  Text(subtitle ?? '',
+                      style: const TextStyle(
+                          color: Colors.white70, fontSize: 12)),
                 ],
               ),
             ),
@@ -337,12 +470,17 @@ class DashboardScreen extends StatelessWidget {
             : Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: const TextStyle(color: Colors.white, fontSize: 18)),
+            Text(title,
+                style:
+                const TextStyle(color: Colors.white, fontSize: 18)),
             if (subtitle != null) ...[
               const SizedBox(height: 12),
               if (iconPath != null) Image.asset(iconPath, width: 30),
               const SizedBox(height: 8),
-              Text(subtitle, style: const TextStyle(color: Colors.white70, fontSize: 12), textAlign: TextAlign.center),
+              Text(subtitle,
+                  style: const TextStyle(
+                      color: Colors.white70, fontSize: 12),
+                  textAlign: TextAlign.center),
             ]
           ],
         ),
@@ -351,6 +489,7 @@ class DashboardScreen extends StatelessWidget {
   }
 
   Widget _buildBottomNavigationBar() {
+    int currentIndex = 0;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -360,10 +499,12 @@ class DashboardScreen extends StatelessWidget {
           selectedItemColor: const Color(0xFF80C0FF),
           unselectedItemColor: Colors.grey,
           type: BottomNavigationBarType.fixed,
-          currentIndex: 0,
+          currentIndex: currentIndex,
+          onTap: (index) {
+          },
           items: [
-            _buildBarItem('inicio.png', "Inicio"),
-            _buildBarItem('diario.png', "Diario"),
+            _buildBarItem('inicio.png', "Inicio", 0, currentIndex),
+            _buildBarItem('diario.png', "Diario", 1, currentIndex),
             BottomNavigationBarItem(
               icon: Container(
                 width: 40,
@@ -372,19 +513,48 @@ class DashboardScreen extends StatelessWidget {
               ),
               label: "",
             ),
-            _buildBarItem('progreso.png', "Control"),
-            _buildBarItem('opcionmas.png', "Más"),
+            _buildBarItem('progreso.png', "Control", 3, currentIndex),
+            _buildBarItem('opcionmas.png', "Más", 4, currentIndex),
           ],
         ),
       ],
     );
   }
 
-  BottomNavigationBarItem _buildBarItem(String asset, String label) {
+  BottomNavigationBarItem _buildBarItem(String assetName, String label, int index, int currentIndex) {
+    bool isActive = index == currentIndex;
     return BottomNavigationBarItem(
-      icon: Image.asset('assets/images/$asset', width: 24),
-      activeIcon: Image.asset('assets/images/$asset', width: 24),
+      icon: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset('assets/images/$assetName', width: 24),
+          if (isActive)
+            Container(
+              width: 24,
+              height: 3,
+              color: const Color(0xFF5A99D6),
+              margin: const EdgeInsets.only(top: 4),
+            )
+          else
+            const SizedBox(height: 7),
+        ],
+      ),
       label: label,
     );
+  }
+
+  Future<void> _requestActivityRecognitionPermission() async {
+    final status = await Permission.activityRecognition.status;
+
+    if (!status.isGranted) {
+      final result = await Permission.activityRecognition.request();
+      if (result.isGranted) {
+        print('Permiso ACTIVITY_RECOGNITION concedido');
+      } else {
+        print('Permiso ACTIVITY_RECOGNITION denegado');
+      }
+    } else {
+      print('Permiso ACTIVITY_RECOGNITION ya estaba concedido');
+    }
   }
 }
