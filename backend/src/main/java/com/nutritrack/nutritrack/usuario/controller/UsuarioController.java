@@ -43,6 +43,8 @@ public class UsuarioController implements UsuarioApi {
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         Usuario usuario = usuarioService.login(loginRequest.getCorreo(), loginRequest.getContrasena());
         String token = jwtUtil.generateToken(usuario.getCorreo());
-        return ResponseEntity.ok(new LoginResponse(token));
+        Long id = usuario.getId();
+        return ResponseEntity.ok(new LoginResponse(id, token));
     }
+
 }

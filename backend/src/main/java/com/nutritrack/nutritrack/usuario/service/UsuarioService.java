@@ -56,7 +56,6 @@ public class UsuarioService {
             tmb = (tmbH + tmbM) / 2.0;
         }
 
-        // Paso 2: Ajuste por nivel de actividad
         double factorActividad;
         switch (postUsuarioRegistro.getNivel_actividad_fisica().toLowerCase()) {
             case "sedentario":
