@@ -292,7 +292,17 @@ class _DiarioScreenState extends State<DiarioScreen> {
     );
   }
 
-  void _agregarAlimento(String mealType) {
-    print("Agregar alimento a $mealType");
+  void _agregarAlimento(String mealType) async {
+    final result = await Navigator.pushNamed(
+      context,
+      '/registralimentos',
+      arguments: {'mealType': mealType},
+    );
+
+    if (result != null && result is Map<String, dynamic>) {
+      setState(() {
+        _meals[mealType]?.add(result);
+      });
+    }
   }
 }

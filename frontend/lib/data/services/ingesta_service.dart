@@ -5,14 +5,22 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/ingesta_model.dart';
 
 class IngestaService {
-  final String baseUrl = 'http://192.168.56.1:8080/api/ingestas';
+  final String _baseUrl = 'http://192.168.56.1:8080/api/ingestas';
 
-  Future<bool> registrarIngesta(Ingesta ingesta) async {
+  Future<bool> addIngesta(Ingesta ingesta) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('jwt_token');
-    if (token == null) return false;
 
-    final url = Uri.parse('$baseUrl/ingestas');
+    if (token == null) {
+      print('Token JWT no disponible');
+      return false;
+    }
+
+    final url = Uri.parse(_baseUrl);
+
+    final jsonBody = jsonEncode(ingesta.toMap());
+    print('JSON que se enviará: $jsonBody');
+
     final response = await http.post(
       url,
       headers: {
@@ -22,20 +30,26 @@ class IngestaService {
       body: jsonEncode(ingesta.toMap()),
     );
 
-    return response.statusCode == 201;
+    if (response.statusCode == 201) {
+      print('Ingesta creada correctamente');
+      return true;
+    } else {
+      print('Error al crear ingesta: ${response.statusCode} - ${response.body}');
+      return false;
+    }
   }
 
-  Future<List<Ingesta>> obtenerIngestasDelUsuario() async {
+  Future<List<Ingesta>> getIngestasByUsuarioId(int usuarioId) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('jwt_token');
-    final usuarioId = prefs.getInt('jwt_id');
 
-    if (token == null || usuarioId == null) {
-      print('No hay token o usuarioId disponible');
+    if (token == null) {
+      print('Token JWT no disponible');
       return [];
     }
 
-    final url = Uri.parse('$baseUrl/usuarios/$usuarioId/ingestas');
+    final url = Uri.parse('$_baseUrl?usuarioId=$usuarioId');
+
     final response = await http.get(
       url,
       headers: {
@@ -43,12 +57,15 @@ class IngestaService {
         'Authorization': 'Bearer $token',
       },
     );
+    print('GET $url');
+    print('Status code: ${response.statusCode}');
+    print('Response body: ${response.body}');
 
     if (response.statusCode == 200) {
-      final List<dynamic> listaJson = jsonDecode(response.body);
-      return listaJson.map((json) => Ingesta.fromMap(json)).toList();
+      final List<dynamic> jsonList = jsonDecode(response.body);
+      return jsonList.map((json) => Ingesta.fromJson(json)).toList();
     } else {
-      print('Error al obtener ingestas: ${response.statusCode}');
+      print('Error al obtener historial: ${response.statusCode} - ${response.body}');
       return [];
     }
   }
