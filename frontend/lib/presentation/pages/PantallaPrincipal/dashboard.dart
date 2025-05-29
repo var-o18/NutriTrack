@@ -488,8 +488,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  int _currentIndex = 0;
+
   Widget _buildBottomNavigationBar() {
-    int currentIndex = 0;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -499,12 +500,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
           selectedItemColor: const Color(0xFF80C0FF),
           unselectedItemColor: Colors.grey,
           type: BottomNavigationBarType.fixed,
-          currentIndex: currentIndex,
+          currentIndex: _currentIndex,
           onTap: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+
+            switch (index) {
+              case 0:
+                Navigator.pushReplacementNamed(context, '/dashboard');
+                break;
+              case 1:
+                Navigator.pushReplacementNamed(context, '/diario');
+                break;
+              case 2:
+                Navigator.pushNamed(context, '/agregarAlimento');
+                break;
+              case 3:
+                Navigator.pushReplacementNamed(context, '/control');
+                break;
+              case 4:
+                Navigator.pushReplacementNamed(context, '/mas');
+                break;
+            }
           },
           items: [
-            _buildBarItem('inicio.png', "Inicio", 0, currentIndex),
-            _buildBarItem('diario.png', "Diario", 1, currentIndex),
+            _buildBarItem('inicio.png', "Inicio", 0, _currentIndex),
+            _buildBarItem('diario.png', "Diario", 1, _currentIndex),
             BottomNavigationBarItem(
               icon: Container(
                 width: 40,
@@ -513,8 +535,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               label: "",
             ),
-            _buildBarItem('progreso.png', "Control", 3, currentIndex),
-            _buildBarItem('opcionmas.png', "Más", 4, currentIndex),
+            _buildBarItem('progreso.png', "Control", 3, _currentIndex),
+            _buildBarItem('opcionmas.png', "Más", 4, _currentIndex),
           ],
         ),
       ],
