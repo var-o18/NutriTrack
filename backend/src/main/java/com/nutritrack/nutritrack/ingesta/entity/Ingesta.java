@@ -19,6 +19,13 @@ import java.time.LocalTime;
 @NoArgsConstructor
 public class Ingesta {
 
+    public static String ID_FIELD = "id";
+    public static String USUARIO_FIELD = "usuario";
+    public static String ALIMENTO_FIELD = "alimento";
+    public static String CANTIDAD_FIELD = "cantidad";
+    public static String FECHA_CONSUMO_FIELD = "fechaConsumo";
+    public static String HORA_CONSUMO_FIELD = "horaConsumo";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
