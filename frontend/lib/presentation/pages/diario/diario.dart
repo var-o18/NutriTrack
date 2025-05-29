@@ -293,12 +293,17 @@ class _DiarioScreenState extends State<DiarioScreen> {
     );
   }
 
-  void _agregarAlimento(String mealType) {
-    Navigator.push(
+
+  void _agregarAlimento(String mealType) async {
+    final result = await Navigator.pushNamed(
       context,
-      MaterialPageRoute(
-        builder: (context) => RegistroAlimentosPage(mealType: mealType),
-      ),
+      '/registralimentos',
+      arguments: {'mealType': mealType},
     );
-  }
+
+    if (result != null && result is Map<String, dynamic>) {
+      setState(() {
+        _meals[mealType]?.add(result);
+      });
+    }
 }
