@@ -543,13 +543,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  BottomNavigationBarItem _buildBarItem(String assetName, String label, int index, int currentIndex) {
-    bool isActive = index == currentIndex;
+  BottomNavigationBarItem _buildBarItem(
+      String assetName,
+      String label,
+      int index,
+      int currentIndex,
+      ) {
+    final bool isActive = index == currentIndex;
+    final Color activeColor = const Color(0xFF80C0FF);
+    final Color inactiveColor = Colors.grey;
+
     return BottomNavigationBarItem(
       icon: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Image.asset('assets/images/$assetName', width: 24),
+          Image.asset(
+            'assets/images/$assetName',
+            width: 24,
+            height: 24,
+            color: isActive ? activeColor : inactiveColor,
+          ),
           if (isActive)
             Container(
               width: 24,

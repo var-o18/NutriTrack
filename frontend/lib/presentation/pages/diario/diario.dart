@@ -41,7 +41,6 @@ class _DiarioScreenState extends State<DiarioScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              // 📆 Date Selector
               GestureDetector(
                 onTap: () => _selectDate(context),
                 child: Container(
@@ -150,9 +149,16 @@ class _DiarioScreenState extends State<DiarioScreen> {
     );
   }
 
-  /// 🔘 Bar Item Builder
-  BottomNavigationBarItem _buildBarItem(String assetName, String label, int index, int currentIndex) {
-    bool isActive = index == currentIndex;
+  BottomNavigationBarItem _buildBarItem(
+      String assetName,
+      String label,
+      int index,
+      int currentIndex,
+      ) {
+    final bool isActive = index == currentIndex;
+    final Color activeColor = const Color(0xFF80C0FF);
+    final Color inactiveColor = Colors.grey;
+
     return BottomNavigationBarItem(
       icon: Column(
         mainAxisSize: MainAxisSize.min,
@@ -161,7 +167,7 @@ class _DiarioScreenState extends State<DiarioScreen> {
             'assets/images/$assetName',
             width: 24,
             height: 24,
-            color: isActive ? const Color(0xFF80C0FF) : Colors.grey,
+            color: isActive ? activeColor : inactiveColor,
           ),
           if (isActive)
             Container(
@@ -248,7 +254,6 @@ class _DiarioScreenState extends State<DiarioScreen> {
             ),
             const Divider(color: Colors.white24, height: 16),
 
-            /// Food items
             ...items.map((item) => _buildFoodItem(
               item['name'],
               item['details'],
@@ -267,7 +272,7 @@ class _DiarioScreenState extends State<DiarioScreen> {
     );
   }
 
-  /// 🍗 Food item layout
+
   Widget _buildFoodItem(String name, String details, String calories, Color textColor) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2.0),
