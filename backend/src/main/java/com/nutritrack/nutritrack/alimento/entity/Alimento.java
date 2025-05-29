@@ -14,6 +14,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Alimento {
 
+    public static String ID_FIELD = "id";
+    public static String NOMBRE_FIELD = "nombre";
+    public static String CALORIAS_FIELD = "calorias";
+    public static String PROTEINAS_FIELD = "proteinas";
+    public static String CARBOHIDRATOS_FIELD = "carbohidratos";
+    public static String GRASAS_FIELD = "grasas";
+    public static String CODIGO_BARRAS_FIELD = "codigoBarras";
+    public static String INGREDIENTES_FIELD = "ingredientes";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

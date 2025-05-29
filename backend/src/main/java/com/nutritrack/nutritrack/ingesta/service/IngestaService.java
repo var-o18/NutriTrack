@@ -5,8 +5,10 @@ import com.nutritrack.nutritrack.ingesta.api.request.PostIngestaRequest;
 import com.nutritrack.nutritrack.ingesta.entity.Ingesta;
 import com.nutritrack.nutritrack.ingesta.mapper.IngestaMapper;
 import com.nutritrack.nutritrack.ingesta.repository.IngestaRepository;
+import com.nutritrack.nutritrack.ingesta.specification.IngestaSpecifications;
 import com.nutritrack.nutritrack.usuario.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +16,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +44,26 @@ public class IngestaService {
 
         Ingesta ingesta = ingestaMapper.toEntity(postIngestaRequest);
         return ingestaRepository.save(ingesta).getId();
+    }
+
+    public List<Ingesta> findAll(Long usuarioId, LocalDate fechaConsumo) {
+
+        Specification<Ingesta> ingestaSpecification = Specification.where(null);
+
+        if (Objects.nonNull(usuarioId)) {
+
+            if (usuarioService.findById(usuarioId).isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "USUARIO_NO_EXISTENTE");
+            }
+
+            ingestaSpecification = ingestaSpecification.and(IngestaSpecifications.usuarioIdEqual(usuarioId));
+        }
+
+        if (Objects.nonNull(fechaConsumo)) {
+            ingestaSpecification = ingestaSpecification.and(IngestaSpecifications.fechaConsumoEqual(fechaConsumo));
+        }
+
+        return ingestaRepository.findAll(ingestaSpecification);
     }
 
 
