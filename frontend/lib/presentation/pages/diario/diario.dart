@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../registroalimentos/registroalimentos.dart';
 
 class DiarioScreen extends StatefulWidget {
   const DiarioScreen({super.key});
@@ -288,6 +289,11 @@ class _DiarioScreenState extends State<DiarioScreen> {
   }
 
   void _agregarAlimento(String mealType) {
-    print("Agregar alimento a $mealType");
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RegistroAlimentosPage(mealType: mealType),
+      ),
+    );
   }
 }

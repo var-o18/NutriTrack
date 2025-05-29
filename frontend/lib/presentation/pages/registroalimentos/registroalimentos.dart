@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'agregar_alimento.dart';
+import 'lector_codigo_barras.dart';
 
 class RegistroAlimentosPage extends StatefulWidget {
-  const RegistroAlimentosPage({super.key});
+  final String mealType;
+  const RegistroAlimentosPage({super.key, required this.mealType});
 
   @override
   State<RegistroAlimentosPage> createState() => _RegistroAlimentosPageState();
@@ -9,8 +12,14 @@ class RegistroAlimentosPage extends StatefulWidget {
 
 class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
   int _currentIndex = 0;
-  String selectedMeal = 'Almuerzo';
+  late String selectedMeal;
   final List<String> mealTypes = ['Desayuno', 'Almuerzo', 'Cena', 'Aperitivos'];
+
+  @override
+  void initState() {
+    super.initState();
+    selectedMeal = widget.mealType;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,14 +90,28 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
                 _buildActionButton(
                   icon: Icons.qr_code_scanner,
                   label: 'Leer código\nde barras',
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LectorCodigoBarrasPage(),
+                      ),
+                    );
+                  },
                   backgroundColor: cardBackgroundColor,
                   textColor: textColor,
                 ),
                 _buildActionButton(
                   icon: Icons.add_circle_outline,
                   label: 'Agregar\nNuevo',
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AgregarAlimentoPage(),
+                      ),
+                    );
+                  },
                   backgroundColor: cardBackgroundColor,
                   textColor: textColor,
                 ),
@@ -136,27 +159,30 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
     required Color backgroundColor,
     required Color textColor,
   }) {
-    return Container(
-      width: 150,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 32, color: textColor),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              color: textColor,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 150,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 32, color: textColor),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: textColor,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
