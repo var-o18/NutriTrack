@@ -36,14 +36,14 @@ class _RegistroRestriccionesAlimentariasState extends State<RegistroRestriccione
     super.initState();
 
     final registro = Provider.of<RegistroData>(context, listen: false);
-    final alergenosGuardados = registro.datos.alergenos ?? [];
+    //final alergenosGuardados = registro.datos.alergenos ?? [];
 
     seleccionadosAlergenos = {};
 
     for (int i = 0; i < restricciones.length; i++) {
-      if (alergenosGuardados.contains(restricciones[i])) {
+      /*if (alergenosGuardados.contains(restricciones[i])) {
         seleccionadosAlergenos.add(i);
-      }
+      }*/
     }
   }
 
@@ -214,8 +214,8 @@ class _RegistroRestriccionesAlimentariasState extends State<RegistroRestriccione
                             .map((index) => restricciones[index])
                             .toList();
 
-                        Provider.of<RegistroData>(context, listen: false)
-                            .actualizarRegistro(alergenos: restriccionesSeleccionadas);
+                        /*Provider.of<RegistroData>(context, listen: false)
+                            .actualizarRegistro(alergenos: restriccionesSeleccionadas);*/
 
                         print('Objetivo guardado: $restriccionesSeleccionadas');
 

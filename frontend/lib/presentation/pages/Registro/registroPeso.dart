@@ -13,21 +13,24 @@ class RegistroPeso extends StatefulWidget {
 }
 
 class _RegistroPesoState extends State<RegistroPeso> {
-  final List<int> pesos = List.generate(200, (index) => index + 30);
-  int pesoSeleccionado = 60;
+  // Generamos pesos de 30.0 a 229.9 con incrementos de 0.1
+  final List<double> pesos = List.generate(2000, (index) => 30.0 + index * 0.1);
+  double pesoSeleccionado = 60.0;
   late FixedExtentScrollController scrollController;
 
   @override
   void initState() {
     super.initState();
 
-    // Obtener el peso previamente guardado si existe
+    // Obtener el peso previamente guardado si existe (como double)
     final pesoGuardado = Provider.of<RegistroData>(context, listen: false).datos.peso;
     if (pesoGuardado != null) {
       pesoSeleccionado = pesoGuardado;
     }
 
-    scrollController = FixedExtentScrollController(initialItem: pesoSeleccionado - 30);
+    // Inicializamos el scrollController con el índice correspondiente
+    final initialIndex = ((pesoSeleccionado - 30.0) * 10).round();
+    scrollController = FixedExtentScrollController(initialItem: initialIndex);
   }
 
   @override
@@ -122,11 +125,11 @@ class _RegistroPesoState extends State<RegistroPeso> {
                             final isSelected = pesos[index] == pesoSeleccionado;
                             return Center(
                               child: Text(
-                                '${pesos[index]}',
+                                pesos[index].toStringAsFixed(1),
                                 style: TextStyle(
                                   fontSize: isSelected ? 24 : 18,
                                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                  color: isSelected ? Color(0xFF5A99D6) : Color(0xFFD3E3F1),
+                                  color: isSelected ? const Color(0xFF5A99D6) : const Color(0xFFD3E3F1),
                                   fontFamily: 'Montserrat',
                                 ),
                               ),

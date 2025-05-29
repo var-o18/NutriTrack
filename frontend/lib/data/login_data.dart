@@ -7,17 +7,17 @@ class LoginData with ChangeNotifier {
   LoginModel get datos => _login;
 
   void actualizarLogin({
-    String? correoelectronico,
+    String? correo,
     String? contrasena,
   }) {
-    if (correoelectronico != null) _login.correoelectronico = correoelectronico;
+    if (correo != null) _login.correo= correo;
     if (contrasena != null) _login.contrasena = contrasena;
 
     notifyListeners();
   }
 
   void limpiarDatos() {
-    _login.correoelectronico = null;
+    _login.correo = null;
     _login.contrasena = null;
     notifyListeners();
   }

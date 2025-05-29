@@ -14,11 +14,11 @@ class RegistroActividadFisica extends StatefulWidget {
 
 class _RegistroActividadFisicaState extends State<RegistroActividadFisica> {
   final List<String> actividades = [
-    'Pco o ningún ejercicio',
-    'Deporte de 1 a 3 dias por semana',
-    'Deporte de 3 a 5 dias por semana',
-    'Deporte de 5 a 7 dias por semana',
-    'Mas de 2 veces al dia',
+    'Sedentario',
+    'Ligero',
+    'Moderado',
+    'Activo',
+    'Muy Activo',
   ];
 
   int? seleccionadoIndex;
@@ -28,7 +28,7 @@ class _RegistroActividadFisicaState extends State<RegistroActividadFisica> {
     super.didChangeDependencies();
     if (seleccionadoIndex == null) {
       final actividadGuardada =
-          Provider.of<RegistroData>(context, listen: false).datos.actividadFisica;
+          Provider.of<RegistroData>(context, listen: false).datos.nivelActividadFisica;
       if (actividadGuardada != null) {
         final index = actividades.indexOf(actividadGuardada);
         if (index != -1) {
@@ -182,7 +182,7 @@ class _RegistroActividadFisicaState extends State<RegistroActividadFisica> {
                         if (seleccionadoIndex != null) {
                           final objetivoSeleccionado = actividades[seleccionadoIndex!];
                           Provider.of<RegistroData>(context, listen: false)
-                              .actualizarRegistro(actividadFisica: objetivoSeleccionado);
+                              .actualizarRegistro(nivel_actividad_fisica: objetivoSeleccionado);
 
                           print('Objetivo guardado: $objetivoSeleccionado');
 

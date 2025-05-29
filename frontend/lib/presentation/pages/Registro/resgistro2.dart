@@ -120,9 +120,18 @@ class _Registro2State extends State<Registro2> {
                     child: GestureDetector(
                       onTap: () async {
                         final nombre = _nombreController.text.trim();
-                        if (nombre.isNotEmpty) {
-                          Provider.of<RegistroData>(context, listen: false)
-                              .actualizarRegistro(nombre: nombre);
+                        final nombreValido = RegExp(r'^[a-zA-Z\s]+$').hasMatch(nombre);
+
+                        if (nombre.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Por favor ingresa tu nombre")),
+                          );
+                        } else if (!nombreValido) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("El nombre solo puede contener letras y espacios")),
+                          );
+                        } else {
+                          Provider.of<RegistroData>(context, listen: false).actualizarRegistro(nombre: nombre);
 
                           print('Nombre guardado: $nombre');
 
@@ -132,15 +141,10 @@ class _Registro2State extends State<Registro2> {
                           );
 
                           if (resultado != null && resultado != nombre) {
-                            Provider.of<RegistroData>(context, listen: false)
-                                .actualizarRegistro(nombre: resultado);
+                            Provider.of<RegistroData>(context, listen: false).actualizarRegistro(nombre: resultado);
                             _nombreController.text = resultado;
                             print('Nombre actualizado al volver: $resultado');
                           }
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Por favor ingresa tu nombre")),
-                          );
                         }
                       },
                       child: Container(

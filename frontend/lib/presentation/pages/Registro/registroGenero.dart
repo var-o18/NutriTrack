@@ -14,12 +14,12 @@ class RegistroGenero extends StatefulWidget {
 }
 
 class _RegistroGeneroState extends State<RegistroGenero> {
-  final List<String> generos = ['Hombre', 'Mujer', 'Otro'];
+  final List<String> generos = ['Femenino', 'Masculino', 'Otro'];
   int? seleccionadoIndex;
 
   @override
   Widget build(BuildContext context) {
-    final generoSeleccionado = Provider.of<RegistroData>(context).datos.genero;
+    final generoSeleccionado = Provider.of<RegistroData>(context).datos.sexo;
 
     if (generoSeleccionado != null) {
       seleccionadoIndex = generos.indexOf(generoSeleccionado);
@@ -177,7 +177,7 @@ class _RegistroGeneroState extends State<RegistroGenero> {
                           final generoSeleccionado = generos[seleccionadoIndex!];
 
                           Provider.of<RegistroData>(context, listen: false)
-                              .actualizarRegistro(genero: generoSeleccionado);
+                              .actualizarRegistro(sexo: generoSeleccionado);
 
                           print('Género guardado: $generoSeleccionado');
 

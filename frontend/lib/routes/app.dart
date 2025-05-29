@@ -12,6 +12,8 @@ import '../presentation/pages/Registro/registro1.dart';
 import '../presentation/pages/Registro/registroObjetivos.dart';
 import '../presentation/pages/Registro/registroCampos.dart';
 import '../presentation/pages/Login/login.dart';
+import '../presentation/pages/PantallaPrincipal/dashboard.dart';
+import '../presentation/pages/diario/diario.dart';
 
 
 
@@ -39,6 +41,8 @@ class MyApp extends StatelessWidget {
         '/registroAlergenos': (context) => const RegistroRestriccionesAlimentarias(),
         '/registroCampos': (context) => const RegistroCampos(),
         '/login': (context) => const LoginScreen(),
+        '/dashboard': (context) => const DashboardScreen(),
+        '/diario': (context) => const DiarioScreen(),
 
 
       },

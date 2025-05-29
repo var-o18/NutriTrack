@@ -13,18 +13,27 @@ class Registroaltura extends StatefulWidget {
 }
 
 class _RegistroAlturaState extends State<Registroaltura> {
-  final List<int> alturas = List.generate(250, (index) => index + 100);
-  int alturaSeleccionada = 170;
+  // Lista de alturas en metros desde 1.00 hasta 3.00 con paso 0.01
+  final List<double> alturas = List.generate(201, (index) => 1.00 + index * 0.01);
+
+  // Altura inicial por defecto: 1.50 m
+  double alturaSeleccionada = 1.50;
+
   late FixedExtentScrollController scrollController;
 
   @override
   void initState() {
     super.initState();
+
     final alturaGuardada = Provider.of<RegistroData>(context, listen: false).datos.altura;
-    if (alturaGuardada != null) {
+
+    if (alturaGuardada != null && alturaGuardada >= 1.0 && alturaGuardada <= 3.0) {
       alturaSeleccionada = alturaGuardada;
     }
-    scrollController = FixedExtentScrollController(initialItem: alturaSeleccionada - 100);
+
+    scrollController = FixedExtentScrollController(
+      initialItem: ((alturaSeleccionada - 1.00) * 100).round(),
+    );
   }
 
   @override
@@ -117,15 +126,19 @@ class _RegistroAlturaState extends State<Registroaltura> {
                           childCount: alturas.length,
                           builder: (context, index) {
                             final isSelected = alturas[index] == alturaSeleccionada;
+
+                            // Mostrar con punto decimal, dos decimales (ej: 1.50)
+                            final alturaTexto = alturas[index].toStringAsFixed(2);
+
                             return Center(
                               child: Text(
-                                '${alturas[index]}',
+                                alturaTexto,
                                 style: TextStyle(
                                   fontSize: isSelected ? 24 : 18,
                                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                                   color: isSelected
-                                      ? Color(0xFF5A99D6)
-                                      : Color(0xFFD3E3F1),
+                                      ? const Color(0xFF5A99D6)
+                                      : const Color(0xFFD3E3F1),
                                   fontFamily: 'Montserrat',
                                 ),
                               ),
@@ -136,7 +149,7 @@ class _RegistroAlturaState extends State<Registroaltura> {
                     ),
                     const SizedBox(width: 8),
                     const Text(
-                      'cm',
+                      'm',
                       style: TextStyle(
                         fontSize: 18,
                         fontFamily: 'Montserrat',
