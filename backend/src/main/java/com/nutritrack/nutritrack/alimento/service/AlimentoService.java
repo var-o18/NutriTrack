@@ -19,6 +19,9 @@ public class AlimentoService {
     public Optional<Alimento> findById(Long id) {
         return alimentoRepository.findById(id);
     }
-    public List<Alimento> findAll() {return alimentoRepository.findAll();}
+
+    public List<Alimento> findAll() {
+        return alimentoRepository.findAll();
+    }
 
 }
