@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../registroalimentos/registroalimentos.dart';
 
 class DiarioScreen extends StatefulWidget {
   const DiarioScreen({super.key});
@@ -292,6 +293,7 @@ class _DiarioScreenState extends State<DiarioScreen> {
     );
   }
 
+
   void _agregarAlimento(String mealType) async {
     final result = await Navigator.pushNamed(
       context,
@@ -304,5 +306,4 @@ class _DiarioScreenState extends State<DiarioScreen> {
         _meals[mealType]?.add(result);
       });
     }
-  }
 }
