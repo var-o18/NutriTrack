@@ -45,7 +45,8 @@ class _DiarioScreenState extends State<DiarioScreen> {
               GestureDetector(
                 onTap: () => _selectDate(context),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 20, horizontal: 24),
                   decoration: BoxDecoration(
                     color: cardBackgroundColor,
                     borderRadius: BorderRadius.circular(12),
@@ -69,11 +70,14 @@ class _DiarioScreenState extends State<DiarioScreen> {
               // 🔥 Calorie Summary
               Text(
                 '${_getTotalCalories()}',
-                style: TextStyle(color: textColor, fontSize: 36, fontWeight: FontWeight.bold),
+                style: TextStyle(color: textColor,
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold),
               ),
               Text(
                 'Calorías - Alimentos',
-                style: TextStyle(color: textColor.withOpacity(0.7), fontSize: 16),
+                style: TextStyle(
+                    color: textColor.withOpacity(0.7), fontSize: 16),
               ),
               const SizedBox(height: 24),
               // 🍽️ Meal Cards
@@ -138,7 +142,8 @@ class _DiarioScreenState extends State<DiarioScreen> {
               icon: Container(
                 width: 40,
                 height: 40,
-                child: Image.asset('assets/images/anadiralimento.png', width: 24),
+                child: Image.asset(
+                    'assets/images/anadiralimento.png', width: 24),
               ),
               label: "",
             ),
@@ -150,12 +155,10 @@ class _DiarioScreenState extends State<DiarioScreen> {
     );
   }
 
-  BottomNavigationBarItem _buildBarItem(
-      String assetName,
+  BottomNavigationBarItem _buildBarItem(String assetName,
       String label,
       int index,
-      int currentIndex,
-      ) {
+      int currentIndex,) {
     final bool isActive = index == currentIndex;
     final Color activeColor = const Color(0xFF80C0FF);
     final Color inactiveColor = Colors.grey;
@@ -222,13 +225,12 @@ class _DiarioScreenState extends State<DiarioScreen> {
     return "${date.day}/${date.month}/${date.year}";
   }
 
-  Widget _buildMealCard(
-      String title,
+  Widget _buildMealCard(String title,
       List<Map<String, dynamic>> items,
       Color cardBackgroundColor,
-      Color textColor,
-      ) {
-    int totalCalories = items.fold(0, (sum, item) => sum + (item['calories'] as int));
+      Color textColor,) {
+    int totalCalories = items.fold(
+        0, (sum, item) => sum + (item['calories'] as int));
 
     return Card(
       color: cardBackgroundColor,
@@ -239,13 +241,16 @@ class _DiarioScreenState extends State<DiarioScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+
             /// Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   title,
-                  style: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: textColor,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold),
                 ),
                 Text(
                   "$totalCalories Cal",
@@ -255,17 +260,19 @@ class _DiarioScreenState extends State<DiarioScreen> {
             ),
             const Divider(color: Colors.white24, height: 16),
 
-            ...items.map((item) => _buildFoodItem(
-              item['name'],
-              item['details'],
-              "${item['calories']} Cal",
-              textColor,
-            )),
+            ...items.map((item) =>
+                _buildFoodItem(
+                  item['name'],
+                  item['details'],
+                  "${item['calories']} Cal",
+                  textColor,
+                )),
             const SizedBox(height: 6),
             TextButton(
               onPressed: () => _agregarAlimento(title),
               style: TextButton.styleFrom(padding: EdgeInsets.zero),
-              child: Text('Agregar alimento', style: TextStyle(color: Colors.blueAccent.shade100)),
+              child: Text('Agregar alimento',
+                  style: TextStyle(color: Colors.blueAccent.shade100)),
             ),
           ],
         ),
@@ -274,7 +281,8 @@ class _DiarioScreenState extends State<DiarioScreen> {
   }
 
 
-  Widget _buildFoodItem(String name, String details, String calories, Color textColor) {
+  Widget _buildFoodItem(String name, String details, String calories,
+      Color textColor) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2.0),
       child: Row(
@@ -284,7 +292,8 @@ class _DiarioScreenState extends State<DiarioScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(name, style: TextStyle(color: textColor, fontSize: 14)),
-              Text(details, style: TextStyle(color: textColor.withOpacity(0.6), fontSize: 12)),
+              Text(details, style: TextStyle(
+                  color: textColor.withOpacity(0.6), fontSize: 12)),
             ],
           ),
           Text(calories, style: TextStyle(color: textColor, fontSize: 14)),
@@ -293,12 +302,18 @@ class _DiarioScreenState extends State<DiarioScreen> {
     );
   }
 
-  void _agregarAlimento(String mealType) {
-    Navigator.push(
+
+  void _agregarAlimento(String mealType) async {
+    final result = await Navigator.pushNamed(
       context,
-      MaterialPageRoute(
-        builder: (context) => RegistroAlimentosPage(mealType: mealType),
-      ),
+      '/registralimentos',
+      arguments: {'mealType': mealType},
     );
+
+    if (result != null && result is Map<String, dynamic>) {
+      setState(() {
+        _meals[mealType]?.add(result);
+      });
+    }
   }
 }
