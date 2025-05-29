@@ -1,0 +1,13 @@
+description: This file stores settings for Dart & Flutter DevTools.
+documentation: https://docs.flutter.dev/tools/devtools/extensions#configure-extension-enablement-states
+extensions:
+  # List of DevTools extensions and their enablement: true = enabled, false = disabled
+  inspector: true          # Flutter widget inspector
+  timeline: true           # Performance timeline
+  memory: true             # Memory profiler
+  cpu_profiler: false      # CPU profiler
+  network: false           # Network profiler
+  logging: true            # Logging
+  debugger: true           # Debugger
+  widget_tracer: false     # Experimental widget tracer extension
+  vm_developer: false      # VM developer extension

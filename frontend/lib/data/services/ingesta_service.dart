@@ -35,7 +35,9 @@ class IngestaService {
       return [];
     }
 
-    final url = Uri.parse('$baseUrl/usuarios/$usuarioId/ingestas');
+    final url = Uri.parse('$baseUrl?usuarioId=$usuarioId');
+    print('GET $url');
+
     final response = await http.get(
       url,
       headers: {
@@ -52,4 +54,5 @@ class IngestaService {
       return [];
     }
   }
+
 }

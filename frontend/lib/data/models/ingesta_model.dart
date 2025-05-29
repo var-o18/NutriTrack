@@ -15,18 +15,18 @@ class Ingesta {
 
   factory Ingesta.fromMap(Map<String, dynamic> map) {
     return Ingesta(
-      usuarioId: map['usuario_id'],
-      alimentoId: map['alimento_id'],
-      cantidad: map['cantidad'],
-      fechaConsumo: map['fecha_consumo'],
-      horaConsumo: map['hora_consumo'],
+      usuarioId: map['usuarioId'] as int? ?? 0,
+      alimentoId: map['alimentoId'] as int? ?? 0,
+      cantidad: (map['cantidad'] as num?)?.toInt() ?? 0,
+      fechaConsumo: map['fechaConsumo'] as String? ?? '',
+      horaConsumo: map['horaConsumo'] as String? ?? '',
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'usuario_id': usuarioId,
-      'alimento_id': alimentoId,
+      'usuarioId': usuarioId,
+      'alimentoId': alimentoId,
       'cantidad': cantidad,
       'fecha_consumo': fechaConsumo,
       'hora_consumo': horaConsumo,
