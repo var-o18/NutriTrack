@@ -32,7 +32,15 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
   @override
   void initState() {
     super.initState();
-    selectedMeal = widget.mealType;
+    if (mealTypes.contains(widget.mealType)) {
+      selectedMeal = widget.mealType;
+    } else {
+      selectedMeal = 'Almuerzo';
+      assert(() {
+        print('[WARN] Invalid mealType \'${widget.mealType}\' passed to RegistroAlimentosPage. Defaulting to \'Almuerzo\'.');
+        return true;
+      }());
+    }
     _initializeData();
   }
 
