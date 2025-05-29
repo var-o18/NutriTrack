@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class UsuarioResponse {
+    private Long id;
 
     private String correo;
 

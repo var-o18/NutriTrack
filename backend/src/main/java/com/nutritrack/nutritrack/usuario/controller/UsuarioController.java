@@ -49,9 +49,16 @@ public class UsuarioController implements UsuarioApi {
     @SneakyThrows
     @Override
     public ResponseEntity<UsuarioResponse> save(PostUsuarioRegistro postUsuarioRegistro) {
-        return ResponseEntity.created(new URI(
-                "usuarios/" + usuarioService.save(postUsuarioRegistro)
-        )).build();
+        Long usuarioId = usuarioService.save(postUsuarioRegistro);
+        Optional<Usuario> usuarioOpt = usuarioService.findById(usuarioId);
+
+        if (usuarioOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        UsuarioResponse usuarioResponse = usuarioMapper.toUsuarioResponse(usuarioOpt.get());
+        URI location = new URI("usuarios/" + usuarioId);
+        return ResponseEntity.created(location).body(usuarioResponse);
     }
 
     @Override

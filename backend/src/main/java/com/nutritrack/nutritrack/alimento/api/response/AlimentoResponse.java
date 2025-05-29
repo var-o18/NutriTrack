@@ -1,5 +1,6 @@
 package com.nutritrack.nutritrack.alimento.api.response;
 
+import com.nutritrack.nutritrack.alimento.entity.Alimento;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,5 +27,13 @@ public class AlimentoResponse {
     private String codigoBarras;
 
     private String ingredientes;
+
+    public static AlimentoResponse fromEntity(Alimento alimento) {
+        AlimentoResponse response = new AlimentoResponse();
+        response.setId(alimento.getId());
+        response.setNombre(alimento.getNombre());
+        response.setCalorias(alimento.getCalorias());
+        return response;
+    }
 
 }
