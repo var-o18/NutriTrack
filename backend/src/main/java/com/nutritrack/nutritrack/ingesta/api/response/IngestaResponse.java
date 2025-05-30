@@ -32,4 +32,6 @@ public class IngestaResponse {
 
     private LocalTime horaConsumo;
 
+    private String tipoIngesta;
+
 }

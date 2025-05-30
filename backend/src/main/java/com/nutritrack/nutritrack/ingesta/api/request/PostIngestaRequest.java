@@ -10,7 +10,7 @@ import java.time.LocalTime;
 @Data
 @Builder
 public class PostIngestaRequest {
-        
+
     @NotNull
     private Long usuarioId;
 
@@ -23,4 +23,6 @@ public class PostIngestaRequest {
     private LocalDate fechaConsumo;
     private LocalTime horaConsumo;
 
+    @NotNull
+    private String tipoIngesta;
 }
