@@ -25,6 +25,7 @@ public class Ingesta {
     public static String CANTIDAD_FIELD = "cantidad";
     public static String FECHA_CONSUMO_FIELD = "fechaConsumo";
     public static String HORA_CONSUMO_FIELD = "horaConsumo";
+    public static String TIPO_INGESTA_FIELD = "tipoIngesta";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,5 +47,8 @@ public class Ingesta {
 
     @Column(name = "hora_consumo", nullable = false)
     private LocalTime horaConsumo;
+
+    @Column(name = "tipo_ingesta", nullable = false)
+    private String tipoIngesta;
 
 }
