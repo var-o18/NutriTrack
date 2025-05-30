@@ -119,12 +119,12 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
     final id = prefs.getInt('jwt_id');
 
     if (_alimentosSeleccionados.isEmpty) {
-      _mostrarMensaje('No hay alimentos seleccionados');
+      _mostrarMensaje('No hay alimentos seleccionados para guardar.');
       return;
     }
 
     if (id == null) {
-      _mostrarMensaje('Usuario no autenticado');
+      _mostrarMensaje('Usuario no autenticado. No se pueden guardar las ingestas.');
       return;
     }
 
@@ -132,22 +132,43 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
     final fecha = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
     final hora = "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
 
+    int successCount = 0;
+    int failureCount = 0;
+
     for (final alimento in _alimentosSeleccionados) {
       final ingesta = Ingesta(
         usuarioId: id,
         alimentoId: alimento.id!,
-        cantidad: 1,
+        cantidad: 1, // Asumiendo cantidad 1, ajustar si necesario
         fechaConsumo: fecha,
         horaConsumo: hora,
       );
-      await ingestaService.registrarIngesta(ingesta);
+      bool success = await ingestaService.registrarIngesta(ingesta);
+      if (success) {
+        successCount++;
+      } else {
+        failureCount++;
+        print('[ERROR] _guardarIngestas: Falló el registro para el alimento: ${alimento.nombre}');
+      }
     }
 
-    _mostrarMensaje('Ingestas guardadas exitosamente');
+    if (successCount > 0 && failureCount == 0) {
+      _mostrarMensaje('$successCount ingesta(s) guardada(s) exitosamente.');
+    } else if (successCount > 0 && failureCount > 0) {
+      _mostrarMensaje('$successCount ingesta(s) guardada(s), $failureCount fallaron.');
+    } else if (failureCount > 0) {
+      _mostrarMensaje('Falló el registro de todas las ingestas. Revise la consola.');
+    } else { // Should not happen if _alimentosSeleccionados was not empty
+      _mostrarMensaje('No se procesaron ingestas.');
+    }
 
-    setState(() {
-      _alimentosSeleccionados.clear();
-    });
+    if (successCount > 0) {
+      setState(() {
+        _alimentosSeleccionados.clear();
+        // Consider re-fetching history or updating UI as needed
+        _initializeData(); // Re-fetch data to update history and suggestions
+      });
+    }
   }
 
   void _mostrarMensaje(String mensaje) {

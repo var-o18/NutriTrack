@@ -10,19 +10,36 @@ class IngestaService {
   Future<bool> registrarIngesta(Ingesta ingesta) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('jwt_token');
-    if (token == null) return false;
+    if (token == null) {
+      print('[ERROR] registrarIngesta: No token available.');
+      return false;
+    }
 
-    final url = Uri.parse('$baseUrl/ingestas');
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-      body: jsonEncode(ingesta.toMap()),
-    );
+    final url = Uri.parse(baseUrl);
+    print('[INFO] registrarIngesta: Posting to $url');
+    print('[INFO] registrarIngesta: Body: ${jsonEncode(ingesta.toMap())}');
 
-    return response.statusCode == 201;
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(ingesta.toMap()),
+      );
+
+      if (response.statusCode == 201) {
+        print('[INFO] registrarIngesta: Success (201 Created).');
+        return true;
+      } else {
+        print('[ERROR] registrarIngesta: Failed. Status: ${response.statusCode}, Body: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('[ERROR] registrarIngesta: Exception: $e');
+      return false;
+    }
   }
 
   Future<List<Ingesta>> obtenerIngestasDelUsuario() async {
