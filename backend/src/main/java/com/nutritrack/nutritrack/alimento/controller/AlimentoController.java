@@ -6,14 +6,12 @@ import com.nutritrack.nutritrack.alimento.mapper.AlimentoMapper;
 import com.nutritrack.nutritrack.alimento.service.AlimentoService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/alimentos")
 @AllArgsConstructor
 public class AlimentoController implements AlimentoApi {
 
@@ -27,8 +25,14 @@ public class AlimentoController implements AlimentoApi {
     }
 
     @Override
-    @GetMapping
     public ResponseEntity<List<AlimentoResponse>> findAll() {
         return ResponseEntity.ok(alimentoService.findAll().stream().map(alimentoMapper::toAlimentoResponse).toList());
+    }
+
+    @Override
+    public ResponseEntity<AlimentoResponse> findByCodigoBarras(@PathVariable String codigoBarras) {
+        return ResponseEntity.ok(
+                alimentoMapper.toAlimentoResponse(alimentoService.findByCodigoBarras(codigoBarras))
+        );
     }
 }
