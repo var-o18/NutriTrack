@@ -1,14 +1,18 @@
 package com.nutritrack.nutritrack.alimento.controller;
 
 import com.nutritrack.nutritrack.alimento.api.AlimentoApi;
+import com.nutritrack.nutritrack.alimento.api.request.PostAlimentoRequest;
 import com.nutritrack.nutritrack.alimento.api.response.AlimentoResponse;
+import com.nutritrack.nutritrack.alimento.api.response.PostAlimentoResponse;
 import com.nutritrack.nutritrack.alimento.mapper.AlimentoMapper;
 import com.nutritrack.nutritrack.alimento.service.AlimentoService;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -34,5 +38,13 @@ public class AlimentoController implements AlimentoApi {
         return ResponseEntity.ok(
                 alimentoMapper.toAlimentoResponse(alimentoService.findByCodigoBarras(codigoBarras))
         );
+    }
+
+    @Override
+    @SneakyThrows
+    public ResponseEntity<PostAlimentoResponse> save(PostAlimentoRequest postAlimentoRequest) {
+        return ResponseEntity.created(new URI(
+                "alimentos/" + alimentoService.save(postAlimentoRequest)
+        )).build();
     }
 }

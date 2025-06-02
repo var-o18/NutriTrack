@@ -1,5 +1,6 @@
 package com.nutritrack.nutritrack.alimento.mapper;
 
+import com.nutritrack.nutritrack.alimento.api.request.PostAlimentoRequest;
 import com.nutritrack.nutritrack.alimento.api.response.AlimentoResponse;
 import com.nutritrack.nutritrack.alimento.api.response.OpenFoodFactsResponse;
 import com.nutritrack.nutritrack.alimento.entity.Alimento;
@@ -25,5 +26,7 @@ public interface AlimentoMapper {
     default Double mapTokCal(Double energy) {
         return Math.round((energy / 4.184) * 100.0) / 100.0;
     }
+
+    Alimento toEntity(PostAlimentoRequest postAlimentoRequest);
 
 }
