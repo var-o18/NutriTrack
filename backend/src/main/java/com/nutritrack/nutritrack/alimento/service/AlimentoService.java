@@ -1,5 +1,6 @@
 package com.nutritrack.nutritrack.alimento.service;
 
+import com.nutritrack.nutritrack.alimento.api.request.PostAlimentoRequest;
 import com.nutritrack.nutritrack.alimento.api.response.OpenFoodFactsResponse;
 import com.nutritrack.nutritrack.alimento.entity.Alimento;
 import com.nutritrack.nutritrack.alimento.mapper.AlimentoMapper;
@@ -45,6 +46,11 @@ public class AlimentoService {
         }
 
         throw new ResponseStatusException(NOT_FOUND, "Alimento no encontrado por código de barras");
+    }
+
+    public Long save(PostAlimentoRequest postAlimentoRequest) {
+        Alimento alimento = alimentoMapper.toEntity(postAlimentoRequest);
+        return alimentoRepository.save(alimento).getId();
     }
 
 }
