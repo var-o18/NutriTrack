@@ -4,6 +4,7 @@ import com.nutritrack.nutritrack.config.JwtUtil;
 import com.nutritrack.nutritrack.ingesta.repository.IngestaRepository;
 import com.nutritrack.nutritrack.usuario.api.UsuarioApi;
 import com.nutritrack.nutritrack.usuario.api.request.LoginRequest;
+import com.nutritrack.nutritrack.usuario.api.request.PatchUsuarioRequest;
 import com.nutritrack.nutritrack.usuario.api.request.PostUsuarioRegistro;
 import com.nutritrack.nutritrack.usuario.api.response.LoginResponse;
 import com.nutritrack.nutritrack.usuario.api.response.UsuarioResponse;
@@ -68,5 +69,18 @@ public class UsuarioController implements UsuarioApi {
         Long id = usuario.getId();
         return ResponseEntity.ok(new LoginResponse(id, token));
     }
+
+    @Override
+    public ResponseEntity<Void> patch(Long id, PatchUsuarioRequest patchUsuarioRequest) {
+        Optional<Usuario> usuario = usuarioService.findById(id);
+        if (usuario.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        usuarioService.patch(patchUsuarioRequest, usuario.get());
+
+        return ResponseEntity.noContent().build();
+    }
+
 
 }
