@@ -15,4 +15,6 @@ public interface AlimentoApi {
     @GetMapping("api/alimentos")
     ResponseEntity<List<AlimentoResponse>> findAll();
 
+    @GetMapping("api/alimentos/codigo/{codigoBarras}")
+    ResponseEntity<AlimentoResponse> findByCodigoBarras(@PathVariable String codigoBarras);
 }
