@@ -18,6 +18,8 @@ public interface UsuarioMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(source = "correo", target = "correo", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(source = "contrasena", target = "contrasena", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(source = "sexo", target = "sexo", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(source = "edad", target = "edad", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(source = "peso", target = "peso", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(source = "altura", target = "altura", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(source = "nivelActividadFisica", target = "nivelActividadFisica", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
