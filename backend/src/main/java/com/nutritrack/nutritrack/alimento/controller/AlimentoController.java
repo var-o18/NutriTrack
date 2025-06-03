@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @AllArgsConstructor
@@ -46,5 +47,15 @@ public class AlimentoController implements AlimentoApi {
         return ResponseEntity.created(new URI(
                 "alimentos/" + alimentoService.save(postAlimentoRequest)
         )).build();
+    }
+
+    @Override
+    public ResponseEntity<List<AlimentoResponse>> getSugerencias(Integer limite, Double margenPorcentaje) {
+        return ResponseEntity.ok(
+                alimentoService.getSugerencias(limite, margenPorcentaje)
+                        .stream()
+                        .map(alimentoMapper::toAlimentoResponse)
+                        .collect(Collectors.toList())
+        );
     }
 }
