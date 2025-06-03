@@ -30,4 +30,7 @@ public interface IngestaApi {
             @PathVariable(value = "id") Long id,
             @RequestBody @Valid PatchIngestaRequest patchRequest);
 
+    @DeleteMapping("api/ingestas/{id}")
+    ResponseEntity<Void> delete(@PathVariable(value = "id") Long id);
+
 }

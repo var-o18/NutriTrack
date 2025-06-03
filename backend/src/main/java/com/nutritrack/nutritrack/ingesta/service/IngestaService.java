@@ -97,4 +97,14 @@ public class IngestaService {
 
         ingestaRepository.save(ingesta);
     }
+
+    @Transactional
+    public void delete(Ingesta ingesta) {
+        String usuarioAutenticado = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!ingesta.getUsuario().getCorreo().equals(usuarioAutenticado)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No puedes eliminar ingestas de otro usuario");
+        }
+
+        ingestaRepository.delete(ingesta);
+    }
 }
