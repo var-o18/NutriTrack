@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Para input formatters
+import 'package:nutritack/data/models/ingesta_model.dart';
+import 'package:nutritack/data/services/ingesta_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../data/models/alimneto_model.dart';
+import '../../../data/services/alimentos_service.dart'; // Importar el servicio
 
 class AgregarAlimentoPage extends StatefulWidget {
   const AgregarAlimentoPage({super.key});
@@ -8,190 +14,339 @@ class AgregarAlimentoPage extends StatefulWidget {
 }
 
 class _AgregarAlimentoPageState extends State<AgregarAlimentoPage> {
+  final _formKey = GlobalKey<FormState>();
+
   final TextEditingController _nombreController = TextEditingController();
-  final TextEditingController _tamanoRacionController = TextEditingController(text: '100gr');
-  final TextEditingController _numeroRacionesController = TextEditingController(text: '80');
-  final TextEditingController _caloriasController = TextEditingController(text: '0');
-  final TextEditingController _carbohidratosController = TextEditingController(text: '0');
-  final TextEditingController _grasaController = TextEditingController(text: '0');
-  final TextEditingController _proteinaController = TextEditingController(text: '0');
-  String _tipoComida = 'Desayuno';
-  final List<String> _tiposComida = ['Desayuno', 'Almuerzo', 'Cena', 'Aperitivos'];
-  int _currentIndex = 0;
+  final TextEditingController _tamanoRacionController = TextEditingController(text: '100');
+  late TextEditingController _numeroRacionesController; // Declarado aquí
+  final TextEditingController _caloriasController = TextEditingController();
+  final TextEditingController _carbohidratosController = TextEditingController();
+  final TextEditingController _grasaController = TextEditingController();
+  final TextEditingController _proteinaController = TextEditingController();
+
+
+  String? _selectedTipoIngestaParaRegistro;
+  final List<String> _tiposIngestaDisponibles = ['Desayuno', 'Almuerzo', 'Cena', 'Aperitivos'];
+
+  final AlimentoService _alimentoService = AlimentoService();
+  final IngestaService _ingestaService = IngestaService();
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _numeroRacionesController = TextEditingController(text: '80');
+  }
+
+  Future<void> _guardarNuevoAlimento() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() => _isSaving = true);
+
+      final nuevoAlimentoParaCrear = Alimento(
+        nombre: _nombreController.text,
+        calorias: double.tryParse(_caloriasController.text) ?? 0.0,
+        proteinas: double.tryParse(_proteinaController.text) ?? 0.0,
+        carbohidratos: double.tryParse(_carbohidratosController.text) ?? 0.0,
+        grasas: double.tryParse(_grasaController.text) ?? 0.0,
+      );
+
+      Alimento? alimentoCreado = await _alimentoService.crearAlimento(nuevoAlimentoParaCrear);
+
+      if (!mounted) return;
+
+      if (alimentoCreado != null && alimentoCreado.id != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Alimento "${alimentoCreado.nombre}" guardado con ID: ${alimentoCreado.id}.')),
+        );
+
+        if (_selectedTipoIngestaParaRegistro != null) {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          final usuarioId = prefs.getInt('jwt_id');
+
+          if (usuarioId == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Error: Usuario no autenticado para registrar ingesta.')),
+            );
+            setState(() => _isSaving = false);
+            Navigator.pop(context, true);
+            return;
+          }
+          
+          final now = DateTime.now();
+          final fecha = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+          final hora = "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
+
+          final nuevaIngesta = Ingesta(
+            usuarioId: usuarioId,
+            alimentoId: alimentoCreado.id!,
+            cantidad: 1,
+            fechaConsumo: fecha,
+            horaConsumo: hora,
+            tipoIngesta: _selectedTipoIngestaParaRegistro!,
+          );
+
+          bool ingestaRegistrada = await _ingestaService.registrarIngesta(nuevaIngesta);
+          if (ingestaRegistrada) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Además, "${alimentoCreado.nombre}" ha sido registrado como $_selectedTipoIngestaParaRegistro.')),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Alimento creado, pero falló el registro de la ingesta para "${alimentoCreado.nombre}".')),
+            );
+          }
+        }
+        Navigator.pop(context, true);
+
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error al guardar el alimento. Inténtalo de nuevo.')),
+        );
+      }
+      if (mounted) {
+         setState(() => _isSaving = false);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _nombreController.dispose();
+    _tamanoRacionController.dispose();
+    _numeroRacionesController.dispose();
+    _caloriasController.dispose();
+    _carbohidratosController.dispose();
+    _grasaController.dispose();
+    _proteinaController.dispose();
+    super.dispose();
+  }
+
+  Widget _buildSectionTitle(String text, Color textColor) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16.0, bottom: 8.0),
+      child: Text(
+        text,
+        style: TextStyle(color: textColor, fontSize: 22, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  Widget _buildFieldLabel(String text, Color textColor) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16.0, bottom: 8.0),
+      child: Text(
+        text,
+        style: TextStyle(color: textColor.withOpacity(0.9), fontSize: 16, fontWeight: FontWeight.w500),
+      ),
+    );
+  }
+
+  Widget _buildLabeledTextFormField({
+    required TextEditingController controller,
+    required String label,
+    required String hintText,
+    required Color textColor,
+    required InputDecoration inputDecoration,
+    TextInputType keyboardType = TextInputType.text,
+    List<TextInputFormatter>? inputFormatters,
+    FormFieldValidator<String>? validator,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildFieldLabel(label, textColor),
+        TextFormField(
+          controller: controller,
+          style: TextStyle(color: textColor, fontSize: 18),
+          decoration: inputDecoration.copyWith(hintText: hintText),
+          keyboardType: keyboardType,
+          inputFormatters: inputFormatters,
+          validator: validator,
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final Color backgroundColor = const Color(0xFF1E1E1E);
-    final Color cardColor = const Color(0xFF2A2A2A);
+    final Color fieldBackgroundColor = const Color(0xFF2A2A2A);
     final Color accentColor = const Color(0xFF5A99D6);
     final Color textColor = Colors.white;
+    final Color hintColor = textColor.withOpacity(0.5);
+
+    final inputDecoration = InputDecoration(
+      filled: true,
+      fillColor: fieldBackgroundColor,
+      hintStyle: TextStyle(color: hintColor),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: accentColor, width: 2)),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    );
 
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
         backgroundColor: backgroundColor,
+        elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: textColor),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.pop(context, null),
         ),
-        title: Text('Agregar Alimento', 
-          style: TextStyle(color: textColor, fontSize: 20),
+        title: Text('Agregar Nuevo Alimento', 
+          style: TextStyle(color: textColor, fontSize: 20, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Nombre del alimento
-              TextField(
+            children: <Widget>[
+              _buildSectionTitle('Nombre del alimento', textColor),
+              _buildLabeledTextFormField(
                 controller: _nombreController,
-                style: TextStyle(color: textColor, fontSize: 24, fontWeight: FontWeight.bold),
-                decoration: InputDecoration(
-                  hintText: 'Pavo Lonchas',
-                  hintStyle: TextStyle(color: textColor.withOpacity(0.5)),
-                  border: InputBorder.none,
-                ),
-              ),
-              Text(
-                'Pavo',
-                style: TextStyle(color: textColor.withOpacity(0.5), fontSize: 16),
-              ),
-              const SizedBox(height: 24),
-
-              // Campos de entrada
-              _buildInputField(
-                'Tamaño de la ración',
-                _tamanoRacionController,
-                textColor,
-                cardColor,
-              ),
-              const SizedBox(height: 16),
-              _buildInputField(
-                'Número de raciones',
-                _numeroRacionesController,
-                textColor,
-                cardColor,
-              ),
-              const SizedBox(height: 16),
-              _buildDropdownField(
-                'Tipo de comida',
-                _tipoComida,
-                _tiposComida,
-                textColor,
-                cardColor,
-                (String? newValue) {
-                  if (newValue != null) {
-                    setState(() => _tipoComida = newValue);
+                label: 'Nombre del alimento',
+                hintText: 'Ej: Manzana, Pechuga de pollo',
+                textColor: textColor,
+                inputDecoration: inputDecoration,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor, ingresa un nombre.';
                   }
+                  return null;
+                },
+              ),
+              
+              _buildLabeledTextFormField(
+                controller: _tamanoRacionController,
+                label: 'Tamaño de la ración (g/ml)',
+                hintText: 'Ej: 100',
+                textColor: textColor,
+                inputDecoration: inputDecoration,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+                ],
+                validator: (value) {
+                  if (value != null && value.isNotEmpty && double.tryParse(value) == null) {
+                    return 'Número inválido.';
+                  }
+                  return null; // Opcional
                 },
               ),
 
-              const SizedBox(height: 32),
+              _buildLabeledTextFormField(
+                controller: _numeroRacionesController,
+                label: 'Número de raciones',
+                hintText: 'Ej: 1',
+                textColor: textColor,
+                inputDecoration: inputDecoration,
+                keyboardType: TextInputType.number,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.digitsOnly,
+                ],
+                 validator: (value) {
+                  if (value != null && value.isNotEmpty && int.tryParse(value) == null) {
+                    return 'Número inválido.';
+                  }
+                  return null; // Opcional
+                },
+              ),
+              
+              _buildFieldLabel('Tipo de comida (Opcional)', textColor),
+              DropdownButtonFormField<String>(
+                value: _selectedTipoIngestaParaRegistro,
+                hint: Text('Seleccionar...', style: TextStyle(color: hintColor)),
+                dropdownColor: fieldBackgroundColor,
+                style: TextStyle(color: textColor, fontSize: 18),
+                decoration: inputDecoration,
+                items: _tiposIngestaDisponibles.map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedTipoIngestaParaRegistro = newValue;
+                  });
+                },
+              ),
 
-              // Círculos de información nutricional editables
+              const SizedBox(height: 24),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildEditableNutritionCircle(_caloriasController, 'Cal', 'Calorías', accentColor, textColor),
-                  _buildEditableNutritionCircle(_carbohidratosController, 'g', 'Carbohidratos', accentColor, textColor),
-                  _buildEditableNutritionCircle(_grasaController, 'g', 'Grasa', accentColor, textColor),
-                  _buildEditableNutritionCircle(_proteinaController, 'g', 'Proteína', accentColor, textColor),
+                  _buildEditableNutritionCircle(
+                    controller: _caloriasController,
+                    unit: 'Cal',
+                    label: 'Calorías',
+                    accentColor: accentColor,
+                    textColor: textColor,
+                  ),
+                  _buildEditableNutritionCircle(
+                    controller: _proteinaController,
+                    unit: 'g',
+                    label: 'Proteínas',
+                    accentColor: accentColor,
+                    textColor: textColor,
+                  ),
+                  _buildEditableNutritionCircle(
+                    controller: _carbohidratosController,
+                    unit: 'g',
+                    label: 'Carbohidratos',
+                    accentColor: accentColor,
+                    textColor: textColor,
+                  ),
+                  _buildEditableNutritionCircle(
+                    controller: _grasaController,
+                    unit: 'g',
+                    label: 'Grasas',
+                    accentColor: accentColor,
+                    textColor: textColor,
+                  ),
                 ],
               ),
+
+              const SizedBox(height: 32),
+              if (_isSaving)
+                const Center(child: CircularProgressIndicator())
+              else
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: accentColor,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    onPressed: _guardarNuevoAlimento,
+                    child: const Text('Agregar Alimento'),
+                  ),
+                ),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
 
-  Widget _buildInputField(
-    String label,
-    TextEditingController controller,
-    Color textColor,
-    Color backgroundColor,
-  ) {
+  Widget _buildEditableNutritionCircle({
+    required TextEditingController controller,
+    required String unit,
+    required String label,
+    required Color accentColor,
+    required Color textColor,
+  }) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(color: textColor, fontSize: 16),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: TextField(
-            controller: controller,
-            style: TextStyle(color: textColor),
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.zero,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDropdownField(
-    String label,
-    String value,
-    List<String> items,
-    Color textColor,
-    Color backgroundColor,
-    void Function(String?) onChanged,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(color: textColor, fontSize: 16),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: value,
-              isExpanded: true,
-              dropdownColor: backgroundColor,
-              style: TextStyle(color: textColor, fontSize: 16),
-              items: items.map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: onChanged,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEditableNutritionCircle(
-    TextEditingController controller,
-    String unit,
-    String label,
-    Color accentColor,
-    Color textColor,
-  ) {
-    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           width: 70,
@@ -202,32 +357,42 @@ class _AgregarAlimentoPageState extends State<AgregarAlimentoPage> {
           ),
           child: Center(
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
               children: [
-                Container(
-                  width: 30,
+                SizedBox(
+                  width: 35,
                   child: TextField(
                     controller: controller,
                     textAlign: TextAlign.end,
-                    keyboardType: TextInputType.number,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.allow(RegExp(r'^\\d*\\.?\\d*')),
+                    ],
                     style: TextStyle(
                       color: textColor,
-                      fontSize: 14,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                     decoration: InputDecoration(
+                      hintText: "0",
+                      hintStyle: TextStyle(color: textColor.withOpacity(0.7), fontWeight: FontWeight.bold, fontSize: 16),
                       border: InputBorder.none,
-                      contentPadding: EdgeInsets.zero,
+                      contentPadding: EdgeInsets.zero, 
                       isDense: true,
                     ),
                   ),
                 ),
-                Text(
-                  unit,
-                  style: TextStyle(
-                    color: textColor,
-                    fontSize: 12,
+                Padding(
+                  padding: const EdgeInsets.only(left: 2.0),
+                  child: Text(
+                    unit,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 14,
+                      fontWeight: FontWeight.normal,
+                    ),
                   ),
                 ),
               ],
@@ -244,96 +409,5 @@ class _AgregarAlimentoPageState extends State<AgregarAlimentoPage> {
         ),
       ],
     );
-  }
-
-  Widget _buildBottomNavigationBar() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(height: 1, color: const Color(0xFF5A99D6)),
-        BottomNavigationBar(
-          backgroundColor: const Color(0xFF1E1E1E),
-          selectedItemColor: const Color(0xFF80C0FF),
-          unselectedItemColor: Colors.grey,
-          type: BottomNavigationBarType.fixed,
-          currentIndex: _currentIndex,
-          onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-
-            switch (index) {
-              case 0:
-                Navigator.pushReplacementNamed(context, '/dashboard');
-                break;
-              case 1:
-                Navigator.pushReplacementNamed(context, '/diario');
-                break;
-              case 2:
-                Navigator.pushNamed(context, '/agregarAlimento');
-                break;
-              case 3:
-                Navigator.pushReplacementNamed(context, '/control');
-                break;
-              case 4:
-                Navigator.pushReplacementNamed(context, '/mas');
-                break;
-            }
-          },
-          items: [
-            _buildBarItem('inicio.png', "Inicio", 0),
-            _buildBarItem('diario.png', "Diario", 1),
-            BottomNavigationBarItem(
-              icon: Container(
-                width: 40,
-                height: 40,
-                child: Image.asset('assets/images/anadiralimento.png', width: 24),
-              ),
-              label: "",
-            ),
-            _buildBarItem('progreso.png', "Control", 3),
-            _buildBarItem('opcionmas.png', "Más", 4),
-          ],
-        ),
-      ],
-    );
-  }
-
-  BottomNavigationBarItem _buildBarItem(String assetName, String label, int index) {
-    bool isActive = index == _currentIndex;
-    return BottomNavigationBarItem(
-      icon: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Image.asset(
-            'assets/images/$assetName',
-            width: 24,
-            color: isActive ? const Color(0xFF80C0FF) : Colors.grey,
-          ),
-          if (isActive)
-            Container(
-              width: 24,
-              height: 3,
-              color: const Color(0xFF5A99D6),
-              margin: const EdgeInsets.only(top: 4),
-            )
-          else
-            const SizedBox(height: 7),
-        ],
-      ),
-      label: label,
-    );
-  }
-
-  @override
-  void dispose() {
-    _nombreController.dispose();
-    _tamanoRacionController.dispose();
-    _numeroRacionesController.dispose();
-    _caloriasController.dispose();
-    _carbohidratosController.dispose();
-    _grasaController.dispose();
-    _proteinaController.dispose();
-    super.dispose();
   }
 } 

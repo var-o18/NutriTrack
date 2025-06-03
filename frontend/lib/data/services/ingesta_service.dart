@@ -72,4 +72,36 @@ class IngestaService {
     }
   }
 
+  Future<bool> eliminarIngesta(int ingestaId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('jwt_token');
+    if (token == null) {
+      print('[ERROR] eliminarIngesta: No token available.');
+      return false;
+    }
+
+    final url = Uri.parse('$baseUrl/$ingestaId'); // Assumes endpoint like /api/ingestas/{id}
+    print('[INFO] eliminarIngesta: Deleting from $url');
+
+    try {
+      final response = await http.delete(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) { // 200 OK or 204 No Content are common for successful DELETE
+        print('[INFO] eliminarIngesta: Success (Status: ${response.statusCode}).');
+        return true;
+      } else {
+        print('[ERROR] eliminarIngesta: Failed. Status: ${response.statusCode}, Body: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('[ERROR] registrarIngesta: Exception: $e');
+      return false;
+    }
+  }
 }

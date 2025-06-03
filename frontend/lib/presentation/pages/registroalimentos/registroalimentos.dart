@@ -5,6 +5,8 @@ import '../../../data/models/alimneto_model.dart';
 import '../../../data/models/ingesta_model.dart';
 import '../../../data/services/alimentos_service.dart';
 import '../../../data/services/ingesta_service.dart';
+import 'agregar_alimento.dart';
+import 'escaneo_rapido.dart';
 
 class RegistroAlimentosPage extends StatefulWidget {
   final String mealType;
@@ -15,7 +17,7 @@ class RegistroAlimentosPage extends StatefulWidget {
 }
 
 class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
-  int _currentIndex = 0;
+  int _currentIndex = 1;
   late String selectedMeal;
   final List<String> mealTypes = ['Desayuno', 'Almuerzo', 'Cena', 'Aperitivos'];
 
@@ -23,11 +25,15 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
   final IngestaService ingestaService = IngestaService();
 
   List<Alimento> _alimentos = [];
+  List<Alimento> _alimentosFiltrados = [];
   bool _isLoading = true;
   int? _usuarioId;
   List<Alimento> _alimentosSeleccionados = [];
   List<Alimento> _historialUnico = [];
   int _sugerenciasVisiblesCount = 3;
+
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = "";
 
   @override
   void initState() {
@@ -37,38 +43,62 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
     } else {
       selectedMeal = 'Almuerzo';
       assert(() {
-        print('[WARN] Invalid mealType \'${widget.mealType}\' passed to RegistroAlimentosPage. Defaulting to \'Almuerzo\'.');
         return true;
       }());
     }
     _initializeData();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    setState(() {
+      _searchQuery = _searchController.text;
+      _filterAlimentos();
+    });
+  }
+
+  void _filterAlimentos() {
+    if (_searchQuery.isEmpty) {
+      _alimentosFiltrados = List.from(_alimentos);
+    } else {
+      _alimentosFiltrados = _alimentos
+          .where((alimento) =>
+              alimento.nombre.toLowerCase().contains(_searchQuery.toLowerCase()))
+          .toList();
+    }
+    _sugerenciasVisiblesCount = 3;
   }
 
   Future<void> _initializeData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final id = prefs.getInt('jwt_id');
-    print('[DEBUG] User ID from SharedPreferences (jwt_id): $id');
 
     if (id != null) {
       setState(() {
         _usuarioId = id;
       });
     } else {
-      print('[DEBUG] _usuarioId is null. History will likely be empty.');
+      print('_usuarioId is null');
     }
 
     final alimentos = await alimentoService.getAllAlimentos();
-    print('[DEBUG] Total alimentos fetched: ${alimentos.length}');
+    print('Total alimentos fetched: ${alimentos.length}');
     setState(() {
       _alimentos = alimentos;
+      _alimentosFiltrados = alimentos;
       _isLoading = false;
     });
 
     if (id != null) {
       final ingestas = await ingestaService.obtenerIngestasDelUsuario();
-      print('[DEBUG] Ingestas fetched for user $id: ${ingestas.length}');
-
-      // Sort ingestas by fechaConsumo and horaConsumo in descending order
+      print('Ingestas fetched for user $id: ${ingestas.length}');
       ingestas.sort((a, b) {
         final dateComparison = b.fechaConsumo.compareTo(a.fechaConsumo);
         if (dateComparison != 0) {
@@ -77,23 +107,20 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
         return b.horaConsumo.compareTo(a.horaConsumo);
       });
 
-      // Get unique alimento_ids from the sorted ingestas
       final List<int> alimentoIdsUnicosOrdenados = ingestas
           .map((i) => i.alimentoId)
-          .toSet() // To get unique IDs
-          .toList(); // Convert back to list, order from Set is not guaranteed, but we will map back to sorted ingestas
+          .toSet()
+          .toList();
 
-      print('[DEBUG] Unique alimento IDs from sorted ingestas: $alimentoIdsUnicosOrdenados');
+      print('Unique alimento IDs from sorted ingestas: $alimentoIdsUnicosOrdenados');
 
-      // Create a map of Alimento objects for quick lookup
       final Map<int, Alimento> alimentosMap = {for (var a in _alimentos) a.id!: a};
 
-      // Build the unique history, maintaining recency and limiting to top 3
       final List<Alimento> historialTemp = [];
-      final Set<int> addedAlimentoIds = {}; // To ensure we only add unique alimentos
+      final Set<int> addedAlimentoIds = {};
 
       for (final ingesta in ingestas) {
-        if (historialTemp.length >= 3) break; // Stop if we have 3 items
+        if (historialTemp.length >= 3) break;
 
         if (!addedAlimentoIds.contains(ingesta.alimentoId)) {
           final alimento = alimentosMap[ingesta.alimentoId];
@@ -104,13 +131,13 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
         }
       }
 
-      print('[DEBUG] Historial (filtered alimentos, top 3 recent unique) count: ${historialTemp.length}');
+      print('Historial (filtered alimentos, top 3 recent unique) count: ${historialTemp.length}');
 
       setState(() {
         _historialUnico = historialTemp;
       });
     } else {
-      print('[DEBUG] Skipping ingestas fetch and _historialUnico population because user ID is null.');
+      print('Skipping ingestas fetch and _historialUnico population because user ID is null.');
     }
   }
 
@@ -139,35 +166,42 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
       final ingesta = Ingesta(
         usuarioId: id,
         alimentoId: alimento.id!,
-        cantidad: 1, // Asumiendo cantidad 1, ajustar si necesario
+        cantidad: 1,
         fechaConsumo: fecha,
         horaConsumo: hora,
+        tipoIngesta: selectedMeal,
       );
       bool success = await ingestaService.registrarIngesta(ingesta);
       if (success) {
         successCount++;
       } else {
         failureCount++;
-        print('[ERROR] _guardarIngestas: Falló el registro para el alimento: ${alimento.nombre}');
       }
     }
 
+    String mensajeFinal;
     if (successCount > 0 && failureCount == 0) {
-      _mostrarMensaje('$successCount ingesta(s) guardada(s) exitosamente.');
+      mensajeFinal = '$successCount ingesta(s) guardada(s) exitosamente.';
     } else if (successCount > 0 && failureCount > 0) {
-      _mostrarMensaje('$successCount ingesta(s) guardada(s), $failureCount fallaron.');
+      mensajeFinal = '$successCount ingesta(s) guardada(s), $failureCount fallaron.';
     } else if (failureCount > 0) {
-      _mostrarMensaje('Falló el registro de todas las ingestas. Revise la consola.');
-    } else { // Should not happen if _alimentosSeleccionados was not empty
-      _mostrarMensaje('No se procesaron ingestas.');
+      mensajeFinal = 'Falló el registro de todas las ingestas. Revise la consola.';
+    } else {
+      mensajeFinal = 'No se procesaron ingestas.';
     }
+    _mostrarMensaje(mensajeFinal);
 
     if (successCount > 0) {
-      setState(() {
-        _alimentosSeleccionados.clear();
-        // Consider re-fetching history or updating UI as needed
-        _initializeData(); // Re-fetch data to update history and suggestions
-      });
+      if (mounted) {
+        Navigator.pop(context, true);
+      }
+    } else {
+      if (mounted) {
+        setState(() {
+          _alimentosSeleccionados.clear();
+          _initializeData();
+        });
+      }
     }
   }
 
@@ -200,11 +234,37 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
         child: Column(
           children: [
             _buildTabs(textColor),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: TextField(
+                controller: _searchController,
+                style: TextStyle(color: textColor),
+                decoration: InputDecoration(
+                  hintText: 'Buscar alimentos...',
+                  hintStyle: TextStyle(color: textColor.withOpacity(0.7)),
+                  prefixIcon: Icon(Icons.search, color: textColor),
+                  filled: true,
+                  fillColor: cardBackgroundColor,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                          icon: Icon(Icons.clear, color: textColor),
+                          onPressed: () {
+                            _searchController.clear();
+                          },
+                        )
+                      : null,
+                ),
+              ),
+            ),
             _buildAcciones(cardBackgroundColor, textColor),
             const SizedBox(height: 20),
             _buildSection('Historial', _historialUnico, cardBackgroundColor, textColor),
             const SizedBox(height: 20),
-            _buildSugerenciasSection('Sugerencias', _alimentos, cardBackgroundColor, textColor),
+            _buildSugerenciasSection('Sugerencias', _alimentosFiltrados, cardBackgroundColor, textColor),
             const SizedBox(height: 80),
           ],
         ),
@@ -265,8 +325,32 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildActionButton(Icons.qr_code_scanner, 'Leer código\nde barras', () {}, bgColor, textColor),
-          _buildActionButton(Icons.add_circle_outline, 'Agregar\nNuevo', () {}, bgColor, textColor),
+          _buildActionButton(
+            Icons.qr_code_scanner,
+            'Leer código\nde barras',
+            () async {
+              final String? barcode = await Navigator.push<String>(
+                context,
+                MaterialPageRoute(builder: (context) => const EscaneoRapidoPage()),
+              );
+
+              if (barcode != null && barcode.isNotEmpty) {
+                print('Scanned barcode: $barcode');
+                _mostrarMensaje('Código escaneado: $barcode. Implementar búsqueda.');
+              } else {
+                print('Barcode scanning cancelled or no barcode returned.');
+              }
+            },
+            bgColor,
+            textColor
+          ),
+          _buildActionButton(Icons.add_circle_outline, 'Agregar\nNuevo', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AgregarAlimentoPage()),
+            );
+
+          }, bgColor, textColor),
         ],
       ),
     );
@@ -306,10 +390,10 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
     );
   }
 
-  Widget _buildSugerenciasSection(String title, List<Alimento> alimentos, Color bgColor, Color textColor) {
-    final int itemsToShow = _sugerenciasVisiblesCount.clamp(0, alimentos.length);
-    final List<Alimento> alimentosMostrados = alimentos.take(itemsToShow).toList();
-    final bool hasMore = itemsToShow < alimentos.length;
+  Widget _buildSugerenciasSection(String title, List<Alimento> alimentosSugeridos, Color bgColor, Color textColor) {
+    final int itemsToShow = _sugerenciasVisiblesCount.clamp(0, alimentosSugeridos.length);
+    final List<Alimento> alimentosMostrados = alimentosSugeridos.take(itemsToShow).toList();
+    final bool hasMore = itemsToShow < alimentosSugeridos.length;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -348,7 +432,7 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
                 ),
                 onPressed: () {
                   setState(() {
-                    _sugerenciasVisiblesCount = (_sugerenciasVisiblesCount + 3).clamp(0, alimentos.length);
+                    _sugerenciasVisiblesCount = (_sugerenciasVisiblesCount + 3).clamp(0, alimentosSugeridos.length);
                   });
                 },
                 child: const Text('Ver más'),
@@ -430,7 +514,16 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
           type: BottomNavigationBarType.fixed,
           currentIndex: _currentIndex,
           onTap: (index) {
-            setState(() => _currentIndex = index);
+            if (index == _currentIndex && index != 2) return;
+
+            if (index == 2 && ModalRoute.of(context)?.settings.name == '/registralimentos' ){
+
+            } else {
+                 setState(() {
+                    _currentIndex = index;
+                 });
+            }
+
             switch (index) {
               case 0:
                 Navigator.pushReplacementNamed(context, '/dashboard');
@@ -439,10 +532,9 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
                 Navigator.pushReplacementNamed(context, '/diario');
                 break;
               case 2:
-                Navigator.pushNamed(context, '/agregarAlimento');
                 break;
               case 3:
-                Navigator.pushReplacementNamed(context, '/control');
+                Navigator.pushReplacementNamed(context, '/descubre');
                 break;
               case 4:
                 Navigator.pushReplacementNamed(context, '/mas');
@@ -450,34 +542,59 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
             }
           },
           items: [
-            _buildBarItem('inicio.png', "Inicio", 0),
-            _buildBarItem('diario.png', "Diario", 1),
+            _buildBarItem(label: "Inicio", index: 0, currentIndex: _currentIndex, assetName: 'inicio.png'),
+            _buildBarItem(label: "Diario", index: 1, currentIndex: _currentIndex, assetName: 'diario.png'),
             BottomNavigationBarItem(
               icon: Container(width: 40, height: 40, child: Image.asset('assets/images/anadiralimento.png', width: 24)),
               label: "",
             ),
-            _buildBarItem('progreso.png', "Control", 3),
-            _buildBarItem('opcionmas.png', "Más", 4),
+            _buildBarItem(label: "Descubre", index: 3, currentIndex: _currentIndex, iconData: Icons.lightbulb_outline),
+            _buildBarItem(label: "Más", index: 4, currentIndex: _currentIndex, assetName: 'opcionmas.png'),
           ],
         ),
       ],
     );
   }
 
-  BottomNavigationBarItem _buildBarItem(String assetName, String label, int index) {
-    final bool isActive = index == _currentIndex;
+  BottomNavigationBarItem _buildBarItem({
+    required String label,
+    required int index,
+    required int currentIndex,
+    String? assetName,
+    IconData? iconData,
+  }) {
+    final bool isActive = index == currentIndex;
+    final Color activeColor = const Color(0xFF80C0FF);
+    final Color inactiveColor = Colors.grey;
+
+    Widget iconWidget;
+    if (iconData != null) {
+      iconWidget = Icon(iconData, size: 24, color: isActive ? activeColor : inactiveColor);
+    } else if (assetName != null) {
+      iconWidget = Image.asset(
+        'assets/images/$assetName',
+        width: 24,
+        height: 24,
+        color: isActive ? activeColor : inactiveColor,
+      );
+    } else {
+      iconWidget = const SizedBox(width: 24, height: 24);
+    }
+
     return BottomNavigationBarItem(
       icon: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Image.asset(
-            'assets/images/$assetName',
-            width: 24,
-            color: isActive ? const Color(0xFF80C0FF) : Colors.grey,
-          ),
-          isActive
-              ? Container(width: 24, height: 3, color: const Color(0xFF5A99D6), margin: const EdgeInsets.only(top: 4))
-              : const SizedBox(height: 7),
+          iconWidget,
+          if (isActive)
+            Container(
+              width: 24,
+              height: 3,
+              color: const Color(0xFF5A99D6),
+              margin: const EdgeInsets.only(top: 4),
+            )
+          else
+            const SizedBox(height: 7),
         ],
       ),
       label: label,

@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import '../registroalimentos/registroalimentos.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../data/models/ingesta_model.dart';
+import '../../../data/models/alimneto_model.dart';
+import '../../../data/services/ingesta_service.dart';
+import '../../../data/services/alimentos_service.dart';
 
 class DiarioScreen extends StatefulWidget {
   const DiarioScreen({super.key});
@@ -11,6 +16,10 @@ class DiarioScreen extends StatefulWidget {
 class _DiarioScreenState extends State<DiarioScreen> {
   int _currentIndex = 1;
   DateTime _selectedDate = DateTime.now();
+  bool _isLoading = true;
+
+  final IngestaService _ingestaService = IngestaService();
+  final AlimentoService _alimentoService = AlimentoService();
 
   Map<String, List<Map<String, dynamic>>> _meals = {
     'Desayuno': [],
@@ -21,12 +30,116 @@ class _DiarioScreenState extends State<DiarioScreen> {
 
   int _getTotalCalories() {
     int total = 0;
-    _meals.forEach((key, items) {
-      for (var item in items) {
-        total += item['calories'] as int;
+    _meals.forEach((key, mealItems) {
+      for (var item in mealItems) {
+        if (item.containsKey('calories') && item['calories'] is int) {
+          total += item['calories'] as int;
+        } else {
+        }
       }
     });
     return total;
+  }
+
+  Future<void> _saveCaloriesToPrefs(int calories) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    print('_saveCaloriesToPrefs: Saving $calories to today_calories_consumed');
+    await prefs.setInt('today_calories_consumed', calories);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarDatosDelDiario();
+  }
+
+  bool _isToday(DateTime date) {
+    final now = DateTime.now();
+    return date.year == now.year && date.month == now.month && date.day == now.day;
+  }
+
+  Future<void> _cargarDatosDelDiario() async {
+    if (!mounted) return;
+    print(' _cargarDatosDelDiario: Called for _selectedDate: $_selectedDate');
+    final bool isSelectedDateToday = _isToday(_selectedDate);
+    print('_cargarDatosDelDiario: isSelectedDateToday: $isSelectedDateToday');
+
+    setState(() {
+      _isLoading = true;
+      _meals = {
+        'Desayuno': [],
+        'Almuerzo': [],
+        'Cena': [],
+        'Aperitivos': [],
+      };
+    });
+
+    try {
+      final List<Alimento> todosLosAlimentos = await _alimentoService.getAllAlimentos();
+      final Map<int, Alimento> mapaAlimentos = {
+        for (var alimento in todosLosAlimentos) alimento.id!: alimento
+      };
+
+      print(' _cargarDatosDelDiario: Fetching ingestas del usuario...');
+      final List<Ingesta> ingestasDelUsuario = await _ingestaService.obtenerIngestasDelUsuario();
+      print('_cargarDatosDelDiario: Fetched ${ingestasDelUsuario.length} total ingestas for user.');
+
+      for (var ingesta in ingestasDelUsuario) {
+        // Parsear la fecha de la ingesta
+        DateTime fechaIngesta;
+        try {
+          // Asumimos que la fecha viene en formato YYYY-MM-DD o similar parseable por DateTime.parse
+          // Si el formato es DD/MM/YYYY, necesitarás una lógica de parseo más específica.
+          // Por ejemplo: final parts = ingesta.fechaConsumo.split('/'); fechaIngesta = DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+          fechaIngesta = DateTime.parse(ingesta.fechaConsumo);
+        } catch (e) {
+          print("[WARN] Error parseando fecha de ingesta (${ingesta.fechaConsumo}): $e. Saltando esta ingesta.");
+          continue;
+        }
+
+        // Filtrar por fecha seleccionada (comparando solo día, mes y año)
+        if (fechaIngesta.year != _selectedDate.year ||
+            fechaIngesta.month != _selectedDate.month ||
+            fechaIngesta.day != _selectedDate.day) {
+          continue; // Saltar ingestas que no son de la fecha seleccionada
+        }
+
+        final Alimento? alimentoBase = mapaAlimentos[ingesta.alimentoId];
+
+        if (alimentoBase != null) {
+          final mealMap = {
+            'name': alimentoBase.nombre,
+            'details': 'Cantidad: ${ingesta.cantidad}',
+            'calories': (alimentoBase.calorias * ingesta.cantidad).round(),
+            '_originalIngesta': ingesta,
+          };
+
+          if (_meals.containsKey(ingesta.tipoIngesta)) {
+            _meals[ingesta.tipoIngesta]?.add(mealMap);
+          } else {
+            print("[WARN] Tipo de ingesta no reconocido: ${ingesta.tipoIngesta}");
+          }
+        }
+      }
+
+      final int currentTotalCaloriesForSelectedDate = _getTotalCalories();
+      print('[INFO DiarioScreen] _cargarDatosDelDiario: _getTotalCalories() for $_selectedDate returned: $currentTotalCaloriesForSelectedDate');
+
+      if (isSelectedDateToday) {
+        print(' _cargarDatosDelDiario: Selected date is TODAY. Attempting to save calories to prefs.');
+        _saveCaloriesToPrefs(currentTotalCaloriesForSelectedDate);
+      } else {
+        print('_cargarDatosDelDiario: Selected date is NOT today. Not saving calories to today_calories_consumed.');
+      }
+    } catch (e) {
+      print(" Error cargando datos: $e");
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -34,6 +147,14 @@ class _DiarioScreenState extends State<DiarioScreen> {
     final Color cardBackgroundColor = const Color(0xFF5A99D6).withOpacity(0.2);
     final Color backgroundColor = const Color(0xFF1E1E1E);
     final Color textColor = Colors.white;
+
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: backgroundColor,
+        body: const Center(child: CircularProgressIndicator()),
+        bottomNavigationBar: _buildBottomNavigationBar(),
+      );
+    }
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -43,7 +164,10 @@ class _DiarioScreenState extends State<DiarioScreen> {
           child: Column(
             children: [
               GestureDetector(
-                onTap: () => _selectDate(context),
+                onTap: () async {
+                  await _selectDate(context);
+                  _cargarDatosDelDiario();
+                },
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                       vertical: 20, horizontal: 24),
@@ -67,7 +191,6 @@ class _DiarioScreenState extends State<DiarioScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              // 🔥 Calorie Summary
               Text(
                 '${_getTotalCalories()}',
                 style: TextStyle(color: textColor,
@@ -80,18 +203,17 @@ class _DiarioScreenState extends State<DiarioScreen> {
                     color: textColor.withOpacity(0.7), fontSize: 16),
               ),
               const SizedBox(height: 24),
-              // 🍽️ Meal Cards
               Expanded(
                 child: ListView(
-                  children: _meals.entries.map((entry) {
-                    return _buildMealCard(
-                      entry.key,
-                      entry.value,
-                      cardBackgroundColor,
-                      textColor,
-                    );
-                  }).toList(),
-                ),
+                      children: _meals.entries.map((entry) {
+                        return _buildMealCard(
+                          entry.key,
+                          entry.value,
+                          cardBackgroundColor,
+                          textColor,
+                        );
+                      }).toList(),
+                    ),
               ),
             ],
           ),
@@ -123,12 +245,12 @@ class _DiarioScreenState extends State<DiarioScreen> {
                 Navigator.pushReplacementNamed(context, '/dashboard');
                 break;
               case 1:
-                break; // Ya estamos en Diario
+                break;
               case 2:
                 Navigator.pushNamed(context, '/agregarAlimento');
                 break;
               case 3:
-                Navigator.pushReplacementNamed(context, '/control');
+                Navigator.pushReplacementNamed(context, '/descubre');
                 break;
               case 4:
                 Navigator.pushReplacementNamed(context, '/mas');
@@ -136,8 +258,8 @@ class _DiarioScreenState extends State<DiarioScreen> {
             }
           },
           items: [
-            _buildBarItem('inicio.png', "Inicio", 0, _currentIndex),
-            _buildBarItem('diario.png', "Diario", 1, _currentIndex),
+            _buildBarItem(label: "Inicio", index: 0, currentIndex: _currentIndex, assetName: 'inicio.png'),
+            _buildBarItem(label: "Diario", index: 1, currentIndex: _currentIndex, assetName: 'diario.png'),
             BottomNavigationBarItem(
               icon: Container(
                 width: 40,
@@ -147,32 +269,44 @@ class _DiarioScreenState extends State<DiarioScreen> {
               ),
               label: "",
             ),
-            _buildBarItem('progreso.png', "Control", 3, _currentIndex),
-            _buildBarItem('opcionmas.png', "Más", 4, _currentIndex),
+            _buildBarItem(label: "Descubre", index: 3, currentIndex: _currentIndex, iconData: Icons.lightbulb_outline),
+            _buildBarItem(label: "Más", index: 4, currentIndex: _currentIndex, assetName: 'opcionmas.png'),
           ],
         ),
       ],
     );
   }
 
-  BottomNavigationBarItem _buildBarItem(String assetName,
-      String label,
-      int index,
-      int currentIndex,) {
+  BottomNavigationBarItem _buildBarItem({
+    required String label,
+    required int index,
+    required int currentIndex,
+    String? assetName,
+    IconData? iconData,
+  }) {
     final bool isActive = index == currentIndex;
     final Color activeColor = const Color(0xFF80C0FF);
     final Color inactiveColor = Colors.grey;
+
+    Widget iconWidget;
+    if (iconData != null) {
+      iconWidget = Icon(iconData, size: 24, color: isActive ? activeColor : inactiveColor);
+    } else if (assetName != null) {
+      iconWidget = Image.asset(
+        'assets/images/$assetName',
+        width: 24,
+        height: 24,
+        color: isActive ? activeColor : inactiveColor,
+      );
+    } else {
+      iconWidget = const SizedBox(width: 24, height: 24);
+    }
 
     return BottomNavigationBarItem(
       icon: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Image.asset(
-            'assets/images/$assetName',
-            width: 24,
-            height: 24,
-            color: isActive ? activeColor : inactiveColor,
-          ),
+          iconWidget,
           if (isActive)
             Container(
               width: 24,
@@ -215,22 +349,24 @@ class _DiarioScreenState extends State<DiarioScreen> {
       },
     );
     if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-      });
+      if (mounted) {
+        setState(() {
+          _selectedDate = picked;
+        });
+      }
     }
   }
 
   String _formatDate(DateTime date) {
-    return "${date.day}/${date.month}/${date.year}";
+    return "${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}";
   }
 
-  Widget _buildMealCard(String title,
+  Widget _buildMealCard(String mealType,
       List<Map<String, dynamic>> items,
       Color cardBackgroundColor,
       Color textColor,) {
     int totalCalories = items.fold(
-        0, (sum, item) => sum + (item['calories'] as int));
+        0, (sum, item) => sum + (item.containsKey('calories') && item['calories'] is int ? item['calories'] as int : 0));
 
     return Card(
       color: cardBackgroundColor,
@@ -241,13 +377,11 @@ class _DiarioScreenState extends State<DiarioScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
-            /// Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  title,
+                  mealType,
                   style: TextStyle(color: textColor,
                       fontSize: 18,
                       fontWeight: FontWeight.bold),
@@ -260,16 +394,24 @@ class _DiarioScreenState extends State<DiarioScreen> {
             ),
             const Divider(color: Colors.white24, height: 16),
 
-            ...items.map((item) =>
+            ...items.map((itemMap) =>
                 _buildFoodItem(
-                  item['name'],
-                  item['details'],
-                  "${item['calories']} Cal",
+                  mealType,
+                  itemMap,
                   textColor,
-                )),
+                )).toList(),
             const SizedBox(height: 6),
             TextButton(
-              onPressed: () => _agregarAlimento(title),
+              onPressed: () async {
+                  final result = await Navigator.pushNamed(
+                    context,
+                    '/registralimentos',
+                    arguments: {'mealType': mealType},
+                  );
+                  if (result != null) {
+                      _cargarDatosDelDiario();
+                  }
+              },
               style: TextButton.styleFrom(padding: EdgeInsets.zero),
               child: Text('Agregar alimento',
                   style: TextStyle(color: Colors.blueAccent.shade100)),
@@ -280,40 +422,91 @@ class _DiarioScreenState extends State<DiarioScreen> {
     );
   }
 
+  Widget _buildFoodItem(
+    String mealType,
+    Map<String, dynamic> foodItemMap,
+    Color textColor
+  ) {
+    final Ingesta originalIngesta = foodItemMap['_originalIngesta'] as Ingesta;
+    final String name = foodItemMap['name']?.toString() ?? 'Nombre no disponible';
+    final String details = foodItemMap['details']?.toString() ?? 'Detalles no disponibles';
+    final String calories = "${foodItemMap['calories']?.toString() ?? '0'} Cal";
 
-  Widget _buildFoodItem(String name, String details, String calories,
-      Color textColor) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(name, style: TextStyle(color: textColor, fontSize: 14)),
-              Text(details, style: TextStyle(
-                  color: textColor.withOpacity(0.6), fontSize: 12)),
-            ],
-          ),
-          Text(calories, style: TextStyle(color: textColor, fontSize: 14)),
-        ],
+    return Dismissible(
+      key: ObjectKey(originalIngesta),
+      direction: DismissDirection.endToStart,
+      confirmDismiss: (direction) async {
+        // You can add a confirmation dialog here if you want
+        // For example: return await showDialog(...);
+        return true; // Directly allow dismiss
+      },
+      onDismissed: (direction) async {
+        if (originalIngesta.id == null) {
+          print("[ERROR DiarioScreen] onDismissed: Ingesta ID is null. Cannot delete from backend.");
+          // Optionally, show a message to the user
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Error: No se pudo identificar la ingesta para eliminarla del servidor."))
+          );
+          // Potentially revert the dismissal or handle as a local-only deletion if that's a desired fallback
+          return;
+        }
+
+        bool deletedSuccessfully = await _ingestaService.eliminarIngesta(originalIngesta.id!);
+
+        if (deletedSuccessfully) {
+          if (mounted) {
+            setState(() {
+              _meals[mealType]?.removeWhere((map) => map['_originalIngesta'] == originalIngesta);
+              // Only save to 'today_calories_consumed' if the selected date is actually today
+              if (_isToday(_selectedDate)) {
+                print("[INFO DiarioScreen] onDismissed: Deletion successful for today's item. Recalculating and saving calories to prefs.");
+                _saveCaloriesToPrefs(_getTotalCalories());
+              } else {
+                print("[INFO DiarioScreen] onDismissed: Deletion successful for non-today item. Not saving calories to today_calories_consumed.");
+              }
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("$name eliminado correctamente."))
+            );
+          }
+        } else {
+          // If deletion failed, you might want to inform the user and potentially re-fetch or revert UI changes.
+          // For now, we'll just show an error message. The item will still be visually dismissed but might reappear on next load.
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Error al eliminar $name del servidor. Inténtalo de nuevo."))
+            );
+            // To revert the dismiss, you might need to add the item back to the list and call setState.
+            // This part can be complex depending on desired UX.
+            // For simplicity, we are not reverting the visual dismissal here, but it will likely reload on next screen visit.
+          }
+        }
+      },
+      background: Container(
+        color: Colors.red,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        alignment: Alignment.centerRight,
+        child: const Icon(Icons.delete, color: Colors.white),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(name, style: TextStyle(color: textColor, fontSize: 14)),
+                  Text(details, style: TextStyle(color: textColor.withOpacity(0.6), fontSize: 12)),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(calories, style: TextStyle(color: textColor, fontSize: 14, fontWeight: FontWeight.w500)),
+          ],
+        ),
       ),
     );
-  }
-
-
-  void _agregarAlimento(String mealType) async {
-    final result = await Navigator.pushNamed(
-      context,
-      '/registralimentos',
-      arguments: {'mealType': mealType},
-    );
-
-    if (result != null && result is Map<String, dynamic>) {
-      setState(() {
-        _meals[mealType]?.add(result);
-      });
-    }
   }
 }
