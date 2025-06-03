@@ -15,8 +15,8 @@ import '../presentation/pages/Login/login.dart';
 import '../presentation/pages/PantallaPrincipal/dashboard.dart';
 import '../presentation/pages/diario/diario.dart';
 import '../presentation/pages/registroalimentos/registroalimentos.dart';
-
-
+import '../presentation/pages/ajustes/ajustes_page.dart';
+import '../presentation/pages/ajustes/perfil_page.dart';
 
 
 class MyApp extends StatelessWidget {
@@ -43,13 +43,12 @@ class MyApp extends StatelessWidget {
         '/registroCampos': (context) => const RegistroCampos(),
         '/login': (context) => const LoginScreen(),
         '/dashboard': (context) => const DashboardScreen(),
+        '/ajustes': (context) => const AjustesPage(),
+        '/perfil': (context) => const PerfilPage(),
         '/diario': (context) => const DiarioScreen(),
         '/registralimentos': (context) => const RegistroAlimentosPage(mealType: '',),
-
-
-
-
       },
     );
   }
 }
+

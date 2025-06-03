@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pedometer/pedometer.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../../data/models/registro_model.dart';
 import '../../../data/services/login_service.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -14,44 +13,19 @@ class DashboardScreen extends StatefulWidget {
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingObserver {
+class _DashboardScreenState extends State<DashboardScreen> {
   RegistroModel? usuarioDatos;
   late Stream<StepCount> _stepCountStream;
   int _stepCount = 0;
-  int _caloriesConsumedToday = 0;
-  int _caloriesRemaining = 0;
-  int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
 
     _requestActivityRecognitionPermission().then((_) {
-      _loadInitialData();
+      _loadDatosUsuario();
       _initPedometer();
     });
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.resumed) {
-      print("[INFO Dashboard] App resumed, reloading calorie data.");
-      _loadCaloriesConsumedToday();
-    }
-  }
-
-  Future<void> _loadInitialData() async {
-    await _loadDatosUsuario();
-    await _loadCaloriesConsumedToday();
-    _recalculateAndSaveRemainingCalories();
   }
 
   void _initPedometer() {
@@ -70,66 +44,13 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
   }
 
   Future<void> _loadDatosUsuario() async {
-    print("[INFO Dashboard] _loadDatosUsuario: Fetching user data...");
+    print("Iniciando consulta al backend...");
     final datos = await getDatosUsuario();
-    print("[INFO Dashboard] _loadDatosUsuario: Backend data for user: $datos");
-    if (datos != null && mounted) {
+    print("Datos recibidos del backend: $datos");
+    if (datos != null) {
       setState(() {
         usuarioDatos = datos;
       });
-      _recalculateAndSaveRemainingCalories();
-    }
-  }
-
-  Future<void> _loadCaloriesConsumedToday() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final calories = prefs.getInt('today_calories_consumed');
-    print('[INFO Dashboard] _loadCaloriesConsumedToday: Read $calories from SharedPreferences key today_calories_consumed');
-    
-    if (mounted) {
-      setState(() {
-        _caloriesConsumedToday = calories ?? 0;
-        print('[INFO Dashboard] _loadCaloriesConsumedToday: _caloriesConsumedToday set to $_caloriesConsumedToday after loading from prefs.');
-      });
-      _recalculateAndSaveRemainingCalories();
-    }
-  }
-
-  void _recalculateAndSaveRemainingCalories() async {
-    print('[INFO Dashboard] _recalculateAndSaveRemainingCalories: Called.');
-    print('[INFO Dashboard] _recalculateAndSaveRemainingCalories: Current _caloriesConsumedToday: $_caloriesConsumedToday');
-    print('[INFO Dashboard] _recalculateAndSaveRemainingCalories: Current usuarioDatos: ${usuarioDatos?.toJson()}');
-
-    if (usuarioDatos != null && usuarioDatos!.caloriasDiarias != null) {
-      int goalCalories = usuarioDatos!.caloriasDiarias!;
-      int exerciseCalories = 0;
-      
-      int remaining = goalCalories - _caloriesConsumedToday + exerciseCalories;
-      print('[INFO Dashboard] _recalculateAndSaveRemainingCalories: Calculated remaining: $remaining (Goal: $goalCalories - Consumed: $_caloriesConsumedToday + Exercise: $exerciseCalories)');
-
-      if (mounted) {
-        setState(() {
-          _caloriesRemaining = remaining;
-          print('[INFO Dashboard] _recalculateAndSaveRemainingCalories: _caloriesRemaining state set to $_caloriesRemaining');
-        });
-      }
-
-      final prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getInt('jwt_id');
-      if (userId != null) {
-        print('[INFO Dashboard] _recalculateAndSaveRemainingCalories: Attempting to update backend for userId: $userId with remaining calories: $remaining');
-        await updateCaloriasRestantesUsuario(userId, remaining);
-      } else {
-        print("[WARN Dashboard] _recalculateAndSaveRemainingCalories: No userId found, cannot update remaining calories in backend.");
-      }
-    } else {
-      print('[INFO Dashboard] _recalculateAndSaveRemainingCalories: usuarioDatos or caloriasDiarias is null. Cannot calculate accurately.');
-      if (mounted) {
-        setState(() {
-          _caloriesRemaining = _caloriesConsumedToday > 0 ? -_caloriesConsumedToday : 0;
-          print('[INFO Dashboard] _recalculateAndSaveRemainingCalories: _caloriesRemaining state set to $_caloriesRemaining (fallback logic due to null goal).');
-        });
-      }
     }
   }
 
@@ -275,11 +196,8 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
   }
 
   Widget _buildCaloriesCard(Size size) {
-    int? caloriasObjetivo = usuarioDatos?.caloriasDiarias;
-    String caloriasObjetivoTexto = caloriasObjetivo?.toString() ?? '0';
-    String caloriasConsumidasTexto = _caloriesConsumedToday.toString();
-    String caloriasRestantesTexto = _caloriesRemaining.toString();
-
+    int? calorias = usuarioDatos?.caloriasDiarias;
+    String caloriasTexto = calorias?.toString() ?? '0';
     return Card(
       color: DashboardScreen.kCardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -303,28 +221,18 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
             ),
             const SizedBox(height: 24),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  flex: 2,
                   child: _buildCalorieItem(
-                      'assets/images/fuegocalorias.png', "Objetivo\nbase", caloriasObjetivoTexto),
+                      'assets/images/fuegocalorias.png', "Objetivo\nbase", caloriasTexto),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  flex: 2,
-                  child: _buildCalorieItem(Icons.restaurant, "Alimentos", caloriasConsumidasTexto)
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  flex: 2,
-                  child: _buildCalorieItem(Icons.fitness_center, "Ejercicios", "-")
-                ),
-                const SizedBox(width: 8),
+                Expanded(child: _buildCalorieItem(Icons.restaurant, "Alimentos", "-")),
+                Expanded(child: _buildCalorieItem(Icons.fitness_center, "Ejercicios", "-")),
                 Container(
-                  width: size.width * 0.20,
-                  height: size.width * 0.20,
+                  width: size.width * 0.22,
+                  height: size.width * 0.22,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.blueGrey.withOpacity(0.3),
@@ -334,21 +242,19 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          caloriasRestantesTexto,
+                          caloriasTexto,
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 16,
+                            fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
-                          textAlign: TextAlign.center,
                         ),
                         const Text(
                           "Restantes",
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 9,
+                            fontSize: 10,
                           ),
-                          textAlign: TextAlign.center,
                         ),
                       ],
                     ),
@@ -451,42 +357,30 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
   }
 
   Widget _buildCalorieItem(dynamic icon, String title, String value) {
-    String formattedTitle = title;
-    if (!title.contains('\n')) {
-      formattedTitle = '$title\n';
-    }
-
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
-          width: 45,
-          height: 45,
+          width: 50,
+          height: 50,
           decoration: BoxDecoration(
             color: Colors.white.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(12),
           ),
           child: Center(
             child: icon is String
-                ? Image.asset(icon, width: 26, height: 26)
-                : Icon(icon, color: Colors.white, size: 26),
+                ? Image.asset(icon, width: 28, height: 28)
+                : Icon(icon, color: Colors.white, size: 28),
           ),
         ),
-        const SizedBox(height: 6),
-        Text(
-          formattedTitle,
-          textAlign: TextAlign.center,
-          style: const TextStyle(color: Colors.white70, fontSize: 11),
-          maxLines: 2,
-        ),
-        const SizedBox(height: 3),
-        Text(
-          value,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-              color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
-        ),
+        const SizedBox(height: 8),
+        Text(title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.white70, fontSize: 12)),
+        const SizedBox(height: 4),
+        Text(value,
+            style: const TextStyle(
+                color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
       ],
     );
   }
@@ -594,6 +488,8 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
     );
   }
 
+  int _currentIndex = 0;
+
   Widget _buildBottomNavigationBar() {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -606,13 +502,13 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
           type: BottomNavigationBarType.fixed,
           currentIndex: _currentIndex,
           onTap: (index) {
-            if (index == _currentIndex) return;
             setState(() {
               _currentIndex = index;
             });
 
             switch (index) {
               case 0:
+                Navigator.pushReplacementNamed(context, '/dashboard');
                 break;
               case 1:
                 Navigator.pushReplacementNamed(context, '/diario');
@@ -621,63 +517,52 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
                 Navigator.pushNamed(context, '/agregarAlimento');
                 break;
               case 3:
-                Navigator.pushReplacementNamed(context, '/descubre');
+                Navigator.pushReplacementNamed(context, '/control');
                 break;
               case 4:
-                Navigator.pushReplacementNamed(context, '/mas');
+                Navigator.pushNamed(context, '/ajustes');
                 break;
             }
           },
           items: [
-            _buildBarItem(label: "Inicio", index: 0, currentIndex: _currentIndex, assetName: 'inicio.png'),
-            _buildBarItem(label: "Diario", index: 1, currentIndex: _currentIndex, assetName: 'diario.png'),
+            _buildBarItem('inicio.png', "Inicio", 0, _currentIndex),
+            _buildBarItem('diario.png', "Diario", 1, _currentIndex),
             BottomNavigationBarItem(
               icon: Container(
                 width: 40,
                 height: 40,
-                child: Image.asset(
-                    'assets/images/anadiralimento.png', width: 24),
+                child: Image.asset('assets/images/anadiralimento.png', width: 24),
               ),
               label: "",
             ),
-            _buildBarItem(label: "Descubre", index: 3, currentIndex: _currentIndex, iconData: Icons.lightbulb_outline),
-            _buildBarItem(label: "Más", index: 4, currentIndex: _currentIndex, assetName: 'opcionmas.png'),
+            _buildBarItem('progreso.png', "Control", 3, _currentIndex),
+            _buildBarItem('opcionmas.png', "Ajustes", 4, _currentIndex),
           ],
         ),
       ],
     );
   }
 
-  BottomNavigationBarItem _buildBarItem({
-    required String label,
-    required int index,
-    required int currentIndex,
-    String? assetName,
-    IconData? iconData,
-  }) {
+  BottomNavigationBarItem _buildBarItem(
+      String assetName,
+      String label,
+      int index,
+      int currentIndex,
+      ) {
     final bool isActive = index == currentIndex;
     final Color activeColor = const Color(0xFF80C0FF);
     final Color inactiveColor = Colors.grey;
-
-    Widget iconWidget;
-    if (iconData != null) {
-      iconWidget = Icon(iconData, size: 24, color: isActive ? activeColor : inactiveColor);
-    } else if (assetName != null) {
-      iconWidget = Image.asset(
-        'assets/images/$assetName',
-        width: 24,
-        height: 24,
-        color: isActive ? activeColor : inactiveColor,
-      );
-    } else {
-      iconWidget = const SizedBox(width: 24, height: 24);
-    }
 
     return BottomNavigationBarItem(
       icon: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          iconWidget,
+          Image.asset(
+            'assets/images/$assetName',
+            width: 24,
+            height: 24,
+            color: isActive ? activeColor : inactiveColor,
+          ),
           if (isActive)
             Container(
               width: 24,
