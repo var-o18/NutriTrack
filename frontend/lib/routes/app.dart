@@ -47,6 +47,12 @@ class MyApp extends StatelessWidget {
         '/perfil': (context) => const PerfilPage(),
         '/diario': (context) => const DiarioScreen(),
         '/registralimentos': (context) => const RegistroAlimentosPage(mealType: '',),
+        '/ajustes': (context) => const AjustesPage(),
+        '/perfil': (context) => const PerfilPage(),
+
+
+
+
       },
     );
   }

@@ -65,3 +65,36 @@ Future<RegistroModel?> getDatosUsuario() async {
     return null;
   }
 }
+
+Future<bool> updateCaloriasRestantesUsuario(int userId, int caloriasRestantes) async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('jwt_token');
+
+  if (token == null) {
+    print('Token no disponible para actualizar calorías');
+    return false;
+  }
+
+  final url = Uri.parse('http://192.168.56.1:8080/api/usuarios/$userId');
+  try {
+    final response = await http.patch(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({'caloriasRestantes': caloriasRestantes}),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      print('Calorías restantes actualizadas correctamente en el backend.');
+      return true;
+    } else {
+      print('Error al actualizar calorías restantes: ${response.statusCode} - ${response.body}');
+      return false;
+    }
+  } catch (e) {
+    print('Excepción al actualizar calorías restantes: $e');
+    return false;
+  }
+}

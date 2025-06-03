@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pedometer/pedometer.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../data/models/registro_model.dart';
 import '../../../data/services/login_service.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -17,6 +18,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   RegistroModel? usuarioDatos;
   late Stream<StepCount> _stepCountStream;
   int _stepCount = 0;
+  int _caloriasConsumidasHoy = 0;
 
   @override
   void initState() {
@@ -25,6 +27,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _requestActivityRecognitionPermission().then((_) {
       _loadDatosUsuario();
       _initPedometer();
+      _loadConsumedCalories();
     });
   }
 
@@ -51,6 +54,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
       setState(() {
         usuarioDatos = datos;
       });
+    }
+  }
+
+  Future<void> _loadConsumedCalories() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? consumed = prefs.getInt('today_calories_consumed');
+    print('[DashboardScreen] Loaded today_calories_consumed: $consumed');
+    if (consumed != null) {
+      if (mounted) {
+        setState(() {
+          _caloriasConsumidasHoy = consumed;
+        });
+      }
     }
   }
 
@@ -196,8 +212,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildCaloriesCard(Size size) {
-    int? calorias = usuarioDatos?.caloriasDiarias;
-    String caloriasTexto = calorias?.toString() ?? '0';
+    int? caloriasObjetivo = usuarioDatos?.caloriasDiarias;
+    String caloriasObjetivoTexto = caloriasObjetivo?.toString() ?? '0';
+
+    String caloriasConsumidasTexto = _caloriasConsumidasHoy.toString();
+
+    int caloriasEjercicio = 0;
+    String caloriasEjercicioTexto = caloriasEjercicio.toString();
+
+    int caloriasRestantes = (caloriasObjetivo ?? 0) - _caloriasConsumidasHoy + caloriasEjercicio;
+    String caloriasRestantesTexto = caloriasRestantes.toString();
+
     return Card(
       color: DashboardScreen.kCardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -226,10 +251,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 Expanded(
                   child: _buildCalorieItem(
-                      'assets/images/fuegocalorias.png', "Objetivo\nbase", caloriasTexto),
+                      'assets/images/fuegocalorias.png', "Objetivo", caloriasObjetivoTexto),
                 ),
-                Expanded(child: _buildCalorieItem(Icons.restaurant, "Alimentos", "-")),
-                Expanded(child: _buildCalorieItem(Icons.fitness_center, "Ejercicios", "-")),
+                Expanded(child: _buildCalorieItem(Icons.restaurant, "Alimentos", caloriasConsumidasTexto)),
+                Expanded(child: _buildCalorieItem(Icons.fitness_center, "Ejercicios", caloriasEjercicioTexto)),
                 Container(
                   width: size.width * 0.22,
                   height: size.width * 0.22,
@@ -242,7 +267,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          caloriasTexto,
+                          caloriasRestantesTexto,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 18,

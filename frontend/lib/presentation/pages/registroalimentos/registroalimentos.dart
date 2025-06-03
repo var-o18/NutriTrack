@@ -486,10 +486,16 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(alimento.nombre,
-                        style: TextStyle(color: textColor, fontSize: 16, fontWeight: FontWeight.w500)),
+                        style: TextStyle(color: textColor, fontSize: 16, fontWeight: FontWeight.w500),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis
+                    ),
                     const SizedBox(height: 4),
                     Text('${alimento.calorias.toStringAsFixed(0)} calorías',
-                        style: TextStyle(color: textColor.withOpacity(0.7), fontSize: 14)),
+                        style: TextStyle(color: textColor.withOpacity(0.7), fontSize: 14),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis
+                    ),
                   ],
                 ),
               ),
