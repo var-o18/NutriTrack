@@ -1,5 +1,5 @@
 class Alimento {
-  final int id;
+  final int? id;
   final String nombre;
   final double calorias;
   final double proteinas;
@@ -9,7 +9,7 @@ class Alimento {
   final String? ingredientes;
 
   Alimento({
-    required this.id,
+    this.id,
     required this.nombre,
     required this.calorias,
     required this.proteinas,
@@ -23,11 +23,12 @@ class Alimento {
     double toDoubleSafe(dynamic value) {
       if (value == null) return 0.0;
       if (value is num) return value.toDouble();
+      if (value is String) return double.tryParse(value) ?? 0.0;
       return 0.0;
     }
 
     return Alimento(
-      id: json['id'] ?? 0,
+      id: json['id'] as int?,
       nombre: json['nombre'] ?? '',
       calorias: toDoubleSafe(json['calorias']),
       proteinas: toDoubleSafe(json['proteinas']),
@@ -38,14 +39,23 @@ class Alimento {
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'nombre': nombre,
-    'calorias': calorias,
-    'proteinas': proteinas,
-    'carbohidratos': carbohidratos,
-    'grasas': grasas,
-    'codigo_barras': codigoBarras,
-    'ingredientes': ingredientes,
-  };
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = {
+      'nombre': nombre,
+      'calorias': calorias,
+      'proteinas': proteinas,
+      'carbohidratos': carbohidratos,
+      'grasas': grasas,
+    };
+    if (id != null) {
+      data['id'] = id;
+    }
+    if (codigoBarras != null) {
+      data['codigo_barras'] = codigoBarras;
+    }
+    if (ingredientes != null) {
+      data['ingredientes'] = ingredientes;
+    }
+    return data;
+  }
 }
