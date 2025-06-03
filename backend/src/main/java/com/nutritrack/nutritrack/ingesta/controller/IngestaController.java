@@ -10,8 +10,11 @@ import com.nutritrack.nutritrack.ingesta.mapper.IngestaMapper;
 import com.nutritrack.nutritrack.ingesta.service.IngestaService;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
 import java.time.LocalDate;
@@ -58,6 +61,24 @@ public class IngestaController implements IngestaApi {
         ingestaService.patch(patchRequest, ingesta.get());
 
         return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public ResponseEntity<Void> delete(Long id) {
+        Optional<Ingesta> ingesta = ingestaService.findById(id);
+
+        if (ingesta.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        try {
+            ingestaService.delete(ingesta.get());
+        } catch (DataIntegrityViolationException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La ingesta no se puede borrar. Constraint exception");
+        }
+
+        return ResponseEntity.noContent().build();
+
     }
 
 }
