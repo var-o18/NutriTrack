@@ -118,7 +118,7 @@ class IngestaService {
     }
 
     final url = Uri.parse('$baseUrl/${ingesta.id}');
-    print('[INFO] actualizarIngesta: Updating at $url');
+    print('[INFO] actualizarIngesta: Updating at $baseUrl/${ingesta.id}');
     print('[INFO] actualizarIngesta: Body: ${jsonEncode(ingesta.toMap())}');
 
     try {

@@ -5,6 +5,7 @@ import '../../../data/models/ingesta_model.dart';
 import '../../../data/models/alimneto_model.dart';
 import '../../../data/services/ingesta_service.dart';
 import '../../../data/services/alimentos_service.dart';
+import '../../modificaringesta/modificaringesta.dart';
 
 class DiarioScreen extends StatefulWidget {
   const DiarioScreen({super.key});
@@ -103,8 +104,8 @@ class _DiarioScreenState extends State<DiarioScreen> {
         if (alimentoBase != null) {
           final mealMap = {
             'name': alimentoBase.nombre,
-            'details': 'Cantidad: ${ingesta.cantidad}',
-            'calories': (alimentoBase.calorias * ingesta.cantidad).round(),
+            'details': 'Cantidad: ${ingesta.cantidad} Gramos',
+            'calories': (alimentoBase.calorias * ingesta.cantidad / 100).round(),
             '_originalIngesta': ingesta,
           };
 
@@ -465,108 +466,25 @@ class _DiarioScreenState extends State<DiarioScreen> {
       ),
       child: GestureDetector(
         onTap: () async {
-          final TextEditingController quantityController = TextEditingController(
-            text: originalIngesta.cantidad.toString()
-          );
-          
-          final result = await showDialog<double>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                backgroundColor: const Color(0xFF1E1E1E),
-                title: Text(
-                  'Modificar cantidad',
-                  style: TextStyle(color: textColor),
-                ),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      name,
-                      style: TextStyle(color: textColor.withOpacity(0.7)),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: quantityController,
-                      keyboardType: TextInputType.number,
-                      style: TextStyle(color: textColor),
-                      decoration: InputDecoration(
-                        labelText: 'Cantidad',
-                        labelStyle: TextStyle(color: textColor.withOpacity(0.7)),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: textColor.withOpacity(0.3)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: const Color(0xFF5A99D6)),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text(
-                      'Cancelar',
-                      style: TextStyle(color: textColor.withOpacity(0.7)),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      final newQuantity = double.tryParse(quantityController.text);
-                      if (newQuantity != null && newQuantity > 0) {
-                        Navigator.of(context).pop(newQuantity);
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Por favor ingrese una cantidad válida')),
-                        );
-                      }
-                    },
-                    child: const Text(
-                      'Guardar',
-                      style: TextStyle(color: Color(0xFF5A99D6)),
-                    ),
-                  ),
-                ],
-              );
-            },
-          );
+          final Alimento? alimento = await _alimentoService.getAlimentoById(originalIngesta.alimentoId);
 
-          if (result != null && result != originalIngesta.cantidad) {
-            try {
-              final updatedIngesta = Ingesta(
-                id: originalIngesta.id,
-                alimentoId: originalIngesta.alimentoId,
-                cantidad: result.toInt(),
-                fechaConsumo: originalIngesta.fechaConsumo,
-                tipoIngesta: originalIngesta.tipoIngesta,
-                usuarioId: originalIngesta.usuarioId,
-                horaConsumo: originalIngesta.horaConsumo,
-              );
-
-              final success = await _ingestaService.actualizarIngesta(updatedIngesta);
-              
-              if (success) {
-                if (mounted) {
-                  _cargarDatosDelDiario();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Cantidad actualizada correctamente')),
-                  );
-                }
-              } else {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Error al actualizar la cantidad')),
-                  );
-                }
-              }
-            } catch (e) {
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Error: $e')),
-                );
-              }
+          if (alimento != null) {
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ModificarIngestaPage(
+                  ingesta: originalIngesta,
+                  alimento: alimento,
+                ),
+              ),
+            );
+            if (result == true) {
+              _cargarDatosDelDiario();
             }
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('No se pudo cargar el alimento para editar.')),
+            );
           }
         },
         child: Padding(
