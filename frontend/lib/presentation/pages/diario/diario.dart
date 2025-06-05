@@ -60,7 +60,7 @@ class _DiarioScreenState extends State<DiarioScreen> {
 
   Future<void> _cargarDatosDelDiario() async {
     if (!mounted) return;
-    print(' _cargarDatosDelDiario: Called for _selectedDate: $_selectedDate');
+    print(' _cargarDatosDelDiario:  _selectedDate: $_selectedDate');
     final bool isSelectedDateToday = _isToday(_selectedDate);
     print('_cargarDatosDelDiario: isSelectedDateToday: $isSelectedDateToday');
 
@@ -85,23 +85,17 @@ class _DiarioScreenState extends State<DiarioScreen> {
       print('_cargarDatosDelDiario: Fetched ${ingestasDelUsuario.length} total ingestas for user.');
 
       for (var ingesta in ingestasDelUsuario) {
-        // Parsear la fecha de la ingesta
         DateTime fechaIngesta;
         try {
-          // Asumimos que la fecha viene en formato YYYY-MM-DD o similar parseable por DateTime.parse
-          // Si el formato es DD/MM/YYYY, necesitarás una lógica de parseo más específica.
-          // Por ejemplo: final parts = ingesta.fechaConsumo.split('/'); fechaIngesta = DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
           fechaIngesta = DateTime.parse(ingesta.fechaConsumo);
         } catch (e) {
-          print("[WARN] Error parseando fecha de ingesta (${ingesta.fechaConsumo}): $e. Saltando esta ingesta.");
           continue;
         }
 
-        // Filtrar por fecha seleccionada (comparando solo día, mes y año)
         if (fechaIngesta.year != _selectedDate.year ||
             fechaIngesta.month != _selectedDate.month ||
             fechaIngesta.day != _selectedDate.day) {
-          continue; // Saltar ingestas que no son de la fecha seleccionada
+            continue;
         }
 
         final Alimento? alimentoBase = mapaAlimentos[ingesta.alimentoId];
@@ -117,19 +111,15 @@ class _DiarioScreenState extends State<DiarioScreen> {
           if (_meals.containsKey(ingesta.tipoIngesta)) {
             _meals[ingesta.tipoIngesta]?.add(mealMap);
           } else {
-            print("[WARN] Tipo de ingesta no reconocido: ${ingesta.tipoIngesta}");
           }
         }
       }
 
       final int currentTotalCaloriesForSelectedDate = _getTotalCalories();
-      print('[INFO DiarioScreen] _cargarDatosDelDiario: _getTotalCalories() for $_selectedDate returned: $currentTotalCaloriesForSelectedDate');
 
       if (isSelectedDateToday) {
-        print(' _cargarDatosDelDiario: Selected date is TODAY. Attempting to save calories to prefs.');
         _saveCaloriesToPrefs(currentTotalCaloriesForSelectedDate);
       } else {
-        print('_cargarDatosDelDiario: Selected date is NOT today. Not saving calories to today_calories_consumed.');
       }
     } catch (e) {
       print(" Error cargando datos: $e");
@@ -223,7 +213,6 @@ class _DiarioScreenState extends State<DiarioScreen> {
     );
   }
 
-  /// 🌐 Bottom Navigation Bar
   Widget _buildBottomNavigationBar() {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -253,7 +242,7 @@ class _DiarioScreenState extends State<DiarioScreen> {
                 Navigator.pushReplacementNamed(context, '/descubre');
                 break;
               case 4:
-                Navigator.pushReplacementNamed(context, '/mas');
+                Navigator.pushReplacementNamed(context, '/ajustes');
                 break;
             }
           },
@@ -436,18 +425,13 @@ class _DiarioScreenState extends State<DiarioScreen> {
       key: ObjectKey(originalIngesta),
       direction: DismissDirection.endToStart,
       confirmDismiss: (direction) async {
-        // You can add a confirmation dialog here if you want
-        // For example: return await showDialog(...);
-        return true; // Directly allow dismiss
+        return true;
       },
       onDismissed: (direction) async {
         if (originalIngesta.id == null) {
-          print("[ERROR DiarioScreen] onDismissed: Ingesta ID is null. Cannot delete from backend.");
-          // Optionally, show a message to the user
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Error: No se pudo identificar la ingesta para eliminarla del servidor."))
           );
-          // Potentially revert the dismissal or handle as a local-only deletion if that's a desired fallback
           return;
         }
 
@@ -457,12 +441,8 @@ class _DiarioScreenState extends State<DiarioScreen> {
           if (mounted) {
             setState(() {
               _meals[mealType]?.removeWhere((map) => map['_originalIngesta'] == originalIngesta);
-              // Only save to 'today_calories_consumed' if the selected date is actually today
               if (_isToday(_selectedDate)) {
-                print("[INFO DiarioScreen] onDismissed: Deletion successful for today's item. Recalculating and saving calories to prefs.");
                 _saveCaloriesToPrefs(_getTotalCalories());
-              } else {
-                print("[INFO DiarioScreen] onDismissed: Deletion successful for non-today item. Not saving calories to today_calories_consumed.");
               }
             });
             ScaffoldMessenger.of(context).showSnackBar(
@@ -470,15 +450,10 @@ class _DiarioScreenState extends State<DiarioScreen> {
             );
           }
         } else {
-          // If deletion failed, you might want to inform the user and potentially re-fetch or revert UI changes.
-          // For now, we'll just show an error message. The item will still be visually dismissed but might reappear on next load.
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text("Error al eliminar $name del servidor. Inténtalo de nuevo."))
             );
-            // To revert the dismiss, you might need to add the item back to the list and call setState.
-            // This part can be complex depending on desired UX.
-            // For simplicity, we are not reverting the visual dismissal here, but it will likely reload on next screen visit.
           }
         }
       },
@@ -488,23 +463,130 @@ class _DiarioScreenState extends State<DiarioScreen> {
         alignment: Alignment.centerRight,
         child: const Icon(Icons.delete, color: Colors.white),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(name, style: TextStyle(color: textColor, fontSize: 14)),
-                  Text(details, style: TextStyle(color: textColor.withOpacity(0.6), fontSize: 12)),
+      child: GestureDetector(
+        onTap: () async {
+          final TextEditingController quantityController = TextEditingController(
+            text: originalIngesta.cantidad.toString()
+          );
+          
+          final result = await showDialog<double>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                backgroundColor: const Color(0xFF1E1E1E),
+                title: Text(
+                  'Modificar cantidad',
+                  style: TextStyle(color: textColor),
+                ),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      name,
+                      style: TextStyle(color: textColor.withOpacity(0.7)),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: quantityController,
+                      keyboardType: TextInputType.number,
+                      style: TextStyle(color: textColor),
+                      decoration: InputDecoration(
+                        labelText: 'Cantidad',
+                        labelStyle: TextStyle(color: textColor.withOpacity(0.7)),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: textColor.withOpacity(0.3)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: const Color(0xFF5A99D6)),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text(
+                      'Cancelar',
+                      style: TextStyle(color: textColor.withOpacity(0.7)),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      final newQuantity = double.tryParse(quantityController.text);
+                      if (newQuantity != null && newQuantity > 0) {
+                        Navigator.of(context).pop(newQuantity);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Por favor ingrese una cantidad válida')),
+                        );
+                      }
+                    },
+                    child: const Text(
+                      'Guardar',
+                      style: TextStyle(color: Color(0xFF5A99D6)),
+                    ),
+                  ),
                 ],
+              );
+            },
+          );
+
+          if (result != null && result != originalIngesta.cantidad) {
+            try {
+              final updatedIngesta = Ingesta(
+                id: originalIngesta.id,
+                alimentoId: originalIngesta.alimentoId,
+                cantidad: result.toInt(),
+                fechaConsumo: originalIngesta.fechaConsumo,
+                tipoIngesta: originalIngesta.tipoIngesta,
+                usuarioId: originalIngesta.usuarioId,
+                horaConsumo: originalIngesta.horaConsumo,
+              );
+
+              final success = await _ingestaService.actualizarIngesta(updatedIngesta);
+              
+              if (success) {
+                if (mounted) {
+                  _cargarDatosDelDiario();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Cantidad actualizada correctamente')),
+                  );
+                }
+              } else {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Error al actualizar la cantidad')),
+                  );
+                }
+              }
+            } catch (e) {
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Error: $e')),
+                );
+              }
+            }
+          }
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(name, style: TextStyle(color: textColor, fontSize: 14)),
+                    Text(details, style: TextStyle(color: textColor.withOpacity(0.6), fontSize: 12)),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Text(calories, style: TextStyle(color: textColor, fontSize: 14, fontWeight: FontWeight.w500)),
-          ],
+              const SizedBox(width: 8),
+              Text(calories, style: TextStyle(color: textColor, fontSize: 14, fontWeight: FontWeight.w500)),
+            ],
+          ),
         ),
       ),
     );
