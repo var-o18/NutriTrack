@@ -191,11 +191,12 @@ class _AgregarAlimentoPageState extends State<AgregarAlimentoPage> {
     Color accentColor,
     Color textColor,
   ) {
+    final size = MediaQuery.of(context).size;
     return Column(
       children: [
         Container(
-          width: 70,
-          height: 70,
+          width: size.width * 0.18,
+          height: size.width * 0.18,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(color: accentColor, width: 2),
@@ -206,14 +207,14 @@ class _AgregarAlimentoPageState extends State<AgregarAlimentoPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  width: 30,
+                  width: size.width * 0.08,
                   child: TextField(
                     controller: controller,
                     textAlign: TextAlign.end,
                     keyboardType: TextInputType.number,
                     style: TextStyle(
                       color: textColor,
-                      fontSize: 14,
+                      fontSize: size.width * 0.035,
                       fontWeight: FontWeight.bold,
                     ),
                     decoration: InputDecoration(
@@ -227,7 +228,7 @@ class _AgregarAlimentoPageState extends State<AgregarAlimentoPage> {
                   unit,
                   style: TextStyle(
                     color: textColor,
-                    fontSize: 12,
+                    fontSize: size.width * 0.03,
                   ),
                 ),
               ],
@@ -239,7 +240,7 @@ class _AgregarAlimentoPageState extends State<AgregarAlimentoPage> {
           label,
           style: TextStyle(
             color: textColor.withOpacity(0.7),
-            fontSize: 12,
+            fontSize: size.width * 0.03,
           ),
         ),
       ],

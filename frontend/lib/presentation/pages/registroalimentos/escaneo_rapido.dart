@@ -46,13 +46,50 @@ class _EscaneoRapidoPageState extends State<EscaneoRapidoPage> {
     _unidadRacionController.text = 'gr';
     _numeroRacionesController.text = '1';
 
+    print('Valores originales del alimento:');
+    print('Calorías por 100g: ${alimento.calorias}');
+    print('Proteínas por 100g: ${alimento.proteinas}');
+    print('Carbohidratos por 100g: ${alimento.carbohidratos}');
+    print('Grasas por 100g: ${alimento.grasas}');
+
+    // Mostrar valores por 100g directamente
     _caloriasController.text = alimento.calorias.toStringAsFixed(0);
     _carbohidratosController.text = alimento.carbohidratos.toStringAsFixed(1);
     _grasaController.text = alimento.grasas.toStringAsFixed(1);
     _proteinaController.text = alimento.proteinas.toStringAsFixed(1);
+  }
 
-    print('Ingredientes: ${alimento.ingredientes ?? 'No disponible'}');
-    print('Código de barras: ${alimento.codigoBarras ?? 'No disponible'}');
+  void _actualizarValoresNutricionales() {
+    if (widget.scannedAlimento == null) return;
+
+    double tamanoRacion = double.tryParse(_tamanoRacionController.text) ?? 100.0;
+    double numRaciones = double.tryParse(_numeroRacionesController.text) ?? 1.0;
+    
+    print('\nActualizando valores nutricionales:');
+    print('Tamaño ración: $tamanoRacion g');
+    print('Número raciones: $numRaciones');
+    
+    // Calcular factor de ajuste (por 100g)
+    double factor = (tamanoRacion * numRaciones) / 100.0;
+    print('Factor de ajuste: $factor');
+
+    setState(() {
+      double caloriasAjustadas = widget.scannedAlimento!.calorias * factor;
+      double carbosAjustados = widget.scannedAlimento!.carbohidratos * factor;
+      double grasasAjustadas = widget.scannedAlimento!.grasas * factor;
+      double proteinasAjustadas = widget.scannedAlimento!.proteinas * factor;
+
+      print('Valores ajustados:');
+      print('Calorías: $caloriasAjustadas');
+      print('Carbohidratos: $carbosAjustados');
+      print('Grasas: $grasasAjustadas');
+      print('Proteínas: $proteinasAjustadas');
+
+      _caloriasController.text = caloriasAjustadas.toStringAsFixed(0);
+      _carbohidratosController.text = carbosAjustados.toStringAsFixed(1);
+      _grasaController.text = grasasAjustadas.toStringAsFixed(1);
+      _proteinaController.text = proteinasAjustadas.toStringAsFixed(1);
+    });
   }
 
   Future<void> _onAgregarAlimentoPressed() async {
@@ -60,24 +97,45 @@ class _EscaneoRapidoPageState extends State<EscaneoRapidoPage> {
 
     Alimento? alimentoParaIngesta = widget.scannedAlimento;
     String nombreAlimento = _nombreController.text.trim();
-    double calorias = double.tryParse(_caloriasController.text) ?? 0;
-    double proteinas = double.tryParse(_proteinaController.text) ?? 0;
-    double carbohidratos = double.tryParse(_carbohidratosController.text) ?? 0;
-    double grasas = double.tryParse(_grasaController.text) ?? 0;
+    
+    print('\nGuardando alimento:');
+    print('Valores por 100g del alimento original:');
+    print('Calorías: ${widget.scannedAlimento?.calorias}');
+    print('Proteínas: ${widget.scannedAlimento?.proteinas}');
+    print('Carbohidratos: ${widget.scannedAlimento?.carbohidratos}');
+    print('Grasas: ${widget.scannedAlimento?.grasas}');
 
-    if (nombreAlimento.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('El nombre del alimento es obligatorio.')));
-      setState(() => _isLoading = false);
-      return;
-    }
+    double tamanoRacionNum = double.tryParse(_tamanoRacionController.text) ?? 100.0;
+    double numRacionesNum = double.tryParse(_numeroRacionesController.text) ?? 1.0;
+    int cantidadTotalGramos = (tamanoRacionNum * numRacionesNum).toInt();
+
+    print('\nCálculo final:');
+    print('Tamaño ración: $tamanoRacionNum g');
+    print('Número raciones: $numRacionesNum');
+    print('Cantidad total: $cantidadTotalGramos g');
+
+    // Calcular valores nutricionales totales
+    double factor = cantidadTotalGramos / 100.0;
+    print('Factor final: $factor');
+
+    double caloriasTotales = widget.scannedAlimento!.calorias * factor;
+    double proteinasTotales = widget.scannedAlimento!.proteinas * factor;
+    double carbohidratosTotales = widget.scannedAlimento!.carbohidratos * factor;
+    double grasasTotales = widget.scannedAlimento!.grasas * factor;
+
+    print('\nValores totales finales:');
+    print('Calorías totales: $caloriasTotales');
+    print('Proteínas totales: $proteinasTotales');
+    print('Carbohidratos totales: $carbohidratosTotales');
+    print('Grasas totales: $grasasTotales');
 
     Alimento currentAlimentoData = Alimento(
       id: alimentoParaIngesta?.id,
       nombre: nombreAlimento,
-      calorias: calorias,
-      proteinas: proteinas,
-      carbohidratos: carbohidratos,
-      grasas: grasas,
+      calorias: caloriasTotales,
+      proteinas: proteinasTotales,
+      carbohidratos: carbohidratosTotales,
+      grasas: grasasTotales,
       codigoBarras: alimentoParaIngesta?.codigoBarras,
       ingredientes: alimentoParaIngesta?.ingredientes,
     );
@@ -108,10 +166,6 @@ class _EscaneoRapidoPageState extends State<EscaneoRapidoPage> {
       setState(() => _isLoading = false);
       return;
     }
-
-    double tamanoRacionNum = double.tryParse(_tamanoRacionController.text) ?? 100.0;
-    double numRacionesNum = double.tryParse(_numeroRacionesController.text) ?? 1.0;
-    int cantidadTotalGramos = (tamanoRacionNum * numRacionesNum).toInt();
 
     final now = DateTime.now();
     final String fechaConsumo = DateFormat('yyyy-MM-dd').format(now);
@@ -183,7 +237,7 @@ class _EscaneoRapidoPageState extends State<EscaneoRapidoPage> {
               const SizedBox(height: 24),
 
               _buildInputField(
-                'Tamaño de la ración',
+                'Tamaño de la ración (Gramos)',
                 _tamanoRacionController,
                 textColor,
                 cardColor,
@@ -277,6 +331,11 @@ class _EscaneoRapidoPageState extends State<EscaneoRapidoPage> {
               border: InputBorder.none,
               contentPadding: EdgeInsets.zero,
             ),
+            onChanged: (value) {
+              if (label == 'Tamaño de la ración (Gramos)' || label == 'Número de raciones') {
+                _actualizarValoresNutricionales();
+              }
+            },
           ),
         ),
       ],
@@ -332,11 +391,12 @@ class _EscaneoRapidoPageState extends State<EscaneoRapidoPage> {
     Color accentColor,
     Color textColor,
   ) {
+    final size = MediaQuery.of(context).size;
     return Column(
       children: [
         Container(
-          width: 70,
-          height: 70,
+          width: size.width * 0.18,
+          height: size.width * 0.18,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(color: accentColor, width: 2),
@@ -347,14 +407,14 @@ class _EscaneoRapidoPageState extends State<EscaneoRapidoPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  width: 30,
+                  width: size.width * 0.08,
                   child: TextField(
                     controller: controller,
+                    enabled: false,
                     textAlign: TextAlign.end,
-                    keyboardType: TextInputType.number,
                     style: TextStyle(
                       color: textColor,
-                      fontSize: 14,
+                      fontSize: size.width * 0.035,
                       fontWeight: FontWeight.bold,
                     ),
                     decoration: InputDecoration(
@@ -368,7 +428,7 @@ class _EscaneoRapidoPageState extends State<EscaneoRapidoPage> {
                   unit,
                   style: TextStyle(
                     color: textColor,
-                    fontSize: 12,
+                    fontSize: size.width * 0.03,
                   ),
                 ),
               ],
@@ -380,7 +440,7 @@ class _EscaneoRapidoPageState extends State<EscaneoRapidoPage> {
           label,
           style: TextStyle(
             color: textColor.withOpacity(0.7),
-            fontSize: 12,
+            fontSize: size.width * 0.03,
           ),
         ),
       ],

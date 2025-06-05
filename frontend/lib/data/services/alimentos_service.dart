@@ -117,17 +117,12 @@ class AlimentoService {
       print('[DEBUG AlimentoService] No hay token disponible para saveAlimento');
       return null;
     }
-
-    // Usamos _baseUrl que es 'http://192.168.56.1:8080/api/alimentos'
+    
     final url = Uri.parse(_baseUrl);
     print('[DEBUG AlimentoService - saveAlimento] POST a URL: $url');
     
     final body = alimento.toJson();
-    // Si el backend espera el id en el post para una creación, y tu toJson() no lo incluye si es null,
-    // puede que necesites removerlo explícitamente si está presente y es para crear.
-    // Pero usualmente para un POST de creación, el ID no se envía o se ignora.
-    // Si tu backend lo requiere como null o no presente, asegúrate que toJson() lo maneje.
-    // Por ahora, enviaremos lo que toJson() produzca.
+
     print('[DEBUG AlimentoService - saveAlimento] Body: ${jsonEncode(body)}');
 
     final headers = {
@@ -146,13 +141,11 @@ class AlimentoService {
       print('[DEBUG AlimentoService - saveAlimento] Respuesta del backend - Status: ${response.statusCode}');
       print('[DEBUG AlimentoService - saveAlimento] Respuesta del backend - Body: ${response.body}');
 
-      // Tu backend devuelve un Long (el ID) directamente en el cuerpo, no un JSON del Alimento.
-      if (response.statusCode == 200 || response.statusCode == 201) { // 201 Created es más común para POST
+      if (response.statusCode == 200 || response.statusCode == 201) { 
         final String responseBody = response.body;
         final int? nuevoId = int.tryParse(responseBody);
         if (nuevoId != null) {
           print('[DEBUG AlimentoService - saveAlimento] Alimento guardado con ID: $nuevoId');
-          // Creamos una nueva instancia de Alimento con el ID asignado y los demás datos del original.
           return Alimento(
             id: nuevoId,
             nombre: alimento.nombre,
@@ -175,5 +168,13 @@ class AlimentoService {
       print('[DEBUG AlimentoService - saveAlimento] Excepción al guardar alimento: $e');
       return null;
     }
+  }
+
+  Future<Alimento?> getAlimentoById(int id) async {
+    final raw = await getAlimentoRaw(id);
+    if (raw != null && raw['data'] != null) {
+      return Alimento.fromJson(raw['data']);
+    }
+    return null;
   }
 }
