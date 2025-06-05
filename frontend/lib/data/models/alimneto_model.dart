@@ -1,5 +1,5 @@
 class Alimento {
-  final int id;
+  final int? id;
   final String nombre;
   final double calorias;
   final double proteinas;
@@ -9,7 +9,7 @@ class Alimento {
   final String? ingredientes;
 
   Alimento({
-    required this.id,
+    this.id,
     required this.nombre,
     required this.calorias,
     required this.proteinas,
@@ -20,28 +20,42 @@ class Alimento {
   });
 
   factory Alimento.fromJson(Map<String, dynamic> json) {
+    double toDoubleSafe(dynamic value) {
+      if (value == null) return 0.0;
+      if (value is num) return value.toDouble();
+      if (value is String) return double.tryParse(value) ?? 0.0;
+      return 0.0;
+    }
+
     return Alimento(
-      id: json['id'],
-      nombre: json['nombre'],
-      calorias: (json['calorias'] as num).toDouble(),
-      proteinas: (json['proteinas'] as num).toDouble(),
-      carbohidratos: (json['carbohidratos'] as num).toDouble(),
-      grasas: (json['grasas'] as num).toDouble(),
+      id: json['id'] as int?,
+      nombre: json['nombre'] ?? '',
+      calorias: (toDoubleSafe(json['calorias'])).round().toDouble(),
+      proteinas: toDoubleSafe(json['proteinas']),
+      carbohidratos: toDoubleSafe(json['carbohidratos']),
+      grasas: toDoubleSafe(json['grasas']),
       codigoBarras: json['codigo_barras'],
       ingredientes: json['ingredientes'],
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
+    final Map<String, dynamic> data = {
       'nombre': nombre,
       'calorias': calorias,
       'proteinas': proteinas,
       'carbohidratos': carbohidratos,
       'grasas': grasas,
-      'codigo_barras': codigoBarras,
-      'ingredientes': ingredientes,
     };
+    if (id != null) {
+      data['id'] = id;
+    }
+    if (codigoBarras != null) {
+      data['codigoBarras'] = codigoBarras;
+    }
+    if (ingredientes != null) {
+      data['ingredientes'] = ingredientes;
+    }
+    return data;
   }
 }
