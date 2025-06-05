@@ -30,7 +30,7 @@ class Alimento {
     return Alimento(
       id: json['id'] as int?,
       nombre: json['nombre'] ?? '',
-      calorias: toDoubleSafe(json['calorias']),
+      calorias: (toDoubleSafe(json['calorias'])).round().toDouble(),
       proteinas: toDoubleSafe(json['proteinas']),
       carbohidratos: toDoubleSafe(json['carbohidratos']),
       grasas: toDoubleSafe(json['grasas']),
@@ -51,7 +51,7 @@ class Alimento {
       data['id'] = id;
     }
     if (codigoBarras != null) {
-      data['codigo_barras'] = codigoBarras;
+      data['codigoBarras'] = codigoBarras;
     }
     if (ingredientes != null) {
       data['ingredientes'] = ingredientes;

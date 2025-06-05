@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // Para formatear fecha y hora
+import 'package:shared_preferences/shared_preferences.dart'; // Para obtener usuarioId
+import '../../../data/models/alimneto_model.dart';
+import '../../../data/models/ingesta_model.dart';
+import '../../../data/services/alimentos_service.dart';
+import '../../../data/services/ingesta_service.dart';
 import 'lector_codigo_barras.dart';
 
 class EscaneoRapidoPage extends StatefulWidget {
-  const EscaneoRapidoPage({super.key});
+  final Alimento? scannedAlimento;
+
+  const EscaneoRapidoPage({super.key, this.scannedAlimento});
 
   @override
   State<EscaneoRapidoPage> createState() => _EscaneoRapidoPageState();
@@ -10,14 +18,125 @@ class EscaneoRapidoPage extends StatefulWidget {
 
 class _EscaneoRapidoPageState extends State<EscaneoRapidoPage> {
   final TextEditingController _nombreController = TextEditingController();
-  final TextEditingController _tamanoRacionController = TextEditingController(text: '100gr');
-  final TextEditingController _numeroRacionesController = TextEditingController(text: '80');
+  final TextEditingController _tamanoRacionController = TextEditingController(text: '100');
+  final TextEditingController _unidadRacionController = TextEditingController(text: 'gr');
+  final TextEditingController _numeroRacionesController = TextEditingController(text: '1');
   final TextEditingController _caloriasController = TextEditingController(text: '0');
   final TextEditingController _carbohidratosController = TextEditingController(text: '0');
   final TextEditingController _grasaController = TextEditingController(text: '0');
   final TextEditingController _proteinaController = TextEditingController(text: '0');
   String _tipoComida = 'Desayuno';
   final List<String> _tiposComida = ['Desayuno', 'Almuerzo', 'Cena', 'Aperitivos'];
+
+  final AlimentoService _alimentoService = AlimentoService();
+  final IngestaService _ingestaService = IngestaService();
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.scannedAlimento != null) {
+      _prefillData(widget.scannedAlimento!);
+    }
+  }
+
+  void _prefillData(Alimento alimento) {
+    _nombreController.text = alimento.nombre;
+    _tamanoRacionController.text = '100';
+    _unidadRacionController.text = 'gr';
+    _numeroRacionesController.text = '1';
+
+    _caloriasController.text = alimento.calorias.toStringAsFixed(0);
+    _carbohidratosController.text = alimento.carbohidratos.toStringAsFixed(1);
+    _grasaController.text = alimento.grasas.toStringAsFixed(1);
+    _proteinaController.text = alimento.proteinas.toStringAsFixed(1);
+
+    print('Ingredientes: ${alimento.ingredientes ?? 'No disponible'}');
+    print('Código de barras: ${alimento.codigoBarras ?? 'No disponible'}');
+  }
+
+  Future<void> _onAgregarAlimentoPressed() async {
+    setState(() => _isLoading = true);
+
+    Alimento? alimentoParaIngesta = widget.scannedAlimento;
+    String nombreAlimento = _nombreController.text.trim();
+    double calorias = double.tryParse(_caloriasController.text) ?? 0;
+    double proteinas = double.tryParse(_proteinaController.text) ?? 0;
+    double carbohidratos = double.tryParse(_carbohidratosController.text) ?? 0;
+    double grasas = double.tryParse(_grasaController.text) ?? 0;
+
+    if (nombreAlimento.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('El nombre del alimento es obligatorio.')));
+      setState(() => _isLoading = false);
+      return;
+    }
+
+    Alimento currentAlimentoData = Alimento(
+      id: alimentoParaIngesta?.id,
+      nombre: nombreAlimento,
+      calorias: calorias,
+      proteinas: proteinas,
+      carbohidratos: carbohidratos,
+      grasas: grasas,
+      codigoBarras: alimentoParaIngesta?.codigoBarras,
+      ingredientes: alimentoParaIngesta?.ingredientes,
+    );
+
+    if (alimentoParaIngesta == null || alimentoParaIngesta.id == null) {
+      Alimento? savedAlimento = await _alimentoService.saveAlimento(currentAlimentoData);
+      if (savedAlimento != null) {
+        alimentoParaIngesta = savedAlimento;
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error al guardar el alimento en la base de datos.')));
+        setState(() => _isLoading = false);
+        return;
+      }
+    } else {
+      alimentoParaIngesta = currentAlimentoData;
+    }
+
+    if (alimentoParaIngesta == null || alimentoParaIngesta.id == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No se pudo procesar el alimento para la ingesta.')));
+      setState(() => _isLoading = false);
+      return;
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    final int? usuarioId = prefs.getInt('jwt_id');
+    if (usuarioId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error: No se pudo obtener el ID del usuario.')));
+      setState(() => _isLoading = false);
+      return;
+    }
+
+    double tamanoRacionNum = double.tryParse(_tamanoRacionController.text) ?? 100.0;
+    double numRacionesNum = double.tryParse(_numeroRacionesController.text) ?? 1.0;
+    int cantidadTotalGramos = (tamanoRacionNum * numRacionesNum).toInt();
+
+    final now = DateTime.now();
+    final String fechaConsumo = DateFormat('yyyy-MM-dd').format(now);
+    final String horaConsumo = DateFormat('HH:mm:ss').format(now);
+
+    Ingesta nuevaIngesta = Ingesta(
+      usuarioId: usuarioId,
+      alimentoId: alimentoParaIngesta.id!,
+      cantidad: cantidadTotalGramos,
+      fechaConsumo: fechaConsumo,
+      horaConsumo: horaConsumo,
+      tipoIngesta: _tipoComida,
+    );
+
+    bool ingestaRegistrada = await _ingestaService.registrarIngesta(nuevaIngesta);
+
+    setState(() => _isLoading = false);
+
+    if (ingestaRegistrada) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Alimento e ingesta agregados exitosamente!')));
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error al registrar la ingesta.')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,10 +224,7 @@ class _EscaneoRapidoPageState extends State<EscaneoRapidoPage> {
               const SizedBox(height: 32),
 
               ElevatedButton(
-                onPressed: () {
-                  // Aquí iría la lógica para agregar el alimento
-                  Navigator.pop(context);
-                },
+                onPressed: _isLoading ? null : _onAgregarAlimentoPressed,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: accentColor,
                   minimumSize: const Size(double.infinity, 50),
@@ -116,7 +232,9 @@ class _EscaneoRapidoPageState extends State<EscaneoRapidoPage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Text(
+                child: _isLoading 
+                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.0)) 
+                    : Text(
                   'Agregar Alimento',
                   style: TextStyle(
                     color: textColor,
@@ -273,6 +391,7 @@ class _EscaneoRapidoPageState extends State<EscaneoRapidoPage> {
   void dispose() {
     _nombreController.dispose();
     _tamanoRacionController.dispose();
+    _unidadRacionController.dispose();
     _numeroRacionesController.dispose();
     _caloriasController.dispose();
     _carbohidratosController.dispose();

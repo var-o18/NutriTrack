@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import '../../../data/models/alimneto_model.dart';
 import 'escaneo_rapido.dart';
+import '../../../data/services/alimentos_service.dart';
 
 class LectorCodigoBarrasPage extends StatefulWidget {
   const LectorCodigoBarrasPage({super.key});
@@ -12,6 +14,8 @@ class LectorCodigoBarrasPage extends StatefulWidget {
 class _LectorCodigoBarrasPageState extends State<LectorCodigoBarrasPage> {
   late MobileScannerController controller;
   bool _isScanning = true;
+  bool _isLoading = false; // Added for loading state
+  final AlimentoService _alimentoService = AlimentoService(); // Instantiate AlimentoService
 
   @override
   void initState() {
@@ -28,21 +32,59 @@ class _LectorCodigoBarrasPageState extends State<LectorCodigoBarrasPage> {
     super.dispose();
   }
 
-  void _onBarcodeDetected(String? barcode) {
-    if (!_isScanning || barcode == null) return;
+  Future<void> _onBarcodeDetected(String? barcode) async { // Changed to Future<void> and async
+    if (!_isScanning || barcode == null || barcode.isEmpty) return;
     
-    setState(() => _isScanning = false);
+    setState(() {
+      _isScanning = false;
+      _isLoading = true; // Start loading
+    });
     controller.stop();
     
-    // Aquí podrías hacer una llamada a tu API con el código de barras
-    // para obtener la información del producto antes de navegar
-    
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const EscaneoRapidoPage(),
-      ),
-    );
+    try {
+      Alimento? alimento = await _alimentoService.getAlimentoByCodigoBarras(barcode);
+
+      if (mounted) {
+        if (alimento != null) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => EscaneoRapidoPage(scannedAlimento: alimento), // Placeholder
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Alimento no encontrado o error de API.')),
+          );
+          setState(() {
+            _isScanning = true;
+            _isLoading = false; // Stop loading
+          });
+          controller.start();
+        }
+      }
+    } catch (e) {
+      print("Error in _onBarcodeDetected: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al procesar el código de barras: $e')),
+        );
+        setState(() {
+          _isScanning = true;
+          _isLoading = false; // Stop loading
+        });
+        controller.start();
+      }
+    }
+  }
+
+  // Método de prueba para simular escaneo
+  Future<void> _testScanWithOpenFoodFactsBarcode() async {
+    const String testBarcode = '3017620422003';
+    print('Simulando escaneo con código de OpenFoodFacts: $testBarcode');
+    if (_isScanning || !_isLoading) { // Solo procesar si no está ya procesando o si está listo para escanear
+      await _onBarcodeDetected(testBarcode);
+    }
   }
 
   @override
@@ -83,6 +125,7 @@ class _LectorCodigoBarrasPageState extends State<LectorCodigoBarrasPage> {
         children: [
           Expanded(
             child: Stack(
+              alignment: Alignment.center, // Center loading indicator
               children: [
                 MobileScanner(
                   controller: controller,
@@ -102,7 +145,18 @@ class _LectorCodigoBarrasPageState extends State<LectorCodigoBarrasPage> {
                   ),
                   margin: const EdgeInsets.all(50),
                 ),
+                if (_isLoading) // Show loading indicator
+                  CircularProgressIndicator(color: accentColor),
               ],
+            ),
+          ),
+          // Botón de prueba temporal
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              onPressed: _testScanWithOpenFoodFactsBarcode, 
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.orangeAccent),
+              child: const Text('Probar con código Nutella (OpenFoodFacts)'),
             ),
           ),
           Padding(

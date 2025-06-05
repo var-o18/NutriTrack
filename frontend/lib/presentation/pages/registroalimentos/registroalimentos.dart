@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nutritack/presentation/pages/registroalimentos/lector_codigo_barras.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../data/models/alimneto_model.dart';
@@ -331,7 +332,7 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
             () async {
               final String? barcode = await Navigator.push<String>(
                 context,
-                MaterialPageRoute(builder: (context) => const EscaneoRapidoPage()),
+                MaterialPageRoute(builder: (context) => const LectorCodigoBarrasPage()),
               );
 
               if (barcode != null && barcode.isNotEmpty) {

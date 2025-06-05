@@ -80,7 +80,7 @@ class IngestaService {
       return false;
     }
 
-    final url = Uri.parse('$baseUrl/$ingestaId'); // Assumes endpoint like /api/ingestas/{id}
+    final url = Uri.parse('$baseUrl/$ingestaId'); 
     print('[INFO] eliminarIngesta: Deleting from $url');
 
     try {
@@ -92,7 +92,7 @@ class IngestaService {
         },
       );
 
-      if (response.statusCode == 200 || response.statusCode == 204) { // 200 OK or 204 No Content are common for successful DELETE
+      if (response.statusCode == 200 || response.statusCode == 204) {
         print('[INFO] eliminarIngesta: Success (Status: ${response.statusCode}).');
         return true;
       } else {
@@ -101,6 +101,45 @@ class IngestaService {
       }
     } catch (e) {
       print('[ERROR] registrarIngesta: Exception: $e');
+      return false;
+    }
+  }
+
+  Future<bool> actualizarIngesta(Ingesta ingesta) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('jwt_token');
+    if (token == null) {
+      return false;
+    }
+
+    if (ingesta.id == null) {
+      print('[ERROR] actualizarIngesta: No ingesta ID provided.');
+      return false;
+    }
+
+    final url = Uri.parse('$baseUrl/${ingesta.id}');
+    print('[INFO] actualizarIngesta: Updating at $url');
+    print('[INFO] actualizarIngesta: Body: ${jsonEncode(ingesta.toMap())}');
+
+    try {
+      final response = await http.patch(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(ingesta.toMap()),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        print('[INFO] actualizarIngesta: Success (Status: ${response.statusCode}).');
+        return true;
+      } else {
+        print('[ERROR] actualizarIngesta: Failed. Status: ${response.statusCode}, Body: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('[ERROR] actualizarIngesta: Exception: $e');
       return false;
     }
   }
