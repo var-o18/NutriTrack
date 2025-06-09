@@ -8,53 +8,40 @@ class PerfilPage extends StatelessWidget {
     final Color backgroundColor = const Color(0xFF1E1E1E);
     final Color cardColor = const Color(0xFF5A99D6).withOpacity(0.3);
     final Color textColor = const Color(0xFFFFFFFF);
+    final Color valueColor = const Color(0xFF5A99D6);
 
-    List<Map<String, dynamic>> profileItems = [
-      {
-        'title': 'Información personal',
-        'isHeader': true,
-      },
-      {
-        'title': 'Nombre de usuario',
-        'value': 'alvaro3019',
-      },
-      {
-        'title': 'Foto de perfil',
-        'hasAvatar': true,
-      },
-      {
-        'title': 'Estatura',
-        'value': '182 cm',
-      },
-      {
-        'title': 'Sexo',
-        'value': 'Masculino',
-      },
-      {
-        'title': 'Fecha de nacimiento',
-        'value': '22 oct 2005',
-      },
-      {
-        'title': 'Ubicación',
-        'value': 'España',
-      },
-      {
-        'title': 'Código postal',
-        'value': '11111',
-      },
-      {
-        'title': 'Zona horaria',
-        'value': 'hora de Europa central (Madrid)',
-      },
-      {
-        'title': 'Dirección de email',
-        'value': 'alvarorodriguez@gmail.com',
-      },
-      {
-        'title': 'Unidades',
-        'value': 'kg, cm, cal, km, ml',
-      },
-    ];
+    Widget buildProfileItem(String title, String value, {Widget? trailing}) {
+      return Container(
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: textColor.withOpacity(0.1),
+              width: 1,
+            ),
+          ),
+        ),
+        child: ListTile(
+          visualDensity: VisualDensity.compact,
+          minLeadingWidth: 0,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+          title: Text(
+            title,
+            style: TextStyle(
+              color: textColor,
+              fontSize: 14,
+            ),
+          ),
+          trailing: trailing ?? Text(
+            value,
+            style: TextStyle(
+              color: valueColor,
+              fontSize: 14,
+            ),
+            textAlign: TextAlign.right,
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -68,65 +55,88 @@ class PerfilPage extends StatelessWidget {
           'Perfil',
           style: TextStyle(
             color: textColor,
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: FontWeight.w500,
           ),
         ),
-        centerTitle: true,
         elevation: 0,
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        itemCount: profileItems.length,
-        itemBuilder: (context, index) {
-          final item = profileItems[index];
-          
-          if (item['isHeader'] == true) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 8, top: 8, left: 8),
-              child: Text(
-                item['title'],
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
+      body: ListView(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Text(
+              'Información personal',
+              style: TextStyle(
+                color: textColor,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
               ),
-            );
-          }
-
-          return Container(
-            margin: const EdgeInsets.only(bottom: 8),
+            ),
+          ),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
               color: cardColor,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8),
             ),
-            child: ListTile(
-              title: Text(
-                item['title'],
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 16,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                buildProfileItem('Nombre de usuario', '28sgnybvs8'),
+                buildProfileItem(
+                  'Foto de perfil',
+                  '',
+                  trailing: CircleAvatar(
+                    radius: 12,
+                    backgroundColor: valueColor,
+                    child: Icon(Icons.person, color: textColor, size: 14),
+                  ),
                 ),
-              ),
-              trailing: item['hasAvatar'] == true
-                  ? const CircleAvatar(
-                      radius: 15,
-                      backgroundImage: AssetImage('assets/images/profile.png'),
-                    )
-                  : Text(
-                      item['value'] ?? '',
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: 16,
+                buildProfileItem('Estatura', '180 cm'),
+                buildProfileItem('Sexo', 'Femenino'),
+                buildProfileItem('Fecha de nacimiento', '9 jun 2007'),
+                buildProfileItem('Ubicación', 'Albania'),
+                buildProfileItem('Código postal', '11111'),
+                buildProfileItem('Zona horaria', 'hora de Europa central (Madrid)'),
+                buildProfileItem('Dirección de email', 'ejemplo@correo.com'),
+                buildProfileItem('Unidades', 'kg, cm, cal, km, ml'),
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: textColor.withOpacity(0.1),
+                        width: 1,
                       ),
                     ),
-              onTap: () {
-                // Aquí iría la lógica para editar cada campo
-              },
+                  ),
+                  child: ListTile(
+                    visualDensity: VisualDensity.compact,
+                    minLeadingWidth: 0,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    title: Text(
+                      'Objetivos',
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: 14,
+                      ),
+                    ),
+                    subtitle: Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Text(
+                        'Actualiza tus objetivos de peso, nutrición y preparación física.',
+                        style: TextStyle(
+                          color: textColor.withOpacity(0.7),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }
