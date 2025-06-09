@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:pedometer/pedometer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../data/models/alimneto_model.dart';
+import '../../../data/models/ingesta_model.dart';
 import '../../../data/models/registro_model.dart';
+import '../../../data/services/alimentos_service.dart';
 import '../../../data/services/login_service.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../../../data/services/ingesta_service.dart';
+
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -19,6 +24,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   late Stream<StepCount> _stepCountStream;
   int _stepCount = 0;
   int _caloriasConsumidasHoy = 0;
+  double _totalCarbs = 0;
+  double _totalProtein = 0;
+  double _totalFat = 0;
+  double _totalSodium = 0;
+  double _healthyFatPercentage = 0;
 
   @override
   void initState() {
@@ -28,6 +38,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _loadDatosUsuario();
       _initPedometer();
       _loadConsumedCalories();
+      _loadTodayMacros();
+      _loadHeartHealthMetrics();
     });
   }
 
@@ -67,6 +79,109 @@ class _DashboardScreenState extends State<DashboardScreen> {
           _caloriasConsumidasHoy = consumed;
         });
       }
+    }
+  }
+
+  Future<void> _loadTodayMacros() async {
+    final IngestaService ingestaService = IngestaService();
+    final AlimentoService alimentoService = AlimentoService();
+    
+    try {
+      final List<Alimento> todosLosAlimentos = await alimentoService.getAllAlimentos();
+      final Map<int, Alimento> mapaAlimentos = {
+        for (var alimento in todosLosAlimentos) alimento.id!: alimento
+      };
+
+      final List<Ingesta> ingestasDelUsuario = await ingestaService.obtenerIngestasDelUsuario();
+      final now = DateTime.now();
+      
+      double totalCarbs = 0;
+      double totalProtein = 0;
+      double totalFat = 0;
+
+      for (var ingesta in ingestasDelUsuario) {
+        DateTime fechaIngesta;
+        try {
+          fechaIngesta = DateTime.parse(ingesta.fechaConsumo);
+        } catch (e) {
+          continue;
+        }
+
+        if (fechaIngesta.year != now.year ||
+            fechaIngesta.month != now.month ||
+            fechaIngesta.day != now.day) {
+          continue;
+        }
+
+        final Alimento? alimento = mapaAlimentos[ingesta.alimentoId];
+        if (alimento != null) {
+          double factor = ingesta.cantidad / 100.0;
+          totalCarbs += alimento.carbohidratos * factor;
+          totalProtein += alimento.proteinas * factor;
+          totalFat += alimento.grasas * factor;
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          _totalCarbs = totalCarbs;
+          _totalProtein = totalProtein;
+          _totalFat = totalFat;
+        });
+      }
+    } catch (e) {
+      print('Error loading macros: $e');
+    }
+  }
+
+  Future<void> _loadHeartHealthMetrics() async {
+    final IngestaService ingestaService = IngestaService();
+    final AlimentoService alimentoService = AlimentoService();
+    
+    try {
+      final List<Alimento> todosLosAlimentos = await alimentoService.getAllAlimentos();
+      final Map<int, Alimento> mapaAlimentos = {
+        for (var alimento in todosLosAlimentos) alimento.id!: alimento
+      };
+
+      final List<Ingesta> ingestasDelUsuario = await ingestaService.obtenerIngestasDelUsuario();
+      final now = DateTime.now();
+      
+      double totalSodium = 0;
+      double totalHealthyFat = 0;
+      double totalFat = 0;
+
+      for (var ingesta in ingestasDelUsuario) {
+        DateTime fechaIngesta;
+        try {
+          fechaIngesta = DateTime.parse(ingesta.fechaConsumo);
+        } catch (e) {
+          continue;
+        }
+
+        if (fechaIngesta.year != now.year ||
+            fechaIngesta.month != now.month ||
+            fechaIngesta.day != now.day) {
+          continue;
+        }
+
+        final Alimento? alimento = mapaAlimentos[ingesta.alimentoId];
+        if (alimento != null) {
+          double factor = ingesta.cantidad / 100.0;
+          totalSodium += alimento.sodio * factor;
+          totalHealthyFat += alimento.grasasSaludables * factor;
+          totalFat += alimento.grasas * factor;
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          _totalSodium = totalSodium;
+          _healthyFatPercentage = totalFat > 0 ? (totalHealthyFat / totalFat) * 100 : 0;
+        });
+      }
+    } catch (e) {
+      print('Error loading heart health metrics: $e');
     }
   }
 
@@ -454,12 +569,54 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildMacroCircle("Carbs", "150g", Colors.blue),
-                  _buildMacroCircle("Proteína", "90g", Colors.green),
-                  _buildMacroCircle("Grasa", "60g", Colors.orange),
+                  _buildMacroCircle("Carbs", "${_totalCarbs.toStringAsFixed(1)}g", Colors.blue),
+                  _buildMacroCircle("Proteína", "${_totalProtein.toStringAsFixed(1)}g", Colors.green),
+                  _buildMacroCircle("Grasa", "${_totalFat.toStringAsFixed(1)}g", Colors.orange),
                 ],
               ),
             ],
+          ),
+        ),
+      );
+    }
+
+    if (title == "Corazón Saludable") {
+      return Card(
+        color: DashboardScreen.kCardColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        margin: const EdgeInsets.symmetric(horizontal: 8),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text("Corazón Saludable", style: TextStyle(color: Colors.white, fontSize: 18)),
+                const SizedBox(height: 12),
+                _heartBar("Sodio", _totalSodium, 2300, Colors.blue),
+                _heartBar("Grasas Saludables", _healthyFatPercentage, 100, Colors.green),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Text(
+                      "Recomendaciones:",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(width: 6),
+                    MouseRegion(
+                      onEnter: (_) => _showRecommendationOverlay(context),
+                      onExit: (_) => _hideRecommendationOverlay(),
+                      child: Icon(Icons.info_outline, color: Colors.blue[200], size: 20),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -616,5 +773,49 @@ class _DashboardScreenState extends State<DashboardScreen> {
     } else {
       print('Permiso ACTIVITY_RECOGNITION ya estaba concedido');
     }
+  }
+
+  Widget _heartBar(String label, double value, double max, Color color) {
+    double percent = (max > 0) ? (value / max).clamp(0.0, 1.0) : 0.0;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: TextStyle(color: Colors.white, fontSize: 14)),
+        SizedBox(height: 4),
+        Stack(
+          children: [
+            Container(
+              height: 12,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            if (percent > 0)
+              FractionallySizedBox(
+                widthFactor: percent,
+                child: Container(
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+          ],
+        ),
+        SizedBox(height: 2),
+        Text('${value.toStringAsFixed(1)} / ${max.toStringAsFixed(1)}', style: TextStyle(color: Colors.white70, fontSize: 12)),
+        SizedBox(height: 8),
+      ],
+    );
+  }
+
+  void _showRecommendationOverlay(BuildContext context) {
+    // Implementa la lógica para mostrar la ventana de recomendaciones
+  }
+
+  void _hideRecommendationOverlay() {
+    // Implementa la lógica para ocultar la ventana de recomendaciones
   }
 }

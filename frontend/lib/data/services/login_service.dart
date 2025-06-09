@@ -98,3 +98,36 @@ Future<bool> updateCaloriasRestantesUsuario(int userId, int caloriasRestantes) a
     return false;
   }
 }
+
+Future<bool> patchUsuario(Map<String, dynamic> patchData) async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('jwt_token');
+  final userId = prefs.getInt('jwt_id');
+
+  if (token == null || userId == null) {
+    print('Token o ID no disponible para patchUsuario');
+    return false;
+  }
+
+  final url = Uri.parse('http://192.168.56.1:8080/api/usuarios/$userId');
+  try {
+    final response = await http.patch(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(patchData),
+    );
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      print('Usuario actualizado correctamente.');
+      return true;
+    } else {
+      print('Error al actualizar usuario: \\${response.statusCode} - \\${response.body}');
+      return false;
+    }
+  } catch (e) {
+    print('Excepción al actualizar usuario: $e');
+    return false;
+  }
+}

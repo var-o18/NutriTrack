@@ -39,6 +39,10 @@ class Alimento {
     );
   }
 
+  get sodio => null;
+
+  get grasasSaludables => null;
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {
       'nombre': nombre,

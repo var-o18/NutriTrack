@@ -25,7 +25,7 @@ class RegistroModel {
   String? get objetivoPersonal => _objetivoPersonal;
   String? get nivelActividadFisica => _nivelActividadFisica;
   int? get caloriasDiarias => _caloriasDiarias;
-
+  get caloriasRestantes => null;
   // Setters
   set nombre(String? value) => _nombre = value;
   set apellidos(String? value) => _apellidos = value;
@@ -69,4 +69,6 @@ class RegistroModel {
       ..nivelActividadFisica = json['nivelActividadFisica']
       ..caloriasDiarias = json['caloriasDiarias'];
   }
+
+
 }
