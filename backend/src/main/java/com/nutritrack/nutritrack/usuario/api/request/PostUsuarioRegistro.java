@@ -23,16 +23,16 @@ public class PostUsuarioRegistro {
     @NotBlank(message = "El sexo es obligatorio")
     private String sexo;
 
-    @NotBlank(message = "La edad es obligatoria")
+    @NotNull(message = "La edad es obligatoria")
     @Min(value = 1, message = "La edad debe ser mayor a 0")
     @Max(value = 120, message = "La edad debe ser menor a 120")
     private int edad;
 
-    @NotBlank(message = "El peso es obligatorio")
+    @NotNull(message = "El peso es obligatorio")
     @Min(value = 20, message = "El peso debe ser mayor o igual que 20")
     private double peso;
 
-    @NotBlank(message = "La altura obligatoria")
+    @NotNull(message = "La altura obligatoria")
     @Min(value = 1, message = "La altura debe ser mayor a 0")
     private double altura;
 
