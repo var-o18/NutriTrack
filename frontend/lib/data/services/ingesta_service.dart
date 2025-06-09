@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/ingesta_model.dart';
 
 class IngestaService {
-  final String baseUrl = 'http://192.168.56.1:8080/api/ingestas';
+  final String baseUrl = 'http://192.168.18.70:8080/api/ingestas';
 
   Future<bool> registrarIngesta(Ingesta ingesta) async {
     final prefs = await SharedPreferences.getInstance();

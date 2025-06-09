@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'notificaciones_page.dart';
+import 'ejercicios_page.dart';
+import 'apariencia_page.dart';
+import 'nutricion_page.dart';
+import 'ajustes_diario_page.dart';
+import 'premium_page.dart';
 
 class AjustesPage extends StatelessWidget {
   const AjustesPage({super.key});
@@ -9,14 +15,53 @@ class AjustesPage extends StatelessWidget {
     final Color cardColor = const Color(0xFF5A99D6).withOpacity(0.3);
     final Color textColor = const Color(0xFFFFFFFF);
 
-    List<Map<String, String>> menuItems = [
+    List<Map<String, dynamic>> menuItems = [
       {'title': 'Perfil', 'route': '/perfil'},
-      {'title': 'Apariencia de la aplicación', 'route': '/apariencia'},
-      {'title': 'Ajustes del diario', 'route': '/ajustes-diario'},
-      {'title': 'Intercambio y privacidad', 'route': '/privacidad'},
-      {'title': 'Mis ejercicios', 'route': '/ejercicios'},
-      {'title': 'Ajustes de nutrición semanales', 'route': '/nutricion'},
-      {'title': 'Notificaciones automáticas', 'route': '/notificaciones'},
+      {
+        'title': 'Apariencia de la aplicación',
+        'onTap': (BuildContext context) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AparienciaPage()),
+          );
+        }
+      },
+      {
+        'title': 'Ajustes del diario',
+        'onTap': (BuildContext context) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AjustesDiarioPage()),
+          );
+        }
+      },
+      {
+        'title': 'Mis ejercicios',
+        'onTap': (BuildContext context) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const EjerciciosPage()),
+          );
+        }
+      },
+      {
+        'title': 'Ajustes de nutrición semanales',
+        'onTap': (BuildContext context) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NutricionPage()),
+          );
+        }
+      },
+      {
+        'title': 'Notificaciones automáticas',
+        'onTap': (BuildContext context) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NotificacionesPage()),
+          );
+        }
+      },
       {'title': 'Cerrar sesión', 'route': '/logout'},
     ];
 
@@ -65,8 +110,11 @@ class AjustesPage extends StatelessWidget {
                       color: textColor,
                     ),
                     onTap: () {
-                      // Aquí iría la navegación a cada ruta
-                      Navigator.pushNamed(context, menuItems[index]['route']!);
+                      if (menuItems[index]['onTap'] != null) {
+                        menuItems[index]['onTap'](context);
+                      } else {
+                        Navigator.pushNamed(context, menuItems[index]['route']!);
+                      }
                     },
                   ),
                 );
@@ -106,7 +154,10 @@ class AjustesPage extends StatelessWidget {
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: () {
-                          // Aquí iría la lógica para hacerse premium
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const PremiumPage()),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFFFB74D),
