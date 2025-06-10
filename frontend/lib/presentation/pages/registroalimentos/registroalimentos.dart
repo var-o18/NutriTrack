@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nutritack/presentation/pages/registroalimentos/lector_codigo_barras.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:nutritack/presentation/pages/seccionComidas/seccionComidas.dart';
 
 import '../../../data/models/alimneto_model.dart';
 import '../../../data/models/ingesta_model.dart';
@@ -21,6 +22,9 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
   int _currentIndex = 1;
   late String selectedMeal;
   final List<String> mealTypes = ['Desayuno', 'Almuerzo', 'Cena', 'Aperitivos'];
+
+  int _selectedTabIndex = 0;
+  final List<String> _tabs = ['Mis Alimentos', 'Mis Comidas', 'Mis Recetas'];
 
   final AlimentoService alimentoService = AlimentoService();
   final IngestaService ingestaService = IngestaService();
@@ -235,48 +239,46 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
         child: Column(
           children: [
             _buildTabs(textColor),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: TextField(
-                controller: _searchController,
-                style: TextStyle(color: textColor),
-                decoration: InputDecoration(
-                  hintText: 'Buscar alimentos...',
-                  hintStyle: TextStyle(color: textColor.withOpacity(0.7)),
-                  prefixIcon: Icon(Icons.search, color: textColor),
-                  filled: true,
-                  fillColor: cardBackgroundColor,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
+            if (_selectedTabIndex == 0)
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: TextField(
+                  controller: _searchController,
+                  style: TextStyle(color: textColor),
+                  decoration: InputDecoration(
+                    hintText: 'Buscar alimentos...',
+                    hintStyle: TextStyle(color: textColor.withOpacity(0.7)),
+                    prefixIcon: Icon(Icons.search, color: textColor),
+                    filled: true,
+                    fillColor: cardBackgroundColor,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    suffixIcon: _searchQuery.isNotEmpty
+                        ? IconButton(
+                            icon: Icon(Icons.clear, color: textColor),
+                            onPressed: () {
+                              _searchController.clear();
+                            },
+                          )
+                        : null,
                   ),
-                  suffixIcon: _searchQuery.isNotEmpty
-                      ? IconButton(
-                          icon: Icon(Icons.clear, color: textColor),
-                          onPressed: () {
-                            _searchController.clear();
-                          },
-                        )
-                      : null,
                 ),
               ),
-            ),
-            _buildAcciones(cardBackgroundColor, textColor),
-            const SizedBox(height: 20),
-            _buildSection('Historial', _historialUnico, cardBackgroundColor, textColor),
-            const SizedBox(height: 20),
-            _buildSugerenciasSection('Sugerencias', _alimentosFiltrados, cardBackgroundColor, textColor),
-            const SizedBox(height: 80),
+            _buildTabContent(_selectedTabIndex, textColor, cardBackgroundColor),
           ],
         ),
       ),
       bottomNavigationBar: _buildBottomNavigationBar(),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _guardarIngestas,
-        backgroundColor: const Color(0xFF5A99D6),
-        label: Text('Guardar'),
-        icon: Icon(Icons.save),
-      ),
+      floatingActionButton: _selectedTabIndex == 0
+          ? FloatingActionButton.extended(
+              onPressed: _guardarIngestas,
+              backgroundColor: const Color(0xFF5A99D6),
+              label: Text('Guardar'),
+              icon: Icon(Icons.save),
+            )
+          : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
@@ -305,19 +307,72 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
-          children: ['Mis Comidas', 'Mis Recetas', 'Mis Alimentos']
-              .map((tab) => _buildTab(tab, textColor))
-              .toList(),
+          children: List.generate(_tabs.length, (index) {
+            final bool selected = _selectedTabIndex == index;
+            return GestureDetector(
+              onTap: () {
+                setState(() => _selectedTabIndex = index);
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  children: [
+                    Text(
+                      _tabs[index],
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: selected ? textColor : textColor.withOpacity(0.5),
+                        decoration: selected ? TextDecoration.underline : null,
+                      ),
+                    ),
+                    if (selected)
+                      Container(
+                        margin: const EdgeInsets.only(top: 4),
+                        height: 3,
+                        width: 40,
+                        color: textColor,
+                      )
+                    else
+                      const SizedBox(height: 7),
+                  ],
+                ),
+              ),
+            );
+          }),
         ),
       ),
     );
   }
 
-  Widget _buildTab(String text, Color textColor) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Text(text, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: textColor)),
-    );
+  Widget _buildTabContent(int tabIndex, Color textColor, Color cardBackgroundColor) {
+    switch (tabIndex) {
+      case 0:
+        return Column(
+          children: [
+            _buildAcciones(cardBackgroundColor, textColor),
+            const SizedBox(height: 20),
+            _buildSection('Historial', _historialUnico, cardBackgroundColor, textColor),
+            const SizedBox(height: 20),
+            _buildSugerenciasSection('Sugerencias', _alimentosFiltrados, cardBackgroundColor, textColor),
+            const SizedBox(height: 80),
+          ],
+        );
+      case 1:
+        return SizedBox(
+          height: 500,
+          child: SeccionComidasPage(),
+        );
+      case 2:
+        return Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Center(
+            child: Text('Aquí irán tus recetas', style: TextStyle(color: textColor, fontSize: 18)),
+          ),
+        );
+      default:
+        return Container();
+    }
   }
 
   Widget _buildAcciones(Color bgColor, Color textColor) {
