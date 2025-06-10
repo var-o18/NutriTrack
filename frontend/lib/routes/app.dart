@@ -49,12 +49,7 @@ class MyApp extends StatelessWidget {
         '/registralimentos': (context) => const RegistroAlimentosPage(mealType: '',),
         '/ajustes': (context) => const AjustesPage(),
         '/perfil': (context) => const PerfilPage(),
-
-
-
-
       },
     );
   }
 }
-
