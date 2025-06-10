@@ -183,62 +183,122 @@ class _CreateComidasPageState extends State<CreateComidasPage> {
   }
 
   Widget _buildBottomNavigationBar() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(height: 1, color: const Color(0xFF5A99D6)),
-        BottomNavigationBar(
-          backgroundColor: const Color(0xFF1E1E1E),
-          selectedItemColor: const Color(0xFF80C0FF),
-          unselectedItemColor: Colors.grey,
-          type: BottomNavigationBarType.fixed,
-          currentIndex: 2, // Pasos
-          onTap: (index) {
-            // Aquí puedes agregar la navegación según el índice
-          },
-          items: [
-            _buildBarItem(label: "Inicio", assetName: 'inicio.png'),
-            _buildBarItem(label: "Diario", assetName: 'diario.png'),
-            BottomNavigationBarItem(
-              icon: Container(width: 40, height: 40, child: Image.asset('assets/images/anadiralimento.png', width: 24)),
-              label: "",
-            ),
-            _buildBarItem(label: "Pasos", iconData: Icons.directions_walk),
-            _buildBarItem(label: "Más", assetName: 'opcionmas.png'),
-          ],
+    return Container(
+      decoration: const BoxDecoration(
+        color: Color(0xFF1E1E1E),
+        border: Border(
+          top: BorderSide(
+            color: Color(0x4D5A99D6),
+            width: 1,
+          ),
         ),
-      ],
-    );
-  }
+      ),
+      child: BottomNavigationBar(
+        backgroundColor: const Color(0xFF1E1E1E),
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
+        currentIndex: 2,
+        onTap: (index) {
+          if (index == 2) return;
 
-  BottomNavigationBarItem _buildBarItem({
-    required String label,
-    String? assetName,
-    IconData? iconData,
-  }) {
-    final Color inactiveColor = Colors.grey;
-    Widget iconWidget;
-    if (iconData != null) {
-      iconWidget = Icon(iconData, size: 24, color: inactiveColor);
-    } else if (assetName != null) {
-      iconWidget = Image.asset(
-        'assets/images/$assetName',
-        width: 24,
-        height: 24,
-        color: inactiveColor,
-      );
-    } else {
-      iconWidget = const SizedBox(width: 24, height: 24);
-    }
-    return BottomNavigationBarItem(
-      icon: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          iconWidget,
-          const SizedBox(height: 7),
+          switch (index) {
+            case 0:
+              Navigator.pushReplacementNamed(context, '/dashboard');
+              break;
+            case 1:
+              Navigator.pushReplacementNamed(context, '/diario');
+              break;
+            case 3:
+              Navigator.pushReplacementNamed(context, '/descubre');
+              break;
+            case 4:
+              Navigator.pushNamed(context, '/ajustes');
+              break;
+          }
+        },
+        items: [
+          BottomNavigationBarItem(
+            icon: Column(
+              children: [
+                const Icon(Icons.grid_view),
+                if (2 == 0)
+                  Container(
+                    width: 24,
+                    height: 2,
+                    color: Colors.blue,
+                    margin: const EdgeInsets.only(top: 4),
+                  ),
+              ],
+            ),
+            label: 'Panel',
+          ),
+          BottomNavigationBarItem(
+            icon: Column(
+              children: [
+                const Icon(Icons.book),
+                if (2 == 1)
+                  Container(
+                    width: 24,
+                    height: 2,
+                    color: Colors.blue,
+                    margin: const EdgeInsets.only(top: 4),
+                  ),
+              ],
+            ),
+            label: 'Diario',
+          ),
+          BottomNavigationBarItem(
+            icon: Transform.translate(
+              offset: const Offset(0, 5),
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: const BoxDecoration(
+                  color: Colors.blue,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.add,
+                  color: Colors.white,
+                  size: 30,
+                ),
+              ),
+            ),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Column(
+              children: [
+                const Icon(Icons.lightbulb_outline),
+                if (2 == 3)
+                  Container(
+                    width: 24,
+                    height: 2,
+                    color: Colors.blue,
+                    margin: const EdgeInsets.only(top: 4),
+                  ),
+              ],
+            ),
+            label: 'Descubre',
+          ),
+          BottomNavigationBarItem(
+            icon: Column(
+              children: [
+                const Icon(Icons.more_horiz),
+                if (2 == 4)
+                  Container(
+                    width: 24,
+                    height: 2,
+                    color: Colors.blue,
+                    margin: const EdgeInsets.only(top: 4),
+                  ),
+              ],
+            ),
+            label: 'Más',
+          ),
         ],
       ),
-      label: label,
     );
   }
 
