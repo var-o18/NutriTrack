@@ -10,7 +10,6 @@ class CreateComidasPage extends StatefulWidget {
 class _CreateComidasPageState extends State<CreateComidasPage> {
   String? _imagePath;
   final TextEditingController _nombreController = TextEditingController();
-  // Datos simulados para la vista
   int calorias = 0;
   int carbohidratos = 0;
   int grasas = 0;
