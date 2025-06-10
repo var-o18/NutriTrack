@@ -62,11 +62,15 @@ class _PerfilPageState extends State<PerfilPage> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              Future.microtask(() => Navigator.pop(context));
+            },
             child: const Text('Cancelar')
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, controller.text),
+            onPressed: () {
+              Future.microtask(() => Navigator.pop(context, controller.text));
+            },
             child: const Text('Guardar')
           ),
         ],
@@ -85,7 +89,7 @@ class _PerfilPageState extends State<PerfilPage> {
             _usuario!.sexo = nuevoValor;
             break;
           case 'Edad':
-            _usuario!.edad = int.tryParse(nuevoValor);
+            _usuario!.edad = double.tryParse(nuevoValor)?.toInt();
             break;
           case 'Peso':
             _usuario!.peso = double.tryParse(nuevoValor);
@@ -124,7 +128,7 @@ class _PerfilPageState extends State<PerfilPage> {
         patchData['sexo'] = nuevoValor;
         break;
       case 'Edad':
-        patchData['edad'] = int.tryParse(nuevoValor);
+        patchData['edad'] = double.tryParse(nuevoValor)?.toInt();
         break;
       case 'Peso':
         patchData['peso'] = double.tryParse(nuevoValor);
@@ -165,7 +169,7 @@ class _PerfilPageState extends State<PerfilPage> {
             _usuario!.sexo = nuevoValor;
             break;
           case 'Edad':
-            _usuario!.edad = int.tryParse(nuevoValor);
+            _usuario!.edad = double.tryParse(nuevoValor)?.toInt();
             break;
           case 'Peso':
             _usuario!.peso = double.tryParse(nuevoValor);
@@ -201,8 +205,8 @@ class _PerfilPageState extends State<PerfilPage> {
     List<dynamic> valores = [];
     String unidad = '';
     if (key == 'Edad') {
-      valorActual = _usuario!.edad ?? 18;
-      valores = List.generate(91, (i) => i + 16);
+      valorActual = _usuario!.edad?.toDouble() ?? 18.0;
+      valores = List.generate(91, (i) => (i + 16).toDouble());
       unidad = 'años';
     } else if (key == 'Peso') {
       valorActual = _usuario!.peso ?? 60.0;
@@ -270,7 +274,7 @@ class _PerfilPageState extends State<PerfilPage> {
                                 ? '${valores[i].toStringAsFixed(2)} $unidad'
                                 : key == 'Peso'
                                     ? '${valores[i].toStringAsFixed(1)} $unidad'
-                                    : '${valores[i]} $unidad',
+                                    : '${valores[i].toStringAsFixed(0)} $unidad',
                             style: TextStyle(
                               fontSize: isSelected ? 24 : 18,
                               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -285,7 +289,7 @@ class _PerfilPageState extends State<PerfilPage> {
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context, valores[tempIndex]);
+                    Future.microtask(() => Navigator.pop(context, valores[tempIndex]));
                   },
                   child: const Text(
                     'Guardar',
@@ -313,6 +317,11 @@ class _PerfilPageState extends State<PerfilPage> {
     );
     if (result != null) {
       _guardarEdicion(key, result.toString(), index);
+      Future.microtask(() {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$key actualizado correctamente.')),
+        );
+      });
     }
   }
 
@@ -471,13 +480,39 @@ class _PerfilPageState extends State<PerfilPage> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: ListTile(
-                title: Text(
-                  item['title'],
-                  style: TextStyle(
-                    color: textColor,
-                    fontSize: 16,
-                  ),
-                ),
+                title: isEditing
+                    ? Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: editingController,
+                              autofocus: true,
+                              style: TextStyle(color: textColor, fontSize: 16),
+                              maxLines: 1,
+                              decoration: InputDecoration(
+                                labelText: item['title'],
+                                labelStyle: TextStyle(color: Colors.white70),
+                                isDense: true,
+                                contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.check, color: Colors.green),
+                            onPressed: () {
+                              _guardarEdicion(item['title'], editingController.text, filteredProfileItems.indexOf(item));
+                            },
+                          ),
+                        ],
+                      )
+                    : Text(
+                        item['title'],
+                        style: TextStyle(
+                          color: textColor,
+                          fontSize: 16,
+                        ),
+                      ),
                 trailing: isEditing && item['title'] == 'Objetivo Personal'
                     ? SizedBox(
                         width: 160,
@@ -531,34 +566,7 @@ class _PerfilPageState extends State<PerfilPage> {
                                 ),
                               )
                             : isEditing
-                                ? Row(
-                                    children: [
-                                      Expanded(
-                                        child: TextField(
-                                          controller: editingController,
-                                          autofocus: true,
-                                          style: TextStyle(color: textColor, fontSize: 16),
-                                          maxLines: 1,
-                                          scrollPhysics: const BouncingScrollPhysics(),
-                                          textAlign: TextAlign.start,
-                                          decoration: const InputDecoration(
-                                            isDense: true,
-                                            contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                                            border: InputBorder.none,
-                                          ),
-                                          onSubmitted: (value) {
-                                            _guardarEdicion(item['title'], value, filteredProfileItems.indexOf(item));
-                                          },
-                                        ),
-                                      ),
-                                      IconButton(
-                                        icon: Icon(Icons.check, color: Colors.green),
-                                        onPressed: () {
-                                          _guardarEdicion(item['title'], editingController.text, filteredProfileItems.indexOf(item));
-                                        },
-                                      ),
-                                    ],
-                                  )
+                                ? null
                                 : GestureDetector(
                                     onTap: () {
                                       setState(() {
