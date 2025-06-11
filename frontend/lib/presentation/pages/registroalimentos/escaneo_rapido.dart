@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // Para formatear fecha y hora
+import 'package:nutritack/presentation/pages/registroalimentos/registroalimentos.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Para obtener usuarioId
 import '../../../data/models/alimneto_model.dart';
 import '../../../data/models/ingesta_model.dart';
@@ -209,7 +210,7 @@ class _EscaneoRapidoPageState extends State<EscaneoRapidoPage> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => const LectorCodigoBarrasPage(),
+                builder: (context) => RegistroAlimentosPage(mealType: 'Almuerzo'),
               ),
             );
           },

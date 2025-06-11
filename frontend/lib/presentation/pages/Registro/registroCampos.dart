@@ -48,42 +48,40 @@ class _RegistroCamposState extends State<RegistroCampos> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Center(
-          child: Container(
-            width: screenWidth * 0.9,
-            height: screenHeight,
-            child: Stack(
-              children: [
-                // Back button
-                Positioned(
-                  top: screenHeight * 0.02,
-                  left: screenWidth * 0.02,
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const RegistroRestriccionesAlimentarias(),
+        child: SingleChildScrollView(
+          child: Center(
+            child: Container(
+              width: screenWidth * 0.9,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 24),
+                  // Back button
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const RegistroRestriccionesAlimentarias(),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFCCE1F6),
+                          shape: BoxShape.circle,
                         ),
-                      );
-                    },
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFCCE1F6),
-                        shape: BoxShape.circle,
+                        child: const Icon(Icons.arrow_back, color: Color(0xFF1E1E1E)),
                       ),
-                      child: const Icon(Icons.arrow_back, color: Color(0xFF1E1E1E)),
                     ),
                   ),
-                ),
-
-                // Logo
-                Positioned(
-                  top: screenHeight * 0.05,
-                  left: (screenWidth * 0.9 - 200) / 2,
-                  child: SizedBox(
+                  const SizedBox(height: 16),
+                  // Logo
+                  SizedBox(
                     width: 200,
                     height: 100,
                     child: Image.asset(
@@ -91,13 +89,9 @@ class _RegistroCamposState extends State<RegistroCampos> {
                       fit: BoxFit.cover,
                     ),
                   ),
-                ),
-
-                // Title
-                Positioned(
-                  top: screenHeight * 0.18,
-                  left: (screenWidth * 0.9 - 100) / 2,
-                  child: const Text(
+                  const SizedBox(height: 8),
+                  // Title
+                  const Text(
                     'Registro',
                     style: TextStyle(
                       fontSize: 20,
@@ -106,14 +100,9 @@ class _RegistroCamposState extends State<RegistroCampos> {
                       color: Color(0xFF232323),
                     ),
                   ),
-                ),
-
-                // Form Fields
-                Positioned(
-                  top: screenHeight * 0.25,
-                  left: screenWidth * 0.05,
-                  right: screenWidth * 0.05,
-                  child: Form(
+                  const SizedBox(height: 24),
+                  // Form Fields
+                  Form(
                     key: _formKey,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -128,74 +117,71 @@ class _RegistroCamposState extends State<RegistroCampos> {
                       ],
                     ),
                   ),
-                ),
+                  const SizedBox(height: 40),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF5A99D6),
+            minimumSize: const Size(double.infinity, 50),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            elevation: 4,
+          ),
+          onPressed: () async {
+            final registroData = Provider.of<RegistroData>(context, listen: false);
+            final registroModel = registroData.datos;
 
-                // Create account button
-                Positioned(
-                  bottom: screenHeight * 0.1,
-                  left: screenWidth * 0.05,
-                  right: screenWidth * 0.05,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF5A99D6),
-                      minimumSize: const Size(double.infinity, 50),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      elevation: 4,
-                    ),
-                    onPressed: () async {
-                      final registroData = Provider.of<RegistroData>(context, listen: false);
-                      final registroModel = registroData.datos;
+            if (_formKey.currentState?.validate() ?? false) {
+              registroData.actualizarRegistro(
+                nombre: nombreController.text,
+                apellidos: apellidosController.text,
+                correo: correoController.text,
+                contrasena: contrasenaController.text,
+                sexo: registroModel.sexo,
+                edad: registroModel.edad,
+                peso: registroModel.peso,
+                altura: registroModel.altura,
+                objetivo_personal: registroModel.objetivoPersonal,
+                nivel_actividad_fisica: registroModel.nivelActividadFisica,
+              );
 
-                      if (_formKey.currentState?.validate() ?? false) {
-                        registroData.actualizarRegistro(
-                          nombre: nombreController.text,
-                          apellidos: apellidosController.text,
-                          correo: correoController.text,
-                          contrasena: contrasenaController.text,
-                          sexo: registroModel.sexo,
-                          edad: registroModel.edad,
-                          peso: registroModel.peso,
-                          altura: registroModel.altura,
-                          objetivo_personal: registroModel.objetivoPersonal,
-                          nivel_actividad_fisica: registroModel.nivelActividadFisica,
-                        );
+              final resultado = await registrarUsuario(registroModel);
 
-                        final resultado = await registrarUsuario(registroModel);
+              if (resultado['success'] == true) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => DashboardScreen()),
+                      (route) => false,
+                );
+              } else {
+                final statusCode = resultado['statusCode'];
+                final body = resultado['body'] ?? '';
+                final errorMsg = body.isNotEmpty ? body : 'Error al registrar. Código: $statusCode';
 
-                        if (resultado['success'] == true) {
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(builder: (context) => DashboardScreen()),
-                                (route) => false,
-                          );
-                        } else {
-                          final statusCode = resultado['statusCode'];
-                          final body = resultado['body'] ?? '';
-                          final errorMsg = body.isNotEmpty ? body : 'Error al registrar. Código: $statusCode';
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(errorMsg),
-                              backgroundColor: Colors.redAccent,
-                            ),
-                          );
-                        }
-                      }
-                    },
-                    child: const Text(
-                      'Crear cuenta',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF232323),
-                      ),
-                    ),
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(errorMsg),
+                    backgroundColor: Colors.redAccent,
                   ),
-                ),
-              ],
+                );
+              }
+            }
+          },
+          child: const Text(
+            'Crear cuenta',
+            style: TextStyle(
+              fontSize: 16,
+              fontFamily: 'Montserrat',
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF232323),
             ),
           ),
         ),

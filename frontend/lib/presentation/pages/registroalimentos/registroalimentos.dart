@@ -271,15 +271,6 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
         ),
       ),
       bottomNavigationBar: _buildBottomNavigationBar(),
-      floatingActionButton: _selectedTabIndex == 0
-          ? FloatingActionButton.extended(
-        onPressed: _guardarIngestas,
-        backgroundColor: const Color(0xFF5A99D6),
-        label: Text('Guardar'),
-        icon: Icon(Icons.save),
-      )
-          : null,
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
@@ -461,18 +452,22 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
           itemCount: alimentosMostrados.length,
           itemBuilder: (_, index) {
             final alimento = alimentosMostrados[index];
-            final isSelected = _alimentosSeleccionados.contains(alimento);
             return GestureDetector(
-              onTap: () {
-                setState(() {
-                  isSelected ? _alimentosSeleccionados.remove(alimento) : _alimentosSeleccionados.add(alimento);
-                });
+              onTap: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EscaneoRapidoPage(scannedAlimento: alimento),
+                  ),
+                );
+                // Opcional: refrescar datos después de añadir
+                _initializeData();
               },
               child: _buildAlimentoCard(
                 alimento,
-                isSelected ? bgColor.withOpacity(0.9) : bgColor,
+                bgColor,
                 textColor,
-                isSelected: isSelected,
+                isSelected: false,
               ),
             );
           },
@@ -520,7 +515,7 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: isSelected ? Colors.blueAccent : Colors.transparent, width: 2),
+          border: Border.all(color: Colors.transparent, width: 2),
         ),
         child: Padding(
           padding: const EdgeInsets.all(12),
@@ -555,8 +550,7 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
                   ],
                 ),
               ),
-              Icon(isSelected ? Icons.check_circle : Icons.add_circle_outline,
-                  color: isSelected ? Colors.greenAccent : textColor),
+              // Ya no hay icono de selección
             ],
           ),
         ),

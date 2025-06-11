@@ -301,8 +301,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     int caloriasRestantes = (caloriasObjetivo ?? 0) - _caloriasConsumidasHoy;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      margin: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: const Color(0x4D5A99D6),
         borderRadius: BorderRadius.circular(16),
@@ -336,8 +336,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   alignment: Alignment.center,
                   children: [
                     Container(
-                      width: 120,
-                      height: 120,
+                      width: 125,
+                      height: 130,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: Colors.black26,
