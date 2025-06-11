@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../utils/quick_actions.dart';
+
 class CreateComidasPage extends StatefulWidget {
   const CreateComidasPage({super.key});
 
@@ -216,7 +218,7 @@ class _CreateComidasPageState extends State<CreateComidasPage> {
                 Navigator.pushReplacementNamed(context, '/descubre');
                 break;
               case 4:
-                Navigator.pushNamed(context, '/ajustes');
+                showQuickActions(context);
                 break;
             }
           },

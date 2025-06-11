@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../utils/quick_actions.dart';
+
 class DescubrePage extends StatefulWidget {
   final int caloriasRestantes;
   final List<Map<String, dynamic>> recomendaciones;
@@ -534,9 +536,10 @@ class _DescubrePageState extends State<DescubrePage> {
                 Navigator.pushReplacementNamed(context, '/diario');
                 break;
               case 2:
-                Navigator.pushNamed(context, '/agregarAlimento');
+                showQuickActions(context);
                 break;
               case 3:
+                Navigator.pushReplacementNamed(context, '/descubre');
                 break;
               case 4:
                 Navigator.pushNamed(context, '/ajustes');

@@ -7,6 +7,7 @@ import '../../../data/models/alimneto_model.dart';
 import '../../../data/models/ingesta_model.dart';
 import '../../../data/services/alimentos_service.dart';
 import '../../../data/services/ingesta_service.dart';
+import '../../../utils/quick_actions.dart';
 import 'agregar_alimento.dart';
 import 'escaneo_rapido.dart';
 
@@ -581,10 +582,7 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
           unselectedItemColor: Colors.grey,
           currentIndex: _currentIndex,
           onTap: (index) {
-            if (index == _currentIndex && index != 2) return;
-            if (index == 2 && ModalRoute.of(context)?.settings.name == '/registralimentos') {
-              return;
-            }
+            if (index == _currentIndex) return;
             switch (index) {
               case 0:
                 Navigator.pushReplacementNamed(context, '/dashboard');
@@ -593,6 +591,7 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
                 Navigator.pushReplacementNamed(context, '/diario');
                 break;
               case 2:
+                showQuickActions(context);
                 break;
               case 3:
                 Navigator.pushReplacementNamed(context, '/descubre');

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../utils/quick_actions.dart';
 import '../registroalimentos/registroalimentos.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../data/models/ingesta_model.dart';
@@ -237,15 +238,16 @@ class _DiarioScreenState extends State<DiarioScreen> {
           unselectedItemColor: Colors.grey,
           currentIndex: _currentIndex,
           onTap: (index) {
-            if (index == _currentIndex && index != 2) return;
+            if (index == _currentIndex) return;
             switch (index) {
               case 0:
                 Navigator.pushReplacementNamed(context, '/dashboard');
                 break;
               case 1:
+                Navigator.pushReplacementNamed(context, '/diario');
                 break;
               case 2:
-                Navigator.pushNamed(context, '/agregarAlimento');
+                showQuickActions(context);
                 break;
               case 3:
                 Navigator.pushReplacementNamed(context, '/descubre');
