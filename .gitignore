@@ -3,7 +3,6 @@
 /backend/*.log
 /backend/.idea/
 /backend/*.iml
-/backend/src/main/resources/application.properties
 
 # Flutter (Frontend)
 /frontend/.dart_tool/
