@@ -52,6 +52,15 @@ class MyApp extends StatelessWidget {
         '/perfil': (context) => const PerfilPage(),
         '/diario': (context) => const DiarioScreen(),
         '/registralimentos': (context) => const RegistroAlimentosPage(mealType: '',),
+        '/descubre': (context) => DescubrePage(
+          caloriasRestantes: 500,
+          recomendaciones: [
+            {'nombre': 'Manzana', 'calorias': 52, 'imagen': 'assets/images/manzana.png'},
+            {'nombre': 'Yogur natural', 'calorias': 80, 'imagen': 'assets/images/yogur.png'},
+            {'nombre': 'Avena', 'calorias': 150, 'imagen': 'assets/images/avena.png'},
+            {'nombre': 'Pollo a la plancha', 'calorias': 200, 'imagen': 'assets/images/pollo.png'},
+          ],
+        ),
       },
     );
   }

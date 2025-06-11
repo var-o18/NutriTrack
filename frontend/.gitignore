@@ -76,3 +76,6 @@ General
 *.DS_Store
 *.env
 *.sql
+
+# FVM Version Cache
+.fvm/
