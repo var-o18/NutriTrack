@@ -93,7 +93,6 @@ class _WelcomePageState extends State<Bienvenida2> {
             const SizedBox(height: 20),
             _buildIndicator(),
             const SizedBox(height: 20),
-            // Botón REGÍSTRATE GRATIS
             OutlinedButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/registro1');
@@ -116,7 +115,9 @@ class _WelcomePageState extends State<Bienvenida2> {
             ),
             const SizedBox(height: 10),
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                Navigator.pushNamed(context, '/login');
+              },
               child: const Text(
                 'INICIA SESIÓN',
                 style: TextStyle(
