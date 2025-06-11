@@ -6,8 +6,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class NutritrackApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(NutritrackApplication.class, args);
-	}
+    public static void main(String[] args) {
+        System.out.println("Arrancando aplicación Nutritrack...");
+        SpringApplication.run(NutritrackApplication.class, args);
+        System.out.println("Aplicación arrancada correctamente.");
+    }
 
 }
