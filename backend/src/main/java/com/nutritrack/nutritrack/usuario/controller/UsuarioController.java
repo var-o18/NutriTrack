@@ -7,6 +7,7 @@ import com.nutritrack.nutritrack.usuario.api.request.LoginRequest;
 import com.nutritrack.nutritrack.usuario.api.request.PatchUsuarioRequest;
 import com.nutritrack.nutritrack.usuario.api.request.PostUsuarioRegistro;
 import com.nutritrack.nutritrack.usuario.api.response.LoginResponse;
+import com.nutritrack.nutritrack.usuario.api.response.RegistroResponse;
 import com.nutritrack.nutritrack.usuario.api.response.UsuarioResponse;
 import com.nutritrack.nutritrack.usuario.entity.Usuario;
 import com.nutritrack.nutritrack.usuario.mapper.UsuarioMapper;
@@ -49,7 +50,7 @@ public class UsuarioController implements UsuarioApi {
 
     @SneakyThrows
     @Override
-    public ResponseEntity<UsuarioResponse> save(PostUsuarioRegistro postUsuarioRegistro) {
+    public ResponseEntity<RegistroResponse> save(PostUsuarioRegistro postUsuarioRegistro) {
         Long usuarioId = usuarioService.save(postUsuarioRegistro);
         Optional<Usuario> usuarioOpt = usuarioService.findById(usuarioId);
 
@@ -57,9 +58,17 @@ public class UsuarioController implements UsuarioApi {
             return ResponseEntity.notFound().build();
         }
 
-        UsuarioResponse usuarioResponse = usuarioMapper.toUsuarioResponse(usuarioOpt.get());
+        Usuario usuario = usuarioOpt.get();
+        UsuarioResponse usuarioResponse = usuarioMapper.toUsuarioResponse(usuario);
+        String token = jwtUtil.generateToken(usuario.getCorreo());
+        
+        RegistroResponse registroResponse = RegistroResponse.builder()
+                .usuario(usuarioResponse)
+                .token(token)
+                .build();
+
         URI location = new URI("usuarios/" + usuarioId);
-        return ResponseEntity.created(location).body(usuarioResponse);
+        return ResponseEntity.created(location).body(registroResponse);
     }
 
     @Override
