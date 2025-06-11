@@ -575,121 +575,121 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
           ),
         ),
       ),
-      child: BottomNavigationBar(
-        backgroundColor: const Color(0xFF1E1E1E),
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          if (index == _currentIndex && index != 2) return;
-
-          if (index == 2 && ModalRoute.of(context)?.settings.name == '/registralimentos') {
-            return;
-          } else {
-            setState(() {
-              _currentIndex = index;
-            });
-          }
-
-          switch (index) {
-            case 0:
-              Navigator.pushReplacementNamed(context, '/dashboard');
-              break;
-            case 1:
-              Navigator.pushReplacementNamed(context, '/diario');
-              break;
-            case 2:
-              break;
-            case 3:
-              Navigator.pushReplacementNamed(context, '/descubre');
-              break;
-            case 4:
-              Navigator.pushNamed(context, '/ajustes');
-              break;
-          }
-        },
-        items: [
-          BottomNavigationBarItem(
-            icon: Column(
-              children: [
-                const Icon(Icons.grid_view),
-                if (_currentIndex == 0)
-                  Container(
-                    width: 24,
-                    height: 2,
-                    color: Colors.blue,
-                    margin: const EdgeInsets.only(top: 4),
-                  ),
-              ],
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+        ),
+        child: BottomNavigationBar(
+          backgroundColor: const Color(0xFF1E1E1E),
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: Colors.blue,
+          unselectedItemColor: Colors.grey,
+          currentIndex: _currentIndex,
+          onTap: (index) {
+            if (index == _currentIndex && index != 2) return;
+            if (index == 2 && ModalRoute.of(context)?.settings.name == '/registralimentos') {
+              return;
+            }
+            switch (index) {
+              case 0:
+                Navigator.pushReplacementNamed(context, '/dashboard');
+                break;
+              case 1:
+                Navigator.pushReplacementNamed(context, '/diario');
+                break;
+              case 2:
+                break;
+              case 3:
+                Navigator.pushReplacementNamed(context, '/descubre');
+                break;
+              case 4:
+                Navigator.pushNamed(context, '/ajustes');
+                break;
+            }
+          },
+          items: [
+            BottomNavigationBarItem(
+              icon: Column(
+                children: [
+                  const Icon(Icons.grid_view),
+                  if (_currentIndex == 0)
+                    Container(
+                      width: 24,
+                      height: 2,
+                      color: Colors.blue,
+                      margin: const EdgeInsets.only(top: 4),
+                    ),
+                ],
+              ),
+              label: 'Panel',
             ),
-            label: 'Panel',
-          ),
-          BottomNavigationBarItem(
-            icon: Column(
-              children: [
-                const Icon(Icons.book),
-                if (_currentIndex == 1)
-                  Container(
-                    width: 24,
-                    height: 2,
-                    color: Colors.blue,
-                    margin: const EdgeInsets.only(top: 4),
-                  ),
-              ],
+            BottomNavigationBarItem(
+              icon: Column(
+                children: [
+                  const Icon(Icons.book),
+                  if (_currentIndex == 1)
+                    Container(
+                      width: 24,
+                      height: 2,
+                      color: Colors.blue,
+                      margin: const EdgeInsets.only(top: 4),
+                    ),
+                ],
+              ),
+              label: 'Diario',
             ),
-            label: 'Diario',
-          ),
-          BottomNavigationBarItem(
-            icon: Transform.translate(
-              offset: const Offset(0, 5),
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: const BoxDecoration(
-                  color: Colors.blue,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.add,
-                  color: Colors.white,
-                  size: 30,
+            BottomNavigationBarItem(
+              icon: Transform.translate(
+                offset: const Offset(0, 5),
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: const BoxDecoration(
+                    color: Colors.blue,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.add,
+                    color: Colors.white,
+                    size: 30,
+                  ),
                 ),
               ),
+              label: '',
             ),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Column(
-              children: [
-                const Icon(Icons.lightbulb_outline),
-                if (_currentIndex == 3)
-                  Container(
-                    width: 24,
-                    height: 2,
-                    color: Colors.blue,
-                    margin: const EdgeInsets.only(top: 4),
-                  ),
-              ],
+            BottomNavigationBarItem(
+              icon: Column(
+                children: [
+                  const Icon(Icons.lightbulb_outline),
+                  if (_currentIndex == 3)
+                    Container(
+                      width: 24,
+                      height: 2,
+                      color: Colors.blue,
+                      margin: const EdgeInsets.only(top: 4),
+                    ),
+                ],
+              ),
+              label: 'Descubre',
             ),
-            label: 'Descubre',
-          ),
-          BottomNavigationBarItem(
-            icon: Column(
-              children: [
-                const Icon(Icons.more_horiz),
-                if (_currentIndex == 4)
-                  Container(
-                    width: 24,
-                    height: 2,
-                    color: Colors.blue,
-                    margin: const EdgeInsets.only(top: 4),
-                  ),
-              ],
+            BottomNavigationBarItem(
+              icon: Column(
+                children: [
+                  const Icon(Icons.more_horiz),
+                  if (_currentIndex == 4)
+                    Container(
+                      width: 24,
+                      height: 2,
+                      color: Colors.blue,
+                      margin: const EdgeInsets.only(top: 4),
+                    ),
+                ],
+              ),
+              label: 'Más',
             ),
-            label: 'Más',
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
