@@ -29,6 +29,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   double _totalFat = 0;
   double _totalSodium = 0;
   double _healthyFatPercentage = 0;
+  int _currentCardIndex = 0;
+  int _currentStepsCardIndex = 0;
 
   @override
   void initState() {
@@ -202,14 +204,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Row(
                 children: [
-                  const CircleAvatar(
-                    backgroundColor: Colors.white24,
-                  ),
                   Expanded(
                     child: Center(
                       child: Image.asset(
                         'assets/images/image.png',
-                        height: size.height * 0.06,
+                        height: 50,
                       ),
                     ),
                   ),
@@ -218,14 +217,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
             const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32.0),
-              child: Text(
-                "Hoy",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontFamily: 'Montserrat',
-                ),
+              padding: EdgeInsets.only(left: 37.0, right: 32.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    "Hoy",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 21,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 8),
@@ -233,72 +237,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
               height: size.height * 0.25,
               child: PageView(
                 controller: caloriesController,
+                onPageChanged: (index) {
+                  setState(() {
+                    _currentCardIndex = index;
+                  });
+                },
                 children: [
-                  _buildCaloriesCard(size),
+                  _buildCaloriesCard(),
                   _simpleCard("Macros"),
                   _simpleCard("Corazón Saludable"),
                 ],
               ),
             ),
-            _buildPageIndicator(3),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Card(
-                      color: DashboardScreen.kCardColor,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      margin: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Padding(
-                        padding: const EdgeInsets.all(14),
-                        child: Row(
-                          children: [
-                            Image.asset('assets/images/zapatillapasos.png', width: 40),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text("Pasos",
-                                      style: TextStyle(color: Colors.white, fontSize: 16)),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    _stepCount > 0
-                                        ? "$_stepCount pasos"
-                                        : "Conéctate para\nregistrar los pasos",
-                                    style: TextStyle(
-                                      color: _stepCount > 0 ? Colors.white : Colors.white70,
-                                      fontSize: _stepCount > 0 ? 18 : 12,
-                                      fontWeight:
-                                      _stepCount > 0 ? FontWeight.bold : FontWeight.normal,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(child: _buildExerciseCard(size)),
-                ],
-              ),
-            ),
+            _buildPageIndicator(3, _currentCardIndex),
+            _buildActivitySection(),
             const SizedBox(height: 16),
             SizedBox(
               height: size.height * 0.3,
               child: PageView(
                 controller: stepsChartController,
+                onPageChanged: (index) {
+                  setState(() {
+                    _currentStepsCardIndex = index;
+                  });
+                },
                 children: [
                   _buildStepsChartCard(size, "Últimos 90 días"),
                   _buildStepsChartCard(size, "Apple Watch"),
                 ],
               ),
             ),
-            _buildPageIndicator(2),
+            _buildPageIndicator(2, _currentStepsCardIndex),
           ],
         ),
       ),
@@ -306,18 +275,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildPageIndicator(int count) {
+  Widget _buildPageIndicator(int count, int currentIndex) {
     return Center(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: List.generate(
           count,
-              (index) => Container(
+          (index) => Container(
             margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 12),
             width: 7,
             height: 7,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
+              color: currentIndex == index ? const Color(0xFF80C0FF) : Colors.transparent,
               border: Border.all(color: const Color(0xFF80C0FF)),
             ),
           ),
@@ -326,127 +296,374 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildCaloriesCard(Size size) {
+  Widget _buildCaloriesCard() {
     int? caloriasObjetivo = usuarioDatos?.caloriasDiarias;
-    String caloriasObjetivoTexto = caloriasObjetivo?.toString() ?? '0';
+    int caloriasRestantes = (caloriasObjetivo ?? 0) - _caloriasConsumidasHoy;
 
-    String caloriasConsumidasTexto = _caloriasConsumidasHoy.toString();
-
-    int caloriasEjercicio = 0;
-    String caloriasEjercicioTexto = caloriasEjercicio.toString();
-
-    int caloriasRestantes = (caloriasObjetivo ?? 0) - _caloriasConsumidasHoy + caloriasEjercicio;
-    String caloriasRestantesTexto = caloriasRestantes.toString();
-
-    return Card(
-      color: DashboardScreen.kCardColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Calorías",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontFamily: 'Montserrat',
-              ),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0x4D5A99D6),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Calorías",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
             ),
-            const Text(
-              "Restantes = Objetivo - Alimentos + Ejercicio",
-              style: TextStyle(color: Colors.white70, fontSize: 12),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            "Restantes = Objetivo - Alimentos + Ejercicio",
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: 12,
             ),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: _buildCalorieItem(
-                      'assets/images/fuegocalorias.png', "Objetivo", caloriasObjetivoTexto),
-                ),
-                Expanded(child: _buildCalorieItem(Icons.restaurant, "Alimentos", caloriasConsumidasTexto)),
-                Expanded(child: _buildCalorieItem(Icons.fitness_center, "Ejercicios", caloriasEjercicioTexto)),
-                Container(
-                  width: size.width * 0.22,
-                  height: size.width * 0.22,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.blueGrey.withOpacity(0.3),
-                  ),
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                flex: 3,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.black26,
+                        border: Border.all(
+                          color: Colors.white10,
+                          width: 8,
+                        ),
+                      ),
+                    ),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          caloriasRestantesTexto,
+                          caloriasRestantes.toString(),
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 18,
+                            fontSize: 30,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const Text(
                           "Restantes",
                           style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
+                            color: Colors.white70,
+                            fontSize: 12,
                           ),
                         ),
                       ],
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+              Expanded(
+                flex: 2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Icon(
+                            Icons.flag,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "Objetivo base",
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 11,
+                                ),
+                              ),
+                              Text(
+                                "${caloriasObjetivo ?? 0}",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Icon(
+                            Icons.restaurant,
+                            color: Colors.blue,
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "Alimentos",
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 11,
+                                ),
+                              ),
+                              Text(
+                                "$_caloriasConsumidasHoy",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Icon(
+                            Icons.local_fire_department,
+                            color: Colors.orange,
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: const [
+                              Text(
+                                "Ejercicio",
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 11,
+                                ),
+                              ),
+                              Text(
+                                "0",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildExerciseCard(Size size) {
-    return Card(
-      color: DashboardScreen.kCardColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildActivitySection() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Text("Ejercicio",
-                    style: TextStyle(color: Colors.white, fontSize: 15)),
-                Icon(Icons.add, color: Colors.white, size: 20),
-              ],
+            Flexible(
+              flex: 5,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                constraints: const BoxConstraints(
+                  maxWidth: 165,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0x4D5A99D6),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      "Pasos",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Image.asset(
+                          'assets/images/zapatillapasos.png',
+                          width: 24,
+                          height: 24,
+                          color: Colors.pink,
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          "0",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Spacer(),
+                    const Text(
+                      "Objetivo: 10.000 pasos",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 13
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(height: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+            const SizedBox(width: 12),
+            Flexible(
+              flex: 5,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                constraints: const BoxConstraints(
+                  maxWidth: 165,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0x4D5A99D6),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Image.asset('assets/images/fuegocalorias.png', width: 22),
-                    const SizedBox(width: 8),
-                    const Text("0 Cal",
-                        style: TextStyle(color: Colors.white70, fontSize: 14)),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Ejercicio",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white.withOpacity(0.1),
+                          ),
+                          child: const Icon(
+                            Icons.add,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.orange.withOpacity(0.2),
+                          ),
+                          child: const Icon(
+                            Icons.local_fire_department,
+                            color: Colors.orange,
+                            size: 16,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          "0 cal",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Spacer(),
+                    Row(
+                      children: [
+                        Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.orange.withOpacity(0.2),
+                          ),
+                          child: const Icon(
+                            Icons.access_time,
+                            color: Colors.orange,
+                            size: 16,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          "00:00 h",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Image.asset('assets/images/controltiempo.png', width: 22),
-                    const SizedBox(width: 8),
-                    const Text("00:00",
-                        style: TextStyle(color: Colors.white70, fontSize: 14)),
-                  ],
-                ),
-              ],
+              ),
             ),
           ],
         ),
@@ -554,24 +771,54 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _simpleCard(String title, {String? subtitle, String? iconPath}) {
     if (title == "Macros") {
-      return Card(
-        color: DashboardScreen.kCardColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        margin: const EdgeInsets.symmetric(horizontal: 8),
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: const Color(0x4D5A99D6),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text("Macros",
-                  style: TextStyle(color: Colors.white, fontSize: 18)),
-              const SizedBox(height: 16),
+              const Text(
+                "Macros",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 25),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildMacroCircle("Carbs", "${_totalCarbs.toStringAsFixed(1)}g", Colors.blue),
-                  _buildMacroCircle("Proteína", "${_totalProtein.toStringAsFixed(1)}g", Colors.green),
-                  _buildMacroCircle("Grasa", "${_totalFat.toStringAsFixed(1)}g", Colors.orange),
+                  _buildModernMacroCircle(
+                    "Carbs",
+                    "${_totalCarbs.toStringAsFixed(1)}g",
+                    const Color(0xFF3B82F6),
+                    Icons.grain,
+                  ),
+                  _buildModernMacroCircle(
+                    "Proteína",
+                    "${_totalProtein.toStringAsFixed(1)}g",
+                    const Color(0xFF22C55E),
+                    Icons.fitness_center,
+                  ),
+                  _buildModernMacroCircle(
+                    "Grasa",
+                    "${_totalFat.toStringAsFixed(1)}g",
+                    const Color(0xFFF59E0B),
+                    Icons.water_drop,
+                  ),
                 ],
               ),
             ],
@@ -673,21 +920,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int _currentIndex = 0;
 
   Widget _buildBottomNavigationBar() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(height: 1, color: const Color(0xFF5A99D6)),
-        BottomNavigationBar(
+    return Container(
+      decoration: const BoxDecoration(
+        color: Color(0xFF1E1E1E),
+        border: Border(
+          top: BorderSide(
+            color: Color(0x4D5A99D6),
+            width: 1,
+          ),
+        ),
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+        ),
+        child: BottomNavigationBar(
           backgroundColor: const Color(0xFF1E1E1E),
-          selectedItemColor: const Color(0xFF80C0FF),
-          unselectedItemColor: Colors.grey,
           type: BottomNavigationBarType.fixed,
+          selectedItemColor: Colors.blue,
+          unselectedItemColor: Colors.grey,
           currentIndex: _currentIndex,
           onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-
+            if (index == _currentIndex) return;
             switch (index) {
               case 0:
                 Navigator.pushReplacementNamed(context, '/dashboard');
@@ -699,7 +954,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Navigator.pushNamed(context, '/agregarAlimento');
                 break;
               case 3:
-                Navigator.pushReplacementNamed(context, '/control');
+                Navigator.pushReplacementNamed(context, '/descubre');
                 break;
               case 4:
                 Navigator.pushNamed(context, '/ajustes');
@@ -707,56 +962,88 @@ class _DashboardScreenState extends State<DashboardScreen> {
             }
           },
           items: [
-            _buildBarItem('inicio.png', "Inicio", 0, _currentIndex),
-            _buildBarItem('diario.png', "Diario", 1, _currentIndex),
             BottomNavigationBarItem(
-              icon: Container(
-                width: 40,
-                height: 40,
-                child: Image.asset('assets/images/anadiralimento.png', width: 24),
+              icon: Column(
+                children: [
+                  const Icon(Icons.grid_view),
+                  if (_currentIndex == 0)
+                    Container(
+                      width: 24,
+                      height: 2,
+                      color: Colors.blue,
+                      margin: const EdgeInsets.only(top: 4),
+                    ),
+                ],
               ),
-              label: "",
+              label: 'Panel',
             ),
-            _buildBarItem('progreso.png', "Control", 3, _currentIndex),
-            _buildBarItem('opcionmas.png', "Ajustes", 4, _currentIndex),
+            BottomNavigationBarItem(
+              icon: Column(
+                children: [
+                  const Icon(Icons.book),
+                  if (_currentIndex == 1)
+                    Container(
+                      width: 24,
+                      height: 2,
+                      color: Colors.blue,
+                      margin: const EdgeInsets.only(top: 4),
+                    ),
+                ],
+              ),
+              label: 'Diario',
+            ),
+            BottomNavigationBarItem(
+              icon: Transform.translate(
+                offset: const Offset(0, 5),
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: const BoxDecoration(
+                    color: Colors.blue,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.add,
+                    color: Colors.white,
+                    size: 30,
+                  ),
+                ),
+              ),
+              label: '',
+            ),
+            BottomNavigationBarItem(
+              icon: Column(
+                children: [
+                  const Icon(Icons.lightbulb_outline),
+                  if (_currentIndex == 3)
+                    Container(
+                      width: 24,
+                      height: 2,
+                      color: Colors.blue,
+                      margin: const EdgeInsets.only(top: 4),
+                    ),
+                ],
+              ),
+              label: 'Descubre',
+            ),
+            BottomNavigationBarItem(
+              icon: Column(
+                children: [
+                  const Icon(Icons.more_horiz),
+                  if (_currentIndex == 4)
+                    Container(
+                      width: 24,
+                      height: 2,
+                      color: Colors.blue,
+                      margin: const EdgeInsets.only(top: 4),
+                    ),
+                ],
+              ),
+              label: 'Más',
+            ),
           ],
         ),
-      ],
-    );
-  }
-
-  BottomNavigationBarItem _buildBarItem(
-      String assetName,
-      String label,
-      int index,
-      int currentIndex,
-      ) {
-    final bool isActive = index == currentIndex;
-    final Color activeColor = const Color(0xFF80C0FF);
-    final Color inactiveColor = Colors.grey;
-
-    return BottomNavigationBarItem(
-      icon: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Image.asset(
-            'assets/images/$assetName',
-            width: 24,
-            height: 24,
-            color: isActive ? activeColor : inactiveColor,
-          ),
-          if (isActive)
-            Container(
-              width: 24,
-              height: 3,
-              color: const Color(0xFF5A99D6),
-              margin: const EdgeInsets.only(top: 4),
-            )
-          else
-            const SizedBox(height: 7),
-        ],
       ),
-      label: label,
     );
   }
 
@@ -817,5 +1104,58 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   void _hideRecommendationOverlay() {
     // Implementa la lógica para ocultar la ventana de recomendaciones
+  }
+
+  Widget _buildModernMacroCircle(String label, String value, Color color, IconData icon) {
+    return Column(
+      children: [
+        Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                color.withOpacity(0.8),
+                color.withOpacity(0.6),
+              ],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: color.withOpacity(0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: Colors.white, size: 20),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
   }
 }

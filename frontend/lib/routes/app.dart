@@ -17,7 +17,7 @@ import '../presentation/pages/diario/diario.dart';
 import '../presentation/pages/registroalimentos/registroalimentos.dart';
 import '../presentation/pages/ajustes/ajustes_page.dart';
 import '../presentation/pages/ajustes/perfil_page.dart';
-
+import '../presentation/pages/recomendacion/descubre.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -42,19 +42,99 @@ class MyApp extends StatelessWidget {
         '/registroAlergenos': (context) => const RegistroRestriccionesAlimentarias(),
         '/registroCampos': (context) => const RegistroCampos(),
         '/login': (context) => const LoginScreen(),
+        '/home': (context) => const HomeScreen(),
         '/dashboard': (context) => const DashboardScreen(),
         '/ajustes': (context) => const AjustesPage(),
         '/perfil': (context) => const PerfilPage(),
         '/diario': (context) => const DiarioScreen(),
         '/registralimentos': (context) => const RegistroAlimentosPage(mealType: '',),
-        '/ajustes': (context) => const AjustesPage(),
-        '/perfil': (context) => const PerfilPage(),
-
-
-
-
+        '/descubre': (context) => DescubrePage(
+          caloriasRestantes: 500,
+          recomendaciones: [
+            {'nombre': 'Manzana', 'calorias': 52, 'imagen': 'assets/images/manzana.png'},
+            {'nombre': 'Yogur natural', 'calorias': 80, 'imagen': 'assets/images/yogur.png'},
+            {'nombre': 'Avena', 'calorias': 150, 'imagen': 'assets/images/avena.png'},
+            {'nombre': 'Pollo a la plancha', 'calorias': 200, 'imagen': 'assets/images/pollo.png'},
+          ],
+        ),
       },
     );
   }
 }
 
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int _currentIndex = 0;
+
+  final List<Widget> _pages = [
+    DashboardScreen(),
+    DiarioScreen(),
+    RegistroAlimentosPage(mealType: ''),
+    DescubrePage(
+      caloriasRestantes: 500,
+      recomendaciones: [
+        {'nombre': 'Manzana', 'calorias': 52, 'imagen': 'assets/images/manzana.png'},
+        {'nombre': 'Yogur natural', 'calorias': 80, 'imagen': 'assets/images/yogur.png'},
+        {'nombre': 'Avena', 'calorias': 150, 'imagen': 'assets/images/avena.png'},
+        {'nombre': 'Pollo a la plancha', 'calorias': 200, 'imagen': 'assets/images/pollo.png'},
+      ],
+    ),
+    AjustesPage(),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _pages,
+      ),
+      bottomNavigationBar: Theme(
+        data: Theme.of(context).copyWith(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+        ),
+        child: BottomNavigationBar(
+          backgroundColor: const Color(0xFF1E1E1E),
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: Colors.blue,
+          unselectedItemColor: Colors.grey,
+          currentIndex: _currentIndex,
+          onTap: (index) {
+            if (index != _currentIndex) {
+              setState(() => _currentIndex = index);
+            }
+          },
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.grid_view),
+              label: 'Panel',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.book),
+              label: 'Diario',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.add),
+              label: '',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.lightbulb_outline),
+              label: 'Descubre',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.more_horiz),
+              label: 'Más',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

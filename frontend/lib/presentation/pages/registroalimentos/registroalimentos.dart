@@ -75,7 +75,7 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
     } else {
       _alimentosFiltrados = _alimentos
           .where((alimento) =>
-              alimento.nombre.toLowerCase().contains(_searchQuery.toLowerCase()))
+          alimento.nombre.toLowerCase().contains(_searchQuery.toLowerCase()))
           .toList();
     }
     _sugerenciasVisiblesCount = 3;
@@ -257,11 +257,11 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
                     ),
                     suffixIcon: _searchQuery.isNotEmpty
                         ? IconButton(
-                            icon: Icon(Icons.clear, color: textColor),
-                            onPressed: () {
-                              _searchController.clear();
-                            },
-                          )
+                      icon: Icon(Icons.clear, color: textColor),
+                      onPressed: () {
+                        _searchController.clear();
+                      },
+                    )
                         : null,
                   ),
                 ),
@@ -273,11 +273,11 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
       bottomNavigationBar: _buildBottomNavigationBar(),
       floatingActionButton: _selectedTabIndex == 0
           ? FloatingActionButton.extended(
-              onPressed: _guardarIngestas,
-              backgroundColor: const Color(0xFF5A99D6),
-              label: Text('Guardar'),
-              icon: Icon(Icons.save),
-            )
+        onPressed: _guardarIngestas,
+        backgroundColor: const Color(0xFF5A99D6),
+        label: Text('Guardar'),
+        icon: Icon(Icons.save),
+      )
           : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
@@ -382,23 +382,23 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _buildActionButton(
-            Icons.qr_code_scanner,
-            'Leer código\nde barras',
-            () async {
-              final String? barcode = await Navigator.push<String>(
-                context,
-                MaterialPageRoute(builder: (context) => const LectorCodigoBarrasPage()),
-              );
+              Icons.qr_code_scanner,
+              'Leer código\nde barras',
+                  () async {
+                final String? barcode = await Navigator.push<String>(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LectorCodigoBarrasPage()),
+                );
 
-              if (barcode != null && barcode.isNotEmpty) {
-                print('Scanned barcode: $barcode');
-                _mostrarMensaje('Código escaneado: $barcode. Implementar búsqueda.');
-              } else {
-                print('Barcode scanning cancelled or no barcode returned.');
-              }
-            },
-            bgColor,
-            textColor
+                if (barcode != null && barcode.isNotEmpty) {
+                  print('Scanned barcode: $barcode');
+                  _mostrarMensaje('Código escaneado: $barcode. Implementar búsqueda.');
+                } else {
+                  print('Barcode scanning cancelled or no barcode returned.');
+                }
+              },
+              bgColor,
+              textColor
           ),
           _buildActionButton(Icons.add_circle_outline, 'Agregar\nNuevo', () {
             Navigator.push(
@@ -565,27 +565,32 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
   }
 
   Widget _buildBottomNavigationBar() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(height: 1, color: const Color(0xFF5A99D6)),
-        BottomNavigationBar(
+    return Container(
+      decoration: const BoxDecoration(
+        color: Color(0xFF1E1E1E),
+        border: Border(
+          top: BorderSide(
+            color: Color(0x4D5A99D6),
+            width: 1,
+          ),
+        ),
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+        ),
+        child: BottomNavigationBar(
           backgroundColor: const Color(0xFF1E1E1E),
-          selectedItemColor: const Color(0xFF80C0FF),
-          unselectedItemColor: Colors.grey,
           type: BottomNavigationBarType.fixed,
+          selectedItemColor: Colors.blue,
+          unselectedItemColor: Colors.grey,
           currentIndex: _currentIndex,
           onTap: (index) {
             if (index == _currentIndex && index != 2) return;
-
-            if (index == 2 && ModalRoute.of(context)?.settings.name == '/registralimentos' ){
-
-            } else {
-                 setState(() {
-                    _currentIndex = index;
-                 });
+            if (index == 2 && ModalRoute.of(context)?.settings.name == '/registralimentos') {
+              return;
             }
-
             switch (index) {
               case 0:
                 Navigator.pushReplacementNamed(context, '/dashboard');
@@ -599,67 +604,93 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
                 Navigator.pushReplacementNamed(context, '/descubre');
                 break;
               case 4:
-                Navigator.pushReplacementNamed(context, '/mas');
+                Navigator.pushNamed(context, '/ajustes');
                 break;
             }
           },
           items: [
-            _buildBarItem(label: "Inicio", index: 0, currentIndex: _currentIndex, assetName: 'inicio.png'),
-            _buildBarItem(label: "Diario", index: 1, currentIndex: _currentIndex, assetName: 'diario.png'),
             BottomNavigationBarItem(
-              icon: Container(width: 40, height: 40, child: Image.asset('assets/images/anadiralimento.png', width: 24)),
-              label: "",
+              icon: Column(
+                children: [
+                  const Icon(Icons.grid_view),
+                  if (_currentIndex == 0)
+                    Container(
+                      width: 24,
+                      height: 2,
+                      color: Colors.blue,
+                      margin: const EdgeInsets.only(top: 4),
+                    ),
+                ],
+              ),
+              label: 'Panel',
             ),
-            _buildBarItem(label: "Descubre", index: 3, currentIndex: _currentIndex, iconData: Icons.lightbulb_outline),
-            _buildBarItem(label: "Más", index: 4, currentIndex: _currentIndex, assetName: 'opcionmas.png'),
+            BottomNavigationBarItem(
+              icon: Column(
+                children: [
+                  const Icon(Icons.book),
+                  if (_currentIndex == 1)
+                    Container(
+                      width: 24,
+                      height: 2,
+                      color: Colors.blue,
+                      margin: const EdgeInsets.only(top: 4),
+                    ),
+                ],
+              ),
+              label: 'Diario',
+            ),
+            BottomNavigationBarItem(
+              icon: Transform.translate(
+                offset: const Offset(0, 5),
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: const BoxDecoration(
+                    color: Colors.blue,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.add,
+                    color: Colors.white,
+                    size: 30,
+                  ),
+                ),
+              ),
+              label: '',
+            ),
+            BottomNavigationBarItem(
+              icon: Column(
+                children: [
+                  const Icon(Icons.lightbulb_outline),
+                  if (_currentIndex == 3)
+                    Container(
+                      width: 24,
+                      height: 2,
+                      color: Colors.blue,
+                      margin: const EdgeInsets.only(top: 4),
+                    ),
+                ],
+              ),
+              label: 'Descubre',
+            ),
+            BottomNavigationBarItem(
+              icon: Column(
+                children: [
+                  const Icon(Icons.more_horiz),
+                  if (_currentIndex == 4)
+                    Container(
+                      width: 24,
+                      height: 2,
+                      color: Colors.blue,
+                      margin: const EdgeInsets.only(top: 4),
+                    ),
+                ],
+              ),
+              label: 'Más',
+            ),
           ],
         ),
-      ],
-    );
-  }
-
-  BottomNavigationBarItem _buildBarItem({
-    required String label,
-    required int index,
-    required int currentIndex,
-    String? assetName,
-    IconData? iconData,
-  }) {
-    final bool isActive = index == currentIndex;
-    final Color activeColor = const Color(0xFF80C0FF);
-    final Color inactiveColor = Colors.grey;
-
-    Widget iconWidget;
-    if (iconData != null) {
-      iconWidget = Icon(iconData, size: 24, color: isActive ? activeColor : inactiveColor);
-    } else if (assetName != null) {
-      iconWidget = Image.asset(
-        'assets/images/$assetName',
-        width: 24,
-        height: 24,
-        color: isActive ? activeColor : inactiveColor,
-      );
-    } else {
-      iconWidget = const SizedBox(width: 24, height: 24);
-    }
-
-    return BottomNavigationBarItem(
-      icon: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          iconWidget,
-          if (isActive)
-            Container(
-              width: 24,
-              height: 3,
-              color: const Color(0xFF5A99D6),
-              margin: const EdgeInsets.only(top: 4),
-            )
-          else
-            const SizedBox(height: 7),
-        ],
       ),
-      label: label,
     );
   }
 }
