@@ -1,0 +1,569 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+       http://www.liquibase.org/xml/ns/dbchangelog
+       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="changeset-001" author="sergio">
+        <!-- LÁCTEOS -->
+        <insert tableName="alimentos">
+            <column name="nombre" value="Leche entera"/>
+            <column name="calorias" valueNumeric="60"/>
+            <column name="proteinas" valueNumeric="3.15"/>
+            <column name="carbohidratos" valueNumeric="4.8"/>
+            <column name="grasas" valueNumeric="3.25"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Leche desnatada"/>
+            <column name="calorias" valueNumeric="35"/>
+            <column name="proteinas" valueNumeric="3.4"/>
+            <column name="carbohidratos" valueNumeric="5"/>
+            <column name="grasas" valueNumeric="0.1"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Yogur natural"/>
+            <column name="calorias" valueNumeric="59"/>
+            <column name="proteinas" valueNumeric="10"/>
+            <column name="carbohidratos" valueNumeric="3.6"/>
+            <column name="grasas" valueNumeric="0.4"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Queso cheddar"/>
+            <column name="calorias" valueNumeric="403"/>
+            <column name="proteinas" valueNumeric="25"/>
+            <column name="carbohidratos" valueNumeric="1.3"/>
+            <column name="grasas" valueNumeric="33"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Queso fresco"/>
+            <column name="calorias" valueNumeric="98"/>
+            <column name="proteinas" valueNumeric="11"/>
+            <column name="carbohidratos" valueNumeric="3.4"/>
+            <column name="grasas" valueNumeric="4.3"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Queso mozzarella"/>
+            <column name="calorias" valueNumeric="280"/>
+            <column name="proteinas" valueNumeric="28"/>
+            <column name="carbohidratos" valueNumeric="3.1"/>
+            <column name="grasas" valueNumeric="17"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Kéfir natural"/>
+            <column name="calorias" valueNumeric="41"/>
+            <column name="proteinas" valueNumeric="3.5"/>
+            <column name="carbohidratos" valueNumeric="4"/>
+            <column name="grasas" valueNumeric="1"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Requesón"/>
+            <column name="calorias" valueNumeric="98"/>
+            <column name="proteinas" valueNumeric="11"/>
+            <column name="carbohidratos" valueNumeric="3.4"/>
+            <column name="grasas" valueNumeric="4.3"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Leche de cabra"/>
+            <column name="calorias" valueNumeric="69"/>
+            <column name="proteinas" valueNumeric="3.6"/>
+            <column name="carbohidratos" valueNumeric="4.5"/>
+            <column name="grasas" valueNumeric="4.1"/>
+        </insert>
+
+        <!-- PROTEÍNAS ANIMALES -->
+        <insert tableName="alimentos">
+            <column name="nombre" value="Pollo asado"/>
+            <column name="calorias" valueNumeric="239"/>
+            <column name="proteinas" valueNumeric="27"/>
+            <column name="carbohidratos" valueNumeric="0"/>
+            <column name="grasas" valueNumeric="14"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Huevo cocido"/>
+            <column name="calorias" valueNumeric="155"/>
+            <column name="proteinas" valueNumeric="13"/>
+            <column name="carbohidratos" valueNumeric="1.1"/>
+            <column name="grasas" valueNumeric="11"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Salmón"/>
+            <column name="calorias" valueNumeric="208"/>
+            <column name="proteinas" valueNumeric="20"/>
+            <column name="carbohidratos" valueNumeric="0"/>
+            <column name="grasas" valueNumeric="13"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Atún enlatado"/>
+            <column name="calorias" valueNumeric="132"/>
+            <column name="proteinas" valueNumeric="28"/>
+            <column name="carbohidratos" valueNumeric="0"/>
+            <column name="grasas" valueNumeric="1.3"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Carne de ternera"/>
+            <column name="calorias" valueNumeric="250"/>
+            <column name="proteinas" valueNumeric="26"/>
+            <column name="carbohidratos" valueNumeric="0"/>
+            <column name="grasas" valueNumeric="15"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Pechuga de pavo"/>
+            <column name="calorias" valueNumeric="135"/>
+            <column name="proteinas" valueNumeric="30"/>
+            <column name="carbohidratos" valueNumeric="0"/>
+            <column name="grasas" valueNumeric="1"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Cordero"/>
+            <column name="calorias" valueNumeric="294"/>
+            <column name="proteinas" valueNumeric="25"/>
+            <column name="carbohidratos" valueNumeric="0"/>
+            <column name="grasas" valueNumeric="21"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Carne de cerdo magra"/>
+            <column name="calorias" valueNumeric="242"/>
+            <column name="proteinas" valueNumeric="27"/>
+            <column name="carbohidratos" valueNumeric="0"/>
+            <column name="grasas" valueNumeric="14"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Bacalao"/>
+            <column name="calorias" valueNumeric="82"/>
+            <column name="proteinas" valueNumeric="18"/>
+            <column name="carbohidratos" valueNumeric="0"/>
+            <column name="grasas" valueNumeric="0.7"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Merluza"/>
+            <column name="calorias" valueNumeric="90"/>
+            <column name="proteinas" valueNumeric="20"/>
+            <column name="carbohidratos" valueNumeric="0"/>
+            <column name="grasas" valueNumeric="1"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Langostinos"/>
+            <column name="calorias" valueNumeric="99"/>
+            <column name="proteinas" valueNumeric="24"/>
+            <column name="carbohidratos" valueNumeric="0"/>
+            <column name="grasas" valueNumeric="0.3"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Jamón serrano"/>
+            <column name="calorias" valueNumeric="241"/>
+            <column name="proteinas" valueNumeric="30"/>
+            <column name="carbohidratos" valueNumeric="0"/>
+            <column name="grasas" valueNumeric="12"/>
+        </insert>
+
+        <!-- FRUTAS -->
+        <insert tableName="alimentos">
+            <column name="nombre" value="Manzana"/>
+            <column name="calorias" valueNumeric="52"/>
+            <column name="proteinas" valueNumeric="0.26"/>
+            <column name="carbohidratos" valueNumeric="14"/>
+            <column name="grasas" valueNumeric="0.17"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Plátano"/>
+            <column name="calorias" valueNumeric="89"/>
+            <column name="proteinas" valueNumeric="1.09"/>
+            <column name="carbohidratos" valueNumeric="23"/>
+            <column name="grasas" valueNumeric="0.33"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Tomate"/>
+            <column name="calorias" valueNumeric="18"/>
+            <column name="proteinas" valueNumeric="0.9"/>
+            <column name="carbohidratos" valueNumeric="3.9"/>
+            <column name="grasas" valueNumeric="0.2"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Naranja"/>
+            <column name="calorias" valueNumeric="47"/>
+            <column name="proteinas" valueNumeric="0.94"/>
+            <column name="carbohidratos" valueNumeric="12"/>
+            <column name="grasas" valueNumeric="0.12"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Fresa"/>
+            <column name="calorias" valueNumeric="32"/>
+            <column name="proteinas" valueNumeric="0.7"/>
+            <column name="carbohidratos" valueNumeric="7.7"/>
+            <column name="grasas" valueNumeric="0.3"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Pera"/>
+            <column name="calorias" valueNumeric="57"/>
+            <column name="proteinas" valueNumeric="0.36"/>
+            <column name="carbohidratos" valueNumeric="15"/>
+            <column name="grasas" valueNumeric="0.14"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Piña"/>
+            <column name="calorias" valueNumeric="50"/>
+            <column name="proteinas" valueNumeric="0.54"/>
+            <column name="carbohidratos" valueNumeric="13"/>
+            <column name="grasas" valueNumeric="0.12"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Uvas"/>
+            <column name="calorias" valueNumeric="69"/>
+            <column name="proteinas" valueNumeric="0.72"/>
+            <column name="carbohidratos" valueNumeric="18"/>
+            <column name="grasas" valueNumeric="0.16"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Melocotón"/>
+            <column name="calorias" valueNumeric="39"/>
+            <column name="proteinas" valueNumeric="0.91"/>
+            <column name="carbohidratos" valueNumeric="10"/>
+            <column name="grasas" valueNumeric="0.25"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Cereza"/>
+            <column name="calorias" valueNumeric="50"/>
+            <column name="proteinas" valueNumeric="1"/>
+            <column name="carbohidratos" valueNumeric="12"/>
+            <column name="grasas" valueNumeric="0.3"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Mango"/>
+            <column name="calorias" valueNumeric="60"/>
+            <column name="proteinas" valueNumeric="0.8"/>
+            <column name="carbohidratos" valueNumeric="15"/>
+            <column name="grasas" valueNumeric="0.4"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Kiwi"/>
+            <column name="calorias" valueNumeric="61"/>
+            <column name="proteinas" valueNumeric="1.1"/>
+            <column name="carbohidratos" valueNumeric="15"/>
+            <column name="grasas" valueNumeric="0.5"/>
+        </insert>
+
+        <!-- VERDURAS Y HORTALIZAS-->
+        <insert tableName="alimentos">
+            <column name="nombre" value="Lechuga"/>
+            <column name="calorias" valueNumeric="15"/>
+            <column name="proteinas" valueNumeric="1.4"/>
+            <column name="carbohidratos" valueNumeric="2.9"/>
+            <column name="grasas" valueNumeric="0.2"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Zanahoria cruda"/>
+            <column name="calorias" valueNumeric="41"/>
+            <column name="proteinas" valueNumeric="0.9"/>
+            <column name="carbohidratos" valueNumeric="10"/>
+            <column name="grasas" valueNumeric="0.24"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Cebolla"/>
+            <column name="calorias" valueNumeric="40"/>
+            <column name="proteinas" valueNumeric="1.1"/>
+            <column name="carbohidratos" valueNumeric="9.3"/>
+            <column name="grasas" valueNumeric="0.1"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Brócoli"/>
+            <column name="calorias" valueNumeric="34"/>
+            <column name="proteinas" valueNumeric="2.8"/>
+            <column name="carbohidratos" valueNumeric="7"/>
+            <column name="grasas" valueNumeric="0.4"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Calabacín"/>
+            <column name="calorias" valueNumeric="17"/>
+            <column name="proteinas" valueNumeric="1.2"/>
+            <column name="carbohidratos" valueNumeric="3.1"/>
+            <column name="grasas" valueNumeric="0.3"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Espinaca"/>
+            <column name="calorias" valueNumeric="23"/>
+            <column name="proteinas" valueNumeric="2.9"/>
+            <column name="carbohidratos" valueNumeric="3.6"/>
+            <column name="grasas" valueNumeric="0.4"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Pimiento rojo"/>
+            <column name="calorias" valueNumeric="31"/>
+            <column name="proteinas" valueNumeric="1"/>
+            <column name="carbohidratos" valueNumeric="6"/>
+            <column name="grasas" valueNumeric="0.3"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Champiñones"/>
+            <column name="calorias" valueNumeric="22"/>
+            <column name="proteinas" valueNumeric="3.1"/>
+            <column name="carbohidratos" valueNumeric="3.3"/>
+            <column name="grasas" valueNumeric="0.3"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Judías verdes"/>
+            <column name="calorias" valueNumeric="31"/>
+            <column name="proteinas" valueNumeric="1.8"/>
+            <column name="carbohidratos" valueNumeric="7"/>
+            <column name="grasas" valueNumeric="0.1"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Berenjena"/>
+            <column name="calorias" valueNumeric="25"/>
+            <column name="proteinas" valueNumeric="1"/>
+            <column name="carbohidratos" valueNumeric="6"/>
+            <column name="grasas" valueNumeric="0.2"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Coliflor"/>
+            <column name="calorias" valueNumeric="25"/>
+            <column name="proteinas" valueNumeric="2"/>
+            <column name="carbohidratos" valueNumeric="5"/>
+            <column name="grasas" valueNumeric="0.1"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Ajo"/>
+            <column name="calorias" valueNumeric="149"/>
+            <column name="proteinas" valueNumeric="6.4"/>
+            <column name="carbohidratos" valueNumeric="33"/>
+            <column name="grasas" valueNumeric="0.5"/>
+        </insert>
+
+        <!--CEREALES Y DERIVADOS-->
+        <insert tableName="alimentos">
+            <column name="nombre" value="Arroz blanco cocido"/>
+            <column name="calorias" valueNumeric="130"/>
+            <column name="proteinas" valueNumeric="2.69"/>
+            <column name="carbohidratos" valueNumeric="28"/>
+            <column name="grasas" valueNumeric="0.28"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Pan integral"/>
+            <column name="calorias" valueNumeric="247"/>
+            <column name="proteinas" valueNumeric="13"/>
+            <column name="carbohidratos" valueNumeric="41"/>
+            <column name="grasas" valueNumeric="4.2"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Pan blanco"/>
+            <column name="calorias" valueNumeric="265"/>
+            <column name="proteinas" valueNumeric="9"/>
+            <column name="carbohidratos" valueNumeric="49"/>
+            <column name="grasas" valueNumeric="3.2"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Pasta cocida"/>
+            <column name="calorias" valueNumeric="131"/>
+            <column name="proteinas" valueNumeric="5"/>
+            <column name="carbohidratos" valueNumeric="25"/>
+            <column name="grasas" valueNumeric="1.1"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Patata hervida"/>
+            <column name="calorias" valueNumeric="87"/>
+            <column name="proteinas" valueNumeric="2"/>
+            <column name="carbohidratos" valueNumeric="20"/>
+            <column name="grasas" valueNumeric="0.1"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Avena"/>
+            <column name="calorias" valueNumeric="389"/>
+            <column name="proteinas" valueNumeric="17"/>
+            <column name="carbohidratos" valueNumeric="66"/>
+            <column name="grasas" valueNumeric="7"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Quinoa cocida"/>
+            <column name="calorias" valueNumeric="120"/>
+            <column name="proteinas" valueNumeric="4.1"/>
+            <column name="carbohidratos" valueNumeric="21"/>
+            <column name="grasas" valueNumeric="1.9"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Cebada"/>
+            <column name="calorias" valueNumeric="354"/>
+            <column name="proteinas" valueNumeric="12.5"/>
+            <column name="carbohidratos" valueNumeric="73.5"/>
+            <column name="grasas" valueNumeric="2.3"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Mijo cocido"/>
+            <column name="calorias" valueNumeric="119"/>
+            <column name="proteinas" valueNumeric="3.5"/>
+            <column name="carbohidratos" valueNumeric="23"/>
+            <column name="grasas" valueNumeric="1"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Maíz dulce"/>
+            <column name="calorias" valueNumeric="86"/>
+            <column name="proteinas" valueNumeric="3.2"/>
+            <column name="carbohidratos" valueNumeric="19"/>
+            <column name="grasas" valueNumeric="1.2"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Centeno"/>
+            <column name="calorias" valueNumeric="335"/>
+            <column name="proteinas" valueNumeric="10"/>
+            <column name="carbohidratos" valueNumeric="76"/>
+            <column name="grasas" valueNumeric="1.6"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Trigo sarraceno"/>
+            <column name="calorias" valueNumeric="343"/>
+            <column name="proteinas" valueNumeric="13"/>
+            <column name="carbohidratos" valueNumeric="71"/>
+            <column name="grasas" valueNumeric="3.4"/>
+        </insert>
+
+        <!-- FRUTOS SECOS Y SEMILLAS -->
+        <insert tableName="alimentos">
+            <column name="nombre" value="Nueces"/>
+            <column name="calorias" valueNumeric="654"/>
+            <column name="proteinas" valueNumeric="15"/>
+            <column name="carbohidratos" valueNumeric="14"/>
+            <column name="grasas" valueNumeric="65"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Almendras"/>
+            <column name="calorias" valueNumeric="579"/>
+            <column name="proteinas" valueNumeric="21"/>
+            <column name="carbohidratos" valueNumeric="22"/>
+            <column name="grasas" valueNumeric="50"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Pistachos"/>
+            <column name="calorias" valueNumeric="562"/>
+            <column name="proteinas" valueNumeric="20"/>
+            <column name="carbohidratos" valueNumeric="28"/>
+            <column name="grasas" valueNumeric="45"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Semillas de chía"/>
+            <column name="calorias" valueNumeric="486"/>
+            <column name="proteinas" valueNumeric="17"/>
+            <column name="carbohidratos" valueNumeric="42"/>
+            <column name="grasas" valueNumeric="31"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Semillas de girasol"/>
+            <column name="calorias" valueNumeric="584"/>
+            <column name="proteinas" valueNumeric="21"/>
+            <column name="carbohidratos" valueNumeric="20"/>
+            <column name="grasas" valueNumeric="51"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Anacardos"/>
+            <column name="calorias" valueNumeric="553"/>
+            <column name="proteinas" valueNumeric="18"/>
+            <column name="carbohidratos" valueNumeric="30"/>
+            <column name="grasas" valueNumeric="44"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Pipas de calabaza"/>
+            <column name="calorias" valueNumeric="559"/>
+            <column name="proteinas" valueNumeric="30"/>
+            <column name="carbohidratos" valueNumeric="10"/>
+            <column name="grasas" valueNumeric="49"/>
+        </insert>
+
+        <!-- GRASAS Y ACEITES -->
+        <insert tableName="alimentos">
+            <column name="nombre" value="Aceite de oliva"/>
+            <column name="calorias" valueNumeric="884"/>
+            <column name="proteinas" valueNumeric="0"/>
+            <column name="carbohidratos" valueNumeric="0"/>
+            <column name="grasas" valueNumeric="100"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Mantequilla"/>
+            <column name="calorias" valueNumeric="717"/>
+            <column name="proteinas" valueNumeric="0.9"/>
+            <column name="carbohidratos" valueNumeric="0.1"/>
+            <column name="grasas" valueNumeric="81"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Aceite de coco"/>
+            <column name="calorias" valueNumeric="862"/>
+            <column name="proteinas" valueNumeric="0"/>
+            <column name="carbohidratos" valueNumeric="0"/>
+            <column name="grasas" valueNumeric="100"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Aceite de girasol"/>
+            <column name="calorias" valueNumeric="884"/>
+            <column name="proteinas" valueNumeric="0"/>
+            <column name="carbohidratos" valueNumeric="0"/>
+            <column name="grasas" valueNumeric="100"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Aceite de aguacate"/>
+            <column name="calorias" valueNumeric="884"/>
+            <column name="proteinas" valueNumeric="0"/>
+            <column name="carbohidratos" valueNumeric="0"/>
+            <column name="grasas" valueNumeric="100"/>
+        </insert>
+
+        <!-- LEGUMBRES -->
+        <insert tableName="alimentos">
+            <column name="nombre" value="Lentejas cocidas"/>
+            <column name="calorias" valueNumeric="116"/>
+            <column name="proteinas" valueNumeric="9"/>
+            <column name="carbohidratos" valueNumeric="20"/>
+            <column name="grasas" valueNumeric="0.4"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Garbanzos cocidos"/>
+            <column name="calorias" valueNumeric="164"/>
+            <column name="proteinas" valueNumeric="9"/>
+            <column name="carbohidratos" valueNumeric="27"/>
+            <column name="grasas" valueNumeric="2.6"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Alubias blancas cocidas"/>
+            <column name="calorias" valueNumeric="140"/>
+            <column name="proteinas" valueNumeric="9"/>
+            <column name="carbohidratos" valueNumeric="25"/>
+            <column name="grasas" valueNumeric="0.5"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Soja cocida"/>
+            <column name="calorias" valueNumeric="173"/>
+            <column name="proteinas" valueNumeric="16"/>
+            <column name="carbohidratos" valueNumeric="9.9"/>
+            <column name="grasas" valueNumeric="9.1"/>
+        </insert>
+
+        <!-- OTROS -->
+        <insert tableName="alimentos">
+            <column name="nombre" value="Chocolate negro 70%"/>
+            <column name="calorias" valueNumeric="546"/>
+            <column name="proteinas" valueNumeric="4.9"/>
+            <column name="carbohidratos" valueNumeric="46"/>
+            <column name="grasas" valueNumeric="42"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Café solo"/>
+            <column name="calorias" valueNumeric="1"/>
+            <column name="proteinas" valueNumeric="0.1"/>
+            <column name="carbohidratos" valueNumeric="0"/>
+            <column name="grasas" valueNumeric="0"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Té negro"/>
+            <column name="calorias" valueNumeric="1"/>
+            <column name="proteinas" valueNumeric="0.1"/>
+            <column name="carbohidratos" valueNumeric="0"/>
+            <column name="grasas" valueNumeric="0"/>
+        </insert>
+        <insert tableName="alimentos">
+            <column name="nombre" value="Agua mineral"/>
+            <column name="calorias" valueNumeric="0"/>
+            <column name="proteinas" valueNumeric="0"/>
+            <column name="carbohidratos" valueNumeric="0"/>
+            <column name="grasas" valueNumeric="0"/>
+        </insert>
+
+    </changeSet>
+</databaseChangeLog>
+

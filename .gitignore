@@ -1,7 +1,6 @@
 # Java/Spring Boot (Backend)
 /backend/target/
 /backend/*.log
-/backend/*.jar
 /backend/.idea/
 /backend/*.iml
 /backend/src/main/resources/application.properties
@@ -29,4 +28,3 @@
 # General
 *.DS_Store
 *.env
-*.sql
