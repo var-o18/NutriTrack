@@ -1,26 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:nutritack/presentation/pages/resgistro2.dart';
+import 'package:nutritack/presentation/pages/Registro/registroEdad.dart';
+import 'package:nutritack/presentation/pages/Registro/registroObjetivos.dart';
+import 'package:provider/provider.dart';
 
-class RegistroObjetivos extends StatefulWidget {
-  const RegistroObjetivos({super.key});
+import '../../../data/registro_data.dart';
+
+
+class RegistroGenero extends StatefulWidget {
+  const RegistroGenero({super.key});
 
   @override
-  State<RegistroObjetivos> createState() => _RegistroObjetivosState();
+  State<RegistroGenero> createState() => _RegistroGeneroState();
 }
 
-class _RegistroObjetivosState extends State<RegistroObjetivos> {
-  final List<String> objetivos = [
-    'Bajar peso',
-    'Bajar peso lentamente',
-    'Mantener mi peso actual',
-    'Subir masa muscular lentamente',
-    'Subir masa muscular',
-  ];
-
+class _RegistroGeneroState extends State<RegistroGenero> {
+  final List<String> generos = ['Femenino', 'Masculino', 'Otro'];
   int? seleccionadoIndex;
 
   @override
   Widget build(BuildContext context) {
+    final generoSeleccionado = Provider.of<RegistroData>(context).datos.sexo;
+
+    if (generoSeleccionado != null) {
+      seleccionadoIndex = generos.indexOf(generoSeleccionado);
+    }
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -32,7 +37,7 @@ class _RegistroObjetivosState extends State<RegistroObjetivos> {
               const SizedBox(height: 30),
               const Center(
                 child: Text(
-                  'Objetivos',
+                  'Género',
                   style: TextStyle(
                     fontSize: 14,
                     fontFamily: 'Montserrat',
@@ -49,7 +54,7 @@ class _RegistroObjetivosState extends State<RegistroObjetivos> {
                     width: 30,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: index == 1
+                      color: index == 2
                           ? const Color(0xFF5A99D6)
                           : const Color(0xFFD3E3F1),
                       borderRadius: BorderRadius.circular(2),
@@ -57,9 +62,19 @@ class _RegistroObjetivosState extends State<RegistroObjetivos> {
                   );
                 }),
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 70),
+              Align(
+                alignment: Alignment.centerLeft,
+                  child: Image.asset(
+                    'assets/images/logogenero.png',
+                    width: screenWidth * (100 / 390),
+                    height: screenHeight * (100 / 844),
+                    fit: BoxFit.contain,
+                  ),
+              ),
+              const SizedBox(height: 16),
               const Text(
-                'Queremos saber cuales son tus objetivos',
+                'Queremos saber cuál es tu género',
                 style: TextStyle(
                   fontSize: 22,
                   fontFamily: 'Montserrat',
@@ -68,7 +83,7 @@ class _RegistroObjetivosState extends State<RegistroObjetivos> {
               ),
               const SizedBox(height: 10),
               const Text(
-                'Selecciona el objetivo más importante que quieres cumplir',
+                'Selecciona tu género',
                 style: TextStyle(
                   color: Color(0xFF979797),
                   fontSize: 13,
@@ -78,10 +93,9 @@ class _RegistroObjetivosState extends State<RegistroObjetivos> {
               const SizedBox(height: 30),
               Expanded(
                 child: ListView.builder(
-                  itemCount: objetivos.length,
+                  itemCount: generos.length,
                   itemBuilder: (context, index) {
                     final isSelected = seleccionadoIndex == index;
-
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 15),
                       child: GestureDetector(
@@ -113,7 +127,7 @@ class _RegistroObjetivosState extends State<RegistroObjetivos> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  objetivos[index],
+                                  generos[index],
                                   style: TextStyle(
                                     fontFamily: 'Montserrat',
                                     fontSize: 15,
@@ -125,7 +139,7 @@ class _RegistroObjetivosState extends State<RegistroObjetivos> {
                                       ? Icons.check_circle
                                       : Icons.circle_outlined,
                                   color: isSelected ? const Color(0xFF5A99D6) : Colors.grey,
-                                )
+                                ),
                               ],
                             ),
                           ),
@@ -142,7 +156,7 @@ class _RegistroObjetivosState extends State<RegistroObjetivos> {
                     onTap: () {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => const Registro2()),
+                        MaterialPageRoute(builder: (context) => const RegistroObjetivos()),
                       );
                     },
                     child: Container(
@@ -159,8 +173,25 @@ class _RegistroObjetivosState extends State<RegistroObjetivos> {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        // Acción siguiente
+                        if (seleccionadoIndex != null) {
+                          final generoSeleccionado = generos[seleccionadoIndex!];
+
+                          Provider.of<RegistroData>(context, listen: false)
+                              .actualizarRegistro(sexo: generoSeleccionado);
+
+                          print('Género guardado: $generoSeleccionado');
+
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => const RegistroEdad()),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Por favor selecciona un género")),
+                          );
+                        }
                       },
+
                       child: Container(
                         height: 50,
                         decoration: BoxDecoration(
