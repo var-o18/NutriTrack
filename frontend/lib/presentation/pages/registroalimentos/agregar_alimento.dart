@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../utils/quick_actions.dart';
+
 class AgregarAlimentoPage extends StatefulWidget {
   const AgregarAlimentoPage({super.key});
 
@@ -265,12 +267,7 @@ class _AgregarAlimentoPageState extends State<AgregarAlimentoPage> {
         unselectedItemColor: Colors.grey,
         currentIndex: _currentIndex,
         onTap: (index) {
-          if (index == _currentIndex && index != 2) return;
-
-          setState(() {
-            _currentIndex = index;
-          });
-
+          if (index == _currentIndex) return;
           switch (index) {
             case 0:
               Navigator.pushReplacementNamed(context, '/dashboard');
@@ -279,6 +276,7 @@ class _AgregarAlimentoPageState extends State<AgregarAlimentoPage> {
               Navigator.pushReplacementNamed(context, '/diario');
               break;
             case 2:
+              showQuickActions(context);
               break;
             case 3:
               Navigator.pushReplacementNamed(context, '/descubre');

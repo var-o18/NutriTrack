@@ -14,10 +14,12 @@ import '../presentation/pages/Registro/registroCampos.dart';
 import '../presentation/pages/Login/login.dart';
 import '../presentation/pages/PantallaPrincipal/dashboard.dart';
 import '../presentation/pages/diario/diario.dart';
+import '../presentation/pages/registroalimentos/lector_codigo_barras.dart';
 import '../presentation/pages/registroalimentos/registroalimentos.dart';
 import '../presentation/pages/ajustes/ajustes_page.dart';
 import '../presentation/pages/ajustes/perfil_page.dart';
 import '../presentation/pages/recomendacion/descubre.dart';
+import '../presentation/pages/seccionComidas/createComidas.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -44,19 +46,12 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/home': (context) => const HomeScreen(),
         '/dashboard': (context) => const DashboardScreen(),
+        '/lectorCodigoBarras': (context) => LectorCodigoBarrasPage(),
+        '/agregarComida': (context) => CreateComidasPage(),
         '/ajustes': (context) => const AjustesPage(),
         '/perfil': (context) => const PerfilPage(),
         '/diario': (context) => const DiarioScreen(),
         '/registralimentos': (context) => const RegistroAlimentosPage(mealType: '',),
-        '/descubre': (context) => DescubrePage(
-          caloriasRestantes: 500,
-          recomendaciones: [
-            {'nombre': 'Manzana', 'calorias': 52, 'imagen': 'assets/images/manzana.png'},
-            {'nombre': 'Yogur natural', 'calorias': 80, 'imagen': 'assets/images/yogur.png'},
-            {'nombre': 'Avena', 'calorias': 150, 'imagen': 'assets/images/avena.png'},
-            {'nombre': 'Pollo a la plancha', 'calorias': 200, 'imagen': 'assets/images/pollo.png'},
-          ],
-        ),
       },
     );
   }

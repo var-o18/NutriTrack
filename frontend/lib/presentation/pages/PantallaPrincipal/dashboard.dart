@@ -8,6 +8,7 @@ import '../../../data/services/alimentos_service.dart';
 import '../../../data/services/login_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../../data/services/ingesta_service.dart';
+import '../../../utils/quick_actions.dart';
 
 
 class DashboardScreen extends StatefulWidget {
@@ -87,7 +88,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _loadTodayMacros() async {
     final IngestaService ingestaService = IngestaService();
     final AlimentoService alimentoService = AlimentoService();
-    
+
     try {
       final List<Alimento> todosLosAlimentos = await alimentoService.getAllAlimentos();
       final Map<int, Alimento> mapaAlimentos = {
@@ -96,7 +97,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
       final List<Ingesta> ingestasDelUsuario = await ingestaService.obtenerIngestasDelUsuario();
       final now = DateTime.now();
-      
+
       double totalCarbs = 0;
       double totalProtein = 0;
       double totalFat = 0;
@@ -139,7 +140,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _loadHeartHealthMetrics() async {
     final IngestaService ingestaService = IngestaService();
     final AlimentoService alimentoService = AlimentoService();
-    
+
     try {
       final List<Alimento> todosLosAlimentos = await alimentoService.getAllAlimentos();
       final Map<int, Alimento> mapaAlimentos = {
@@ -148,7 +149,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
       final List<Ingesta> ingestasDelUsuario = await ingestaService.obtenerIngestasDelUsuario();
       final now = DateTime.now();
-      
+
       double totalSodium = 0;
       double totalHealthyFat = 0;
       double totalFat = 0;
@@ -951,7 +952,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Navigator.pushReplacementNamed(context, '/diario');
                 break;
               case 2:
-                Navigator.pushNamed(context, '/agregarAlimento');
+                showQuickActions(context);
                 break;
               case 3:
                 Navigator.pushReplacementNamed(context, '/descubre');
