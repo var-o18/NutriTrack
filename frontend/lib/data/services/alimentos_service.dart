@@ -177,4 +177,20 @@ class AlimentoService {
     }
     return null;
   }
+
+  Future<List<Map<String, dynamic>>> fetchSugerencias({int limite = 5, double margenPorcentaje = 0.2}) async {
+    final response = await http.get(
+      Uri.parse('$_baseUrl/sugerencias?limite=$limite&margenPorcentaje=$margenPorcentaje'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Error al obtener sugerencias');
+    }
+  }
 }

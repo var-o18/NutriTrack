@@ -241,7 +241,7 @@ class _RegistroCamposState extends State<RegistroCampos> {
               if (value.length < 8) {
                 return 'La contraseña debe tener al menos 8 caracteres';
               }
-              final passwordRegex = RegExp(r'^(?=.[a-z])(?=.[A-Z])(?=.\d)(?=.[!@#$%^&*()_+=<>?{}\[\]-]).+$');
+              final passwordRegex = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+=<>?{}\[\]-]).+$');
               if (!passwordRegex.hasMatch(value)) {
                 return 'La contraseña debe tener una mayúscula, una minúscula, un número y un carácter especial';
               }
