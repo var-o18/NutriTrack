@@ -163,15 +163,16 @@ class _WelcomePageState extends State<Bienvenida2> with TickerProviderStateMixin
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   // Image container with glass effect
-                                  Container(
-                                    height: 400,
-                                    child: Image.asset(
-                                      pages[index]['image']!,
-                                      fit: BoxFit.cover,
-                                      width: double.infinity,
+                                  Expanded(
+                                    child: Container(
+                                      child: Image.asset(
+                                        pages[index]['image']!,
+                                        fit: BoxFit.contain,
+                                        width: double.infinity,
+                                      ),
                                     ),
                                   ),
-                                  const SizedBox(height: 30),
+                                  const SizedBox(height: 20),
                                   // Modern text style
                                   Text(
                                     pages[index]['text']!,
