@@ -78,15 +78,6 @@ class _LectorCodigoBarrasPageState extends State<LectorCodigoBarrasPage> {
     }
   }
 
-  // Método de prueba para simular escaneo
-  Future<void> _testScanWithOpenFoodFactsBarcode() async {
-    const String testBarcode = '3017620422003';
-    print('Simulando escaneo con código de OpenFoodFacts: $testBarcode');
-    if (_isScanning || !_isLoading) { // Solo procesar si no está ya procesando o si está listo para escanear
-      await _onBarcodeDetected(testBarcode);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final Color backgroundColor = const Color(0xFF1E1E1E);
@@ -148,15 +139,6 @@ class _LectorCodigoBarrasPageState extends State<LectorCodigoBarrasPage> {
                 if (_isLoading) // Show loading indicator
                   CircularProgressIndicator(color: accentColor),
               ],
-            ),
-          ),
-          // Botón de prueba temporal
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton(
-              onPressed: _testScanWithOpenFoodFactsBarcode, 
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.orangeAccent),
-              child: const Text('Probar con código Nutella (OpenFoodFacts)'),
             ),
           ),
           Padding(

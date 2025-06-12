@@ -6,6 +6,7 @@ import '../../../data/services/ingesta_service.dart';
 import '../../../data/models/registro_model.dart';
 import '../../../data/models/alimneto_model.dart';
 import '../../../utils/quick_actions.dart';
+import '../registroalimentos/escaneo_rapido.dart';
 
 class DescubrePage extends StatefulWidget {
   const DescubrePage({super.key});
@@ -112,16 +113,14 @@ class _DescubrePageState extends State<DescubrePage> {
                       collapseMode: CollapseMode.pin,
                       background: Stack(
                         children: [
-                          // Nueva imagen de fondo (ahora oscurecida directamente)
                           Positioned.fill(
                             child: Image.asset(
-                              'assets/images/descubre.jpg',
+                              'assets/images/descubre_bg.jpg',
                               fit: BoxFit.cover,
-                              colorBlendMode: BlendMode.darken, // Oscurecer la imagen
-                              color: Colors.black.withOpacity(0.5), // Reducir la opacidad del oscurecimiento
+                              colorBlendMode: BlendMode.darken,
+                              color: Colors.black.withOpacity(0.5),
                             ),
                           ),
-                          // Gradiente principal para el desvanecimiento a negro
                           Positioned.fill(
                             child: Container(
                               decoration: BoxDecoration(
@@ -129,15 +128,14 @@ class _DescubrePageState extends State<DescubrePage> {
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
                                   colors: [
-                                    Colors.transparent, // Empieza transparente
-                                    backgroundColor, // Se desvanece al color de fondo principal (negro)
+                                    Colors.transparent,
+                                    backgroundColor,
                                   ],
-                                  stops: const [0.5, 1.0], // Fundido más gradual
+                                  stops: const [0.5, 1.0],
                                 ),
                               ),
                             ),
                           ),
-                          // Patrón de decoración
                           Positioned(
                             right: -50,
                             top: -20,
@@ -162,7 +160,6 @@ class _DescubrePageState extends State<DescubrePage> {
                               ),
                             ),
                           ),
-                          // Contenido principal
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 20),
                             child: Column(
@@ -187,7 +184,7 @@ class _DescubrePageState extends State<DescubrePage> {
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
-                                const SizedBox(height: 20), // Espacio inferior para el contenido
+                                const SizedBox(height: 20),
                               ],
                             ),
                           ),
@@ -566,12 +563,18 @@ class _DescubrePageState extends State<DescubrePage> {
                         ),
                         child: GestureDetector(
                           key: ValueKey(alimento.id ?? 'gesture_sug_${index}'),
-                          onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('${alimento.nombre} añadido a tu diario'),
+                          onTap: () async {
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EscaneoRapidoPage(
+                                  scannedAlimento: alimento,
+                                ),
                               ),
                             );
+                            if (result == true) {
+                              _cargarDatos();
+                            }
                           },
                           child: Center(
                             child: Icon(

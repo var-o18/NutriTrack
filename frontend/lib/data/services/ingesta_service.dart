@@ -7,7 +7,7 @@ import '../models/alimneto_model.dart';
 import 'alimentos_service.dart';
 
 class IngestaService {
-  final String baseUrl = 'http://192.168.56.1:8080/api/ingestas';
+  final String baseUrl = 'http://192.168.18.110:8080/api/ingestas';
   final AlimentoService _alimentoService = AlimentoService();
 
   Future<bool> registrarIngesta(Ingesta ingesta) async {
@@ -67,7 +67,8 @@ class IngestaService {
     );
 
     if (response.statusCode == 200) {
-      final List<dynamic> listaJson = jsonDecode(response.body);
+      final String responseBodyUtf8 = utf8.decode(response.bodyBytes);
+      final List<dynamic> listaJson = jsonDecode(responseBodyUtf8);
       return listaJson.map((json) => Ingesta.fromMap(json)).toList();
     } else {
       print('Error al obtener ingestas: ${response.statusCode}');

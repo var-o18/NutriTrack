@@ -5,6 +5,8 @@ import 'apariencia_page.dart';
 import 'nutricion_page.dart';
 import 'ajustes_diario_page.dart';
 import 'premium_page.dart';
+import '../../../data/services/login_service.dart';
+import '../../pages/Login/login.dart';
 
 class AjustesPage extends StatelessWidget {
   const AjustesPage({super.key});
@@ -62,7 +64,19 @@ class AjustesPage extends StatelessWidget {
           );
         }
       },
-      {'title': 'Cerrar sesión', 'route': '/logout'},
+      {
+        'title': 'Cerrar sesión',
+        'onTap': (BuildContext context) async {
+          await logoutUser();
+          if (context.mounted) {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => LoginScreen()),
+              (Route<dynamic> route) => false,
+            );
+          }
+        }
+      },
     ];
 
     return Scaffold(

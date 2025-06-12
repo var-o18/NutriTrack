@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/alimneto_model.dart';
 
 class AlimentoService {
-  final String _baseUrl = 'http://192.168.56.1:8080/api/alimentos';
+  final String _baseUrl = 'http://192.168.18.110:8080/api/alimentos';
 
   Future<Map<String, dynamic>?> getAlimentoRaw(int id) async {
     final prefs = await SharedPreferences.getInstance();
@@ -24,7 +24,7 @@ class AlimentoService {
     );
 
     if (response.statusCode == 200) {
-      final Map<String, dynamic> jsonBody = jsonDecode(response.body);
+      final Map<String, dynamic> jsonBody = jsonDecode(utf8.decode(response.bodyBytes));
       return {'data': jsonBody};
     } else {
       print('Error ${response.statusCode}: ${response.body}');
@@ -51,7 +51,8 @@ class AlimentoService {
       );
 
       if (response.statusCode == 200) {
-        List<dynamic> jsonList = jsonDecode(response.body);
+        final String responseBodyUtf8 = utf8.decode(response.bodyBytes);
+        List<dynamic> jsonList = jsonDecode(responseBodyUtf8);
         List<Alimento> alimentos = jsonList.map((json) => Alimento.fromJson(json)).toList();
         return alimentos;
       } else {
@@ -93,7 +94,7 @@ class AlimentoService {
       print('[DEBUG AlimentoService] Respuesta del backend - Body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> jsonBody = jsonDecode(response.body);
+        final Map<String, dynamic> jsonBody = jsonDecode(utf8.decode(response.bodyBytes));
         print('[DEBUG AlimentoService] JSON decodificado: $jsonBody');
         return Alimento.fromJson(jsonBody);
       } else if (response.statusCode == 404) {
@@ -197,7 +198,8 @@ class AlimentoService {
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> alimentosJson = jsonDecode(response.body);
+        final String responseBodyUtf8 = utf8.decode(response.bodyBytes);
+        final List<dynamic> alimentosJson = jsonDecode(responseBodyUtf8);
         return alimentosJson.map((json) => Alimento.fromJson(json)).toList();
       } else {
         print('Error al obtener sugerencias: ${response.statusCode} - ${response.body}');

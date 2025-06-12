@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/registro_model.dart';
 
 Future<bool> loginUsuario(String correo, String contrasena) async {
-  final url = Uri.parse('http://192.168.56.1:8080/api/usuarios/login');
+  final url = Uri.parse('http://192.168.18.110:8080/api/usuarios/login');
 
   final response = await http.post(
     url,
@@ -46,7 +46,7 @@ Future<RegistroModel?> getDatosUsuario() async {
 
   print('Consultando datos del usuario con ID: $userId');
 
-  final url = Uri.parse('http://192.168.56.1:8080/api/usuarios/$userId');
+  final url = Uri.parse('http://192.168.18.110:8080/api/usuarios/$userId');
   final response = await http.get(
     url,
     headers: {
@@ -75,7 +75,7 @@ Future<bool> updateCaloriasRestantesUsuario(int userId, int caloriasRestantes) a
     return false;
   }
 
-  final url = Uri.parse('http://192.168.56.1:8080/api/usuarios/$userId');
+  final url = Uri.parse('http://192.168.18.110:8080/api/usuarios/$userId');
   try {
     final response = await http.patch(
       url,
@@ -109,7 +109,7 @@ Future<bool> patchUsuario(Map<String, dynamic> patchData) async {
     return false;
   }
 
-  final url = Uri.parse('http://192.168.56.1:8080/api/usuarios/$userId');
+  final url = Uri.parse('http://192.168.18.110:8080/api/usuarios/$userId');
   try {
     final response = await http.patch(
       url,
@@ -130,4 +130,11 @@ Future<bool> patchUsuario(Map<String, dynamic> patchData) async {
     print('Excepción al actualizar usuario: $e');
     return false;
   }
+}
+
+Future<void> logoutUser() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove('jwt_token');
+  await prefs.remove('jwt_id');
+  print('Usuario cerró sesión: tokens JWT eliminados.');
 }
