@@ -73,15 +73,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _loadConsumedCalories() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    int? consumed = prefs.getInt('today_calories_consumed');
-    print('[DashboardScreen] Loaded today_calories_consumed: $consumed');
-    if (consumed != null) {
+    try {
+      final IngestaService ingestaService = IngestaService();
+      final calorias = await ingestaService.calcularYGuardarCaloriasConsumidas();
+      print('[DashboardScreen] Calorías calculadas: $calorias');
       if (mounted) {
         setState(() {
-          _caloriasConsumidasHoy = consumed;
+          _caloriasConsumidasHoy = calorias;
         });
       }
+    } catch (e) {
+      print('[DashboardScreen] Error al cargar calorías: $e');
     }
   }
 
@@ -174,8 +176,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
           totalSodium += alimento.sodio * factor;
           totalHealthyFat += alimento.grasasSaludables * factor;
           totalFat += alimento.grasas * factor;
+
+          print('--- Ingesta de Alimento: ${alimento.nombre} ---');
+          print('Cantidad ingesta: ${ingesta.cantidad}g');
+          print('Factor: $factor');
+          print('Sodio por 100g (alimento): ${alimento.sodio}');
+          print('Grasas Saludables por 100g (alimento): ${alimento.grasasSaludables}');
+          print('Sodio total sumado (ingesta): ${alimento.sodio * factor}');
+          print('Grasas Saludables total sumado (ingesta): ${alimento.grasasSaludables * factor}');
+          print('-------------------------------------');
         }
       }
+
+      print('\n--- Totales de Salud del Corazón ---');
+      print('Total Sodio: $_totalSodium');
+      print('Total Grasas Saludables: $_healthyFatPercentage');
+      print('-------------------------------------');
 
       if (mounted) {
         setState(() {

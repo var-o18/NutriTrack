@@ -3,9 +3,12 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/ingesta_model.dart';
+import '../models/alimneto_model.dart';
+import 'alimentos_service.dart';
 
 class IngestaService {
   final String baseUrl = 'http://192.168.56.1:8080/api/ingestas';
+  final AlimentoService _alimentoService = AlimentoService();
 
   Future<bool> registrarIngesta(Ingesta ingesta) async {
     final prefs = await SharedPreferences.getInstance();
@@ -141,6 +144,124 @@ class IngestaService {
     } catch (e) {
       print('[ERROR] actualizarIngesta: Exception: $e');
       return false;
+    }
+  }
+
+  Future<Map<String, dynamic>> getResumenDiario() async {
+    try {
+      final ingestas = await obtenerIngestasDelUsuario();
+      final now = DateTime.now();
+      
+      // Obtener todos los alimentos para evitar múltiples consultas
+      final todosLosAlimentos = await _alimentoService.getAllAlimentos();
+      final mapaAlimentos = {
+        for (var alimento in todosLosAlimentos) alimento.id!: alimento
+      };
+
+      final ingestasHoy = ingestas.where((ingesta) {
+        try {
+          final fechaIngesta = DateTime.parse(ingesta.fechaConsumo);
+          return fechaIngesta.year == now.year &&
+                 fechaIngesta.month == now.month &&
+                 fechaIngesta.day == now.day;
+        } catch (e) {
+          print('Error al parsear fecha: ${ingesta.fechaConsumo}');
+          return false;
+        }
+      }).toList();
+
+      print('Ingestas de hoy: ${ingestasHoy.length}');
+
+      double caloriasConsumidas = 0;
+      double carbohidratosConsumidos = 0;
+      double proteinasConsumidas = 0;
+      double grasasConsumidas = 0;
+
+      for (var ingesta in ingestasHoy) {
+        final alimento = mapaAlimentos[ingesta.alimentoId];
+        if (alimento != null) {
+          double factor = ingesta.cantidad / 100.0; // Convertir a proporción
+          caloriasConsumidas += alimento.calorias * factor;
+          carbohidratosConsumidos += alimento.carbohidratos * factor;
+          proteinasConsumidas += alimento.proteinas * factor;
+          grasasConsumidas += alimento.grasas * factor;
+        }
+      }
+
+      print('Resumen calculado:');
+      print('Calorías: $caloriasConsumidas');
+      print('Carbohidratos: $carbohidratosConsumidos');
+      print('Proteínas: $proteinasConsumidas');
+      print('Grasas: $grasasConsumidas');
+
+      return {
+        'caloriasConsumidas': caloriasConsumidas,
+        'carbohidratosConsumidos': carbohidratosConsumidos,
+        'proteinasConsumidas': proteinasConsumidas,
+        'grasasConsumidas': grasasConsumidas,
+      };
+    } catch (e) {
+      print('Error al calcular resumen diario: $e');
+      return {
+        'caloriasConsumidas': 0,
+        'carbohidratosConsumidos': 0,
+        'proteinasConsumidas': 0,
+        'grasasConsumidas': 0,
+      };
+    }
+  }
+
+  Future<int> calcularYGuardarCaloriasConsumidas() async {
+    try {
+      final ingestas = await obtenerIngestasDelUsuario();
+      final now = DateTime.now();
+      
+      // Obtener todos los alimentos para evitar múltiples consultas
+      final todosLosAlimentos = await _alimentoService.getAllAlimentos();
+      final mapaAlimentos = {
+        for (var alimento in todosLosAlimentos) alimento.id!: alimento
+      };
+
+      int caloriasTotales = 0;
+
+      for (var ingesta in ingestas) {
+        try {
+          final fechaIngesta = DateTime.parse(ingesta.fechaConsumo);
+          if (fechaIngesta.year == now.year &&
+              fechaIngesta.month == now.month &&
+              fechaIngesta.day == now.day) {
+            
+            final alimento = mapaAlimentos[ingesta.alimentoId];
+            if (alimento != null) {
+              double factor = ingesta.cantidad / 100.0;
+              caloriasTotales += (alimento.calorias * factor).round();
+            }
+          }
+        } catch (e) {
+          print('Error al procesar ingesta: $e');
+          continue;
+        }
+      }
+
+      // Guardar en SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('today_calories_consumed', caloriasTotales);
+      print('Calorías guardadas: $caloriasTotales');
+
+      return caloriasTotales;
+    } catch (e) {
+      print('Error al calcular calorías: $e');
+      return 0;
+    }
+  }
+
+  Future<int> obtenerCaloriasConsumidas() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getInt('today_calories_consumed') ?? 0;
+    } catch (e) {
+      print('Error al obtener calorías: $e');
+      return 0;
     }
   }
 }

@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../models/alimneto_model.dart';
 
 class AlimentoService {
@@ -178,19 +177,35 @@ class AlimentoService {
     return null;
   }
 
-  Future<List<Map<String, dynamic>>> fetchSugerencias({int limite = 5, double margenPorcentaje = 0.2}) async {
-    final response = await http.get(
-      Uri.parse('$_baseUrl/sugerencias?limite=$limite&margenPorcentaje=$margenPorcentaje'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    );
+  Future<List<Alimento>> getSugerencias(int limite, double margenPorcentaje) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('jwt_token');
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.cast<Map<String, dynamic>>();
-    } else {
-      throw Exception('Error al obtener sugerencias');
+    if (token == null) {
+      throw Exception('No hay token de autenticación');
+    }
+
+    final url = Uri.parse('$_baseUrl/sugerencias?limite=$limite&margenPorcentaje=$margenPorcentaje');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> alimentosJson = jsonDecode(response.body);
+        return alimentosJson.map((json) => Alimento.fromJson(json)).toList();
+      } else {
+        print('Error al obtener sugerencias: ${response.statusCode} - ${response.body}');
+        throw Exception('Error al obtener sugerencias: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error en la petición de sugerencias: $e');
+      throw Exception('Error al obtener sugerencias: $e');
     }
   }
 }

@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
+import '../../../data/services/alimentos_service.dart';
+import '../../../data/services/login_service.dart';
+import '../../../data/services/ingesta_service.dart';
+import '../../../data/models/registro_model.dart';
+import '../../../data/models/alimneto_model.dart';
 import '../../../utils/quick_actions.dart';
 
 class DescubrePage extends StatefulWidget {
-  final int caloriasRestantes;
-  final List<Map<String, dynamic>> recomendaciones;
-
-  const DescubrePage({
-    Key? key,
-    required this.caloriasRestantes,
-    required this.recomendaciones,
-  }) : super(key: key);
+  const DescubrePage({super.key});
 
   @override
   State<DescubrePage> createState() => _DescubrePageState();
@@ -21,21 +18,50 @@ class _DescubrePageState extends State<DescubrePage> {
   int _currentIndex = 3;
   DateTime selectedDate = DateTime.now();
   bool _showTitle = false;
-
-  final int calorias = 1750;
-  final int caloriasObjetivo = 2000;
-  final double carbs = 134;
-  final double protein = 20;
-  final double fat = 14;
-  final double carbsGoal = 205;
-  final double proteinGoal = 75;
-  final double fatGoal = 70;
+  bool _isLoading = true;
+  RegistroModel? _usuario;
+  List<Alimento> _sugerencias = [];
+  Map<String, dynamic> _resumenDiario = {};
+  final AlimentoService _alimentoService = AlimentoService();
+  final IngestaService _ingestaService = IngestaService();
 
   Color get cardColor => const Color(0x4D5A99D6);
   Color get accentColor => const Color(0xFF5A99D6);
   Color get backgroundColor => const Color(0xFF1E1E1E);
 
   String get formattedDate => DateFormat('d MMM').format(selectedDate);
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarDatos();
+  }
+
+  Future<void> _cargarDatos() async {
+    setState(() => _isLoading = true);
+    try {
+      // Obtener datos del usuario
+      final usuario = await getDatosUsuario();
+      if (usuario != null) {
+        setState(() => _usuario = usuario);
+      }
+
+      // Obtener resumen diario
+      final resumen = await _ingestaService.getResumenDiario();
+      setState(() => _resumenDiario = resumen);
+
+      // Obtener sugerencias de alimentos
+      final sugerencias = await _alimentoService.getSugerencias(5, 0.1);
+      setState(() => _sugerencias = sugerencias);
+    } catch (e) {
+      print('Error al cargar datos: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error al cargar los datos')),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
 
   void _changeDate(int days) {
     setState(() {
@@ -58,178 +84,155 @@ class _DescubrePageState extends State<DescubrePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
-      body: NotificationListener<ScrollNotification>(
-        onNotification: (scrollInfo) {
-          _handleScroll(scrollInfo);
-          return false;
-        },
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              backgroundColor: backgroundColor,
-              expandedHeight: 200.0,
-              floating: false,
-              pinned: true,
-              title: _showTitle 
-                ? const Text(
-                    'Descubre',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  )
-                : null,
-              automaticallyImplyLeading: false,
-              flexibleSpace: FlexibleSpaceBar(
-                collapseMode: CollapseMode.pin,
-                background: Stack(
-                  children: [
-                    // Fondo con gradiente y patrón
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            accentColor.withOpacity(0.7),
-                            backgroundColor,
-                          ],
-                        ),
-                      ),
-                    ),
-                    // Patrón de decoración
-                    Positioned(
-                      right: -50,
-                      top: -20,
-                      child: Container(
-                        width: 200,
-                        height: 200,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withOpacity(0.1),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      left: -30,
-                      bottom: -60,
-                      child: Container(
-                        width: 150,
-                        height: 150,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withOpacity(0.1),
-                        ),
-                      ),
-                    ),
-                    // Contenido principal
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : NotificationListener<ScrollNotification>(
+              onNotification: (scrollInfo) {
+                _handleScroll(scrollInfo);
+                return false;
+              },
+              child: CustomScrollView(
+                slivers: [
+                  SliverAppBar(
+                    backgroundColor: backgroundColor,
+                    expandedHeight: 280.0,
+                    floating: false,
+                    pinned: true,
+                    title: _showTitle
+                      ? const Text(
+                          'Descubre',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        )
+                      : null,
+                    automaticallyImplyLeading: false,
+                    flexibleSpace: FlexibleSpaceBar(
+                      collapseMode: CollapseMode.pin,
+                      background: Stack(
                         children: [
-                          const SizedBox(height: 60),
+                          // Nueva imagen de fondo (ahora oscurecida directamente)
+                          Positioned.fill(
+                            child: Image.asset(
+                              'assets/images/descubre.jpg',
+                              fit: BoxFit.cover,
+                              colorBlendMode: BlendMode.darken, // Oscurecer la imagen
+                              color: Colors.black.withOpacity(0.5), // Reducir la opacidad del oscurecimiento
+                            ),
+                          ),
+                          // Gradiente principal para el desvanecimiento a negro
+                          Positioned.fill(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.transparent, // Empieza transparente
+                                    backgroundColor, // Se desvanece al color de fondo principal (negro)
+                                  ],
+                                  stops: const [0.5, 1.0], // Fundido más gradual
+                                ),
+                              ),
+                            ),
+                          ),
+                          // Patrón de decoración
+                          Positioned(
+                            right: -50,
+                            top: -20,
+                            child: Container(
+                              width: 200,
+                              height: 200,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white.withOpacity(0.1),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            left: -30,
+                            bottom: -60,
+                            child: Container(
+                              width: 150,
+                              height: 150,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white.withOpacity(0.1),
+                              ),
+                            ),
+                          ),
+                          // Contenido principal
                           Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: const Icon(
-                              Icons.lightbulb_outline,
-                              color: Colors.white,
-                              size: 30,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'Descubre',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Encuentra tu próxima comida',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.9),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Descubre',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Encuentra tu próxima comida',
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.9),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(height: 20), // Espacio inferior para el contenido
+                              ],
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  SliverPadding(
+                    padding: const EdgeInsets.only(top: 0.0, left: 16.0, right: 16.0, bottom: 16.0),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        _buildNutritionSummary(),
+                        const SizedBox(height: 24),
+                        _buildCategorySection(),
+                        const SizedBox(height: 24),
+                        _buildRecommendationsSection(),
+                      ]),
+                    ),
+                  ),
+                ],
               ),
             ),
-            SliverPadding(
-              padding: const EdgeInsets.all(16),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  _buildDateSelector(),
-                  const SizedBox(height: 24),
-                  _buildNutritionSummary(),
-                  const SizedBox(height: 24),
-                  _buildCategorySection(),
-                  const SizedBox(height: 24),
-                  _buildRecommendationsSection(),
-                ]),
-              ),
-            ),
-          ],
-        ),
-      ),
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
 
-  Widget _buildDateSelector() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.chevron_left, color: Colors.white),
-            onPressed: () => _changeDate(-1),
-          ),
-          Text(
-            formattedDate,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.chevron_right, color: Colors.white),
-            onPressed: () => _changeDate(1),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildNutritionSummary() {
+    if (_usuario == null || _resumenDiario.isEmpty) return const SizedBox.shrink();
+
+    final caloriasConsumidas = _resumenDiario['caloriasConsumidas'] ?? 0;
+    final caloriasRestantes = (_usuario!.caloriasDiarias ?? 0) - caloriasConsumidas;
+    final carbohidratosConsumidos = _resumenDiario['carbohidratosConsumidos'] ?? 0;
+    final proteinasConsumidas = _resumenDiario['proteinasConsumidas'] ?? 0;
+    final grasasConsumidas = _resumenDiario['grasasConsumidas'] ?? 0;
+
     return Container(
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: cardColor,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white.withOpacity(0.1)),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
@@ -240,25 +243,75 @@ class _DescubrePageState extends State<DescubrePage> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 12),
           Row(
             children: [
-              _buildNutritionCircle(
-                'Calorías',
-                '$calorias',
-                'kcal',
-                Icons.local_fire_department,
-                accentColor,
-              ),
-              const SizedBox(width: 20),
               Expanded(
-                child: Column(
+                flex: 3,
+                child: Stack(
+                  alignment: Alignment.center,
                   children: [
-                    _buildNutrientBar('Carbohidratos', carbs, carbsGoal, accentColor),
-                    const SizedBox(height: 12),
-                    _buildNutrientBar('Proteínas', protein, proteinGoal, Colors.green),
-                    const SizedBox(height: 12),
-                    _buildNutrientBar('Grasas', fat, fatGoal, Colors.orange),
+                    Container(
+                      width: 125,
+                      height: 130,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.black26,
+                        border: Border.all(
+                          color: Colors.white10,
+                          width: 8,
+                        ),
+                      ),
+                    ),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          caloriasRestantes.round().toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const Text(
+                          'Restantes',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                flex: 2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildNutrientBar(
+                      'Carbs',
+                      carbohidratosConsumidos,
+                      250.0,
+                      accentColor,
+                    ),
+                    const SizedBox(height: 8),
+                    _buildNutrientBar(
+                      'Proteínas',
+                      proteinasConsumidas,
+                      75.0,
+                      Colors.green,
+                    ),
+                    const SizedBox(height: 8),
+                    _buildNutrientBar(
+                      'Grasas',
+                      grasasConsumidas,
+                      65.0,
+                      Colors.orange,
+                    ),
                   ],
                 ),
               ),
@@ -317,17 +370,19 @@ class _DescubrePageState extends State<DescubrePage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              label,
-              style: const TextStyle(color: Colors.white, fontSize: 14),
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(color: Colors.white, fontSize: 14),
+              ),
             ),
             Text(
               '${value.toInt()}/${goal.toInt()}g',
-              style: const TextStyle(color: Colors.white, fontSize: 14),
+              style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 12),
             ),
           ],
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 4),
         Stack(
           children: [
             Container(
@@ -354,48 +409,65 @@ class _DescubrePageState extends State<DescubrePage> {
   }
 
   Widget _buildCategorySection() {
+    if (_usuario == null) return const SizedBox.shrink();
+
     return Container(
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: cardColor,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.white.withOpacity(0.1)),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
             'Plan Actual',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: accentColor.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(6),
                 ),
                 child: const Icon(
                   Icons.restaurant,
                   color: Colors.white,
-                  size: 24,
+                  size: 20,
                 ),
               ),
-              const SizedBox(width: 16),
-              const Expanded(
-                child: Text(
-                  'Dieta balanceada',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _usuario!.objetivoPersonal ?? 'Sin objetivo definido',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Text(
+                      'Objetivo personal',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Icon(
@@ -411,89 +483,106 @@ class _DescubrePageState extends State<DescubrePage> {
   }
 
   Widget _buildRecommendationsSection() {
+    if (_sugerencias.isEmpty) return const SizedBox.shrink();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Recomendaciones para ti',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10.0),
+          child: Text(
+            'Recomendaciones para ti',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         const SizedBox(height: 16),
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: widget.recomendaciones.length,
+          itemCount: _sugerencias.length,
           itemBuilder: (context, index) {
-            final recomendacion = widget.recomendaciones[index];
+            final alimento = _sugerencias[index];
             return Padding(
-              padding: const EdgeInsets.only(bottom: 16),
+              key: ValueKey(alimento.id ?? 'sug_${index}'),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               child: Container(
                 decoration: BoxDecoration(
                   color: cardColor,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: Colors.white.withOpacity(0.1)),
                 ),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.all(16),
-                  leading: Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: accentColor.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.fastfood,
-                      color: Colors.white,
-                      size: 30,
-                    ),
-                  ),
-                  title: Text(
-                    recomendacion['nombre'],
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  subtitle: Text(
-                    '${recomendacion['calorias']} kcal',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.7),
-                      fontSize: 14,
-                    ),
-                  ),
-                  trailing: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: accentColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: accentColor.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.fastfood,
+                          color: Colors.white,
+                          size: 24,
+                        ),
                       ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 12,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              alimento.nombre,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '${alimento.calorias} kcal',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.7),
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            '${recomendacion['nombre']} añadido a tu diario',
+                      const SizedBox(width: 12),
+                      Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withOpacity(0.1),
+                        ),
+                        child: GestureDetector(
+                          key: ValueKey(alimento.id ?? 'gesture_sug_${index}'),
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('${alimento.nombre} añadido a tu diario'),
+                              ),
+                            );
+                          },
+                          child: Center(
+                            child: Icon(
+                              Icons.add,
+                              color: Colors.white,
+                              size: 14,
+                            ),
                           ),
                         ),
-                      );
-                    },
-                    child: const Text(
-                      'Agregar',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ),

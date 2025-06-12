@@ -7,6 +7,8 @@ class Alimento {
   final double grasas;
   final String? codigoBarras;
   final String? ingredientes;
+  final double sodio;
+  final double grasasSaludables;
 
   Alimento({
     this.id,
@@ -17,6 +19,8 @@ class Alimento {
     required this.grasas,
     this.codigoBarras,
     this.ingredientes,
+    this.sodio = 0.0,
+    this.grasasSaludables = 0.0,
   });
 
   factory Alimento.fromJson(Map<String, dynamic> json) {
@@ -36,12 +40,11 @@ class Alimento {
       grasas: toDoubleSafe(json['grasas']),
       codigoBarras: json['codigo_barras'],
       ingredientes: json['ingredientes'],
+      sodio: toDoubleSafe(json['sodio']),
+      grasasSaludables: toDoubleSafe(json['grasas_saludables']),
     );
   }
 
-  get sodio => null;
-
-  get grasasSaludables => null;
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {
@@ -50,6 +53,8 @@ class Alimento {
       'proteinas': proteinas,
       'carbohidratos': carbohidratos,
       'grasas': grasas,
+      'sodio': sodio,
+      'grasas_saludables': grasasSaludables,
     };
     if (id != null) {
       data['id'] = id;

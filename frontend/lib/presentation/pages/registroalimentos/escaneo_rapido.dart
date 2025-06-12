@@ -187,7 +187,7 @@ class _EscaneoRapidoPageState extends State<EscaneoRapidoPage> {
 
     if (ingestaRegistrada) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Alimento e ingesta agregados exitosamente!')));
-      Navigator.pop(context);
+      Navigator.pushReplacementNamed(context, '/diario');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error al registrar la ingesta.')));
     }
