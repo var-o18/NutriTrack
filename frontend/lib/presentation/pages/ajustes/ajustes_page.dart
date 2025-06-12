@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../Bienvenida/bienvenida1.dart';
+import '../Bienvenida/bienvenida2.dart';
 import 'notificaciones_page.dart';
 import 'ejercicios_page.dart';
 import 'apariencia_page.dart';
@@ -72,7 +73,7 @@ class AjustesPage extends StatelessWidget {
           if (context.mounted) {
             Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (context) => Bienvenida1()),
+              MaterialPageRoute(builder: (context) => Bienvenida2()),
               (Route<dynamic> route) => false,
             );
           }
