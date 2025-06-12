@@ -9,6 +9,7 @@ import '../../../data/services/login_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../../data/services/ingesta_service.dart';
 import '../../../utils/quick_actions.dart';
+import '../AgregadoEjercicio/ejercicio.dart';
 
 
 class DashboardScreen extends StatefulWidget {
@@ -500,25 +501,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                           const SizedBox(width: 6),
                           Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
-                                Text(
-                                  "Ejercicio",
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 11,
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const EjercicioScreen()),
+                                );
+                              },
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: const [
+                                  Text(
+                                    "Ejercicio",
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 11,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  "0",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
+                                  Text(
+                                    "0",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ],
@@ -542,155 +551,172 @@ class _DashboardScreenState extends State<DashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const SizedBox(width: 12),
             Flexible(
               flex: 5,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                constraints: const BoxConstraints(
-                  maxWidth: 165,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0x4D5A99D6),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      "Pasos",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Image.asset(
-                          'assets/images/zapatillapasos.png',
-                          width: 24,
-                          height: 24,
-                          color: Colors.pink,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const EjercicioScreen()),
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  constraints: const BoxConstraints(
+                    maxWidth: 165,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0x4D5A99D6),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        "Pasos",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          _stepCount.toString(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Image.asset(
+                            'assets/images/zapatillapasos.png',
+                            width: 24,
+                            height: 24,
+                            color: Colors.pink,
                           ),
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-                    const Text(
-                      "Objetivo: 10.000 pasos",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 13
+                          const SizedBox(width: 8),
+                          Text(
+                            _stepCount.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                      const Spacer(),
+                      const Text(
+                        "Objetivo: 10.000 pasos",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 13
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
             const SizedBox(width: 12),
             Flexible(
               flex: 5,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                constraints: const BoxConstraints(
-                  maxWidth: 165,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0x4D5A99D6),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          "Ejercicio",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const EjercicioScreen()),
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  constraints: const BoxConstraints(
+                    maxWidth: 165,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0x4D5A99D6),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            "Ejercicio",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
-                        ),
-                        Container(
-                          width: 24,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white.withOpacity(0.1),
+                          Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white.withOpacity(0.1),
+                            ),
+                            child: const Icon(
+                              Icons.add,
+                              color: Colors.white,
+                              size: 20,
+                            ),
                           ),
-                          child: const Icon(
-                            Icons.add,
-                            color: Colors.white,
-                            size: 20,
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.orange.withOpacity(0.2),
+                            ),
+                            child: const Icon(
+                              Icons.local_fire_department,
+                              color: Colors.orange,
+                              size: 16,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Container(
-                          width: 24,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.orange.withOpacity(0.2),
+                          const SizedBox(width: 8),
+                          const Text(
+                            "0 cal",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14
+                            ),
                           ),
-                          child: const Icon(
-                            Icons.local_fire_department,
-                            color: Colors.orange,
-                            size: 16,
+                        ],
+                      ),
+                      const Spacer(),
+                      Row(
+                        children: [
+                          Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.orange.withOpacity(0.2),
+                            ),
+                            child: const Icon(
+                              Icons.access_time,
+                              color: Colors.orange,
+                              size: 16,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        const Text(
-                          "0 cal",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14
+                          const SizedBox(width: 8),
+                          const Text(
+                            "00:00 h",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-                    Row(
-                      children: [
-                        Container(
-                          width: 24,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.orange.withOpacity(0.2),
-                          ),
-                          child: const Icon(
-                            Icons.access_time,
-                            color: Colors.orange,
-                            size: 16,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        const Text(
-                          "00:00 h",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
