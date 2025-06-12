@@ -51,16 +51,8 @@ class MyApp extends StatelessWidget {
         '/ajustes': (context) => const AjustesPage(),
         '/perfil': (context) => const PerfilPage(),
         '/diario': (context) => const DiarioScreen(),
-        '/registralimentos': (context) => const RegistroAlimentosPage(mealType: '',),
-        '/descubre': (context) => DescubrePage(
-          caloriasRestantes: 500,
-          recomendaciones: [
-            {'nombre': 'Manzana', 'calorias': 52, 'imagen': 'assets/images/manzana.png'},
-            {'nombre': 'Yogur natural', 'calorias': 80, 'imagen': 'assets/images/yogur.png'},
-            {'nombre': 'Avena', 'calorias': 150, 'imagen': 'assets/images/avena.png'},
-            {'nombre': 'Pollo a la plancha', 'calorias': 200, 'imagen': 'assets/images/pollo.png'},
-          ],
-        ),
+        '/registralimentos': (context) => const RegistroAlimentosPage(mealType: ''),
+        '/descubre': (context) => DescubrePage(),
       },
     );
   }
@@ -80,15 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
     DashboardScreen(),
     DiarioScreen(),
     RegistroAlimentosPage(mealType: ''),
-    DescubrePage(
-      caloriasRestantes: 500,
-      recomendaciones: [
-        {'nombre': 'Manzana', 'calorias': 52, 'imagen': 'assets/images/manzana.png'},
-        {'nombre': 'Yogur natural', 'calorias': 80, 'imagen': 'assets/images/yogur.png'},
-        {'nombre': 'Avena', 'calorias': 150, 'imagen': 'assets/images/avena.png'},
-        {'nombre': 'Pollo a la plancha', 'calorias': 200, 'imagen': 'assets/images/pollo.png'},
-      ],
-    ),
+    DescubrePage(),
     AjustesPage(),
   ];
 
