@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui' as ui;
 
 import '../../../data/services/login_service.dart';
 import '../PantallaPrincipal/dashboard.dart';
@@ -26,9 +27,44 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  late Animation<double> _slideAnimation;
+
+  // Color palette
+  static const Color primaryColor = Color(0xFF5A99D6);
+  static const Color backgroundColor = Color(0xFF1E1E1E);
+  static const Color textColor = Color(0xFFFFFFFF);
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+
+    _slideAnimation = Tween<double>(begin: 50.0, end: 0.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   bool isValidEmail(String email) {
     return RegExp(r'^[\w\.-]+@[\w\.-]+\.\w{2,4}$').hasMatch(email.trim());
@@ -71,7 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => DashboardScreen()),
-            (route) => false,
+        (route) => false,
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -86,177 +122,303 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1E1E1E),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1E1E1E),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context, 'bienvenida2');
-          },
-        ),
-        centerTitle: true,
-        title: const Text(
-          'Iniciar Sesión',
-          style: TextStyle(color: Colors.white, fontSize: 15),
-        ),
-      ),
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              physics: constraints.maxHeight < 600
-                  ? const AlwaysScrollableScrollPhysics()
-                  : const NeverScrollableScrollPhysics(),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight,
+      backgroundColor: backgroundColor,
+      body: Stack(
+        children: [
+          // Gradient background
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    backgroundColor,
+                    primaryColor.withOpacity(0.3),
+                    backgroundColor,
+                  ],
                 ),
-                child: IntrinsicHeight(
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 350),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
+              ),
+            ),
+          ),
+
+          // Main content
+          SafeArea(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      // Back button and title
+                      Row(
                         children: [
-                          const SizedBox(height: 40),
-                          Image.asset(
-                            'assets/images/image.png',
-                            height: 200,
+                          IconButton(
+                            icon: const Icon(Icons.arrow_back, color: textColor),
+                            onPressed: () => Navigator.pop(context, 'bienvenida2'),
                           ),
-                          const SizedBox(height: 40),
-                          TextField(
-                            controller: _emailController,
-                            style: const TextStyle(color: Colors.white),
-                            decoration: InputDecoration(
-                              labelText: 'Email',
-                              labelStyle: const TextStyle(color: Colors.white),
-                              hintText: 'nutritrack@gmail.com',
-                              hintStyle: const TextStyle(color: Colors.grey),
-                              filled: true,
-                              fillColor: Colors.transparent,
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: const BorderSide(color: Colors.white),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: const BorderSide(color: Color(0xFF4285F4)),
-                                borderRadius: BorderRadius.circular(8),
+                          const Expanded(
+                            child: Text(
+                              'Iniciar Sesión',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: textColor,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
-                          const SizedBox(height: 20),
-                          TextField(
-                            controller: _passwordController,
-                            obscureText: true,
-                            style: const TextStyle(color: Colors.white),
-                            decoration: InputDecoration(
-                              labelText: 'Contraseña',
-                              labelStyle: const TextStyle(color: Colors.white),
-                              hintText: 'mínimo 8 caracteres',
-                              hintStyle: const TextStyle(color: Colors.grey),
-                              filled: true,
-                              fillColor: Colors.transparent,
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: const BorderSide(color: Colors.white),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: const BorderSide(color: Color(0xFF4285F4)),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: _handleLogin,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                foregroundColor: Colors.black,
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              child: const Text('Iniciar Sesión'),
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          TextButton(
-                            onPressed: () {},
-                            child: const Text(
-                              '¿Olvidaste la contraseña?',
-                              style: TextStyle(color: Color(0xFF4285F4)),
-                            ),
-                          ),
-                          const Divider(color: Colors.grey),
-                          const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: OutlinedButton.icon(
-                                  onPressed: () {},
-                                  icon: Image.asset(
-                                    'assets/images/logogoogle.png',
-                                    height: 24,
-                                  ),
-                                  label: const Text(
-                                    'Continuar con Google',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                  style: OutlinedButton.styleFrom(
-                                    side: const BorderSide(color: Colors.white),
-                                    padding: const EdgeInsets.symmetric(vertical: 12),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: OutlinedButton.icon(
-                                  onPressed: () {},
-                                  icon: Image.asset(
-                                    'assets/images/logoappleblanco.png',
-                                    height: 24,
-                                  ),
-                                  label: const Text(
-                                    'Continuar con Apple',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                  style: OutlinedButton.styleFrom(
-                                    side: const BorderSide(color: Colors.white),
-                                    padding: const EdgeInsets.symmetric(vertical: 12),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-                          const Text(
-                            'Tus datos están protegidos',
-                            style: TextStyle(color: Color(0xFF4285F4)),
-                          ),
+                          const SizedBox(width: 40), // Para balancear el IconButton
                         ],
                       ),
-                    ),
+                      const SizedBox(height: 40),
+
+                      // Logo with glass effect
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                          boxShadow: [
+                            BoxShadow(
+                              color: primaryColor.withOpacity(0.3),
+                              blurRadius: 25,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(30),
+                          child: BackdropFilter(
+                            filter: ui.ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                            child: Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: primaryColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(30),
+                                border: Border.all(
+                                  color: textColor.withOpacity(0.1),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Image.asset(
+                                'assets/images/image.png',
+                                height: 150,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 40),
+
+                      // Email field with modern design
+                      AnimatedBuilder(
+                        animation: _slideAnimation,
+                        builder: (context, child) {
+                          return Transform.translate(
+                            offset: Offset(0, _slideAnimation.value),
+                            child: TextField(
+                              controller: _emailController,
+                              style: const TextStyle(color: textColor),
+                              decoration: InputDecoration(
+                                labelText: 'Email',
+                                labelStyle: TextStyle(color: textColor.withOpacity(0.9)),
+                                hintText: 'nutritrack@gmail.com',
+                                hintStyle: TextStyle(color: textColor.withOpacity(0.5)),
+                                filled: true,
+                                fillColor: primaryColor.withOpacity(0.1),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: primaryColor.withOpacity(0.3)),
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: const BorderSide(color: primaryColor),
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                prefixIcon: Icon(Icons.email_outlined, color: textColor.withOpacity(0.9)),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Password field with modern design
+                      AnimatedBuilder(
+                        animation: _slideAnimation,
+                        builder: (context, child) {
+                          return Transform.translate(
+                            offset: Offset(0, _slideAnimation.value),
+                            child: TextField(
+                              controller: _passwordController,
+                              obscureText: true,
+                              style: const TextStyle(color: textColor),
+                              decoration: InputDecoration(
+                                labelText: 'Contraseña',
+                                labelStyle: TextStyle(color: textColor.withOpacity(0.9)),
+                                hintText: 'mínimo 8 caracteres',
+                                hintStyle: TextStyle(color: textColor.withOpacity(0.5)),
+                                filled: true,
+                                fillColor: primaryColor.withOpacity(0.1),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: primaryColor.withOpacity(0.3)),
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: const BorderSide(color: primaryColor),
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                prefixIcon: Icon(Icons.lock_outline, color: textColor.withOpacity(0.9)),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 30),
+
+                      // Login button with gradient
+                      AnimatedBuilder(
+                        animation: _slideAnimation,
+                        builder: (context, child) {
+                          return Transform.translate(
+                            offset: Offset(0, _slideAnimation.value),
+                            child: Container(
+                              width: double.infinity,
+                              height: 55,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                gradient: LinearGradient(
+                                  colors: [
+                                    primaryColor.withOpacity(0.8),
+                                    primaryColor,
+                                  ],
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: primaryColor.withOpacity(0.3),
+                                    blurRadius: 15,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
+                              ),
+                              child: ElevatedButton(
+                                onPressed: _handleLogin,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  shadowColor: Colors.transparent,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Iniciar Sesión',
+                                  style: TextStyle(
+                                    color: textColor,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Forgot password
+                      TextButton(
+                        onPressed: () {},
+                        child: Text(
+                          '¿Olvidaste la contraseña?',
+                          style: TextStyle(
+                            color: primaryColor.withOpacity(0.9),
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Social login buttons
+                      AnimatedBuilder(
+                        animation: _slideAnimation,
+                        builder: (context, child) {
+                          return Transform.translate(
+                            offset: Offset(0, _slideAnimation.value),
+                            child: Column(
+                              children: [
+                                Container(
+                                  width: double.infinity,
+                                  height: 55,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    border: Border.all(
+                                      color: textColor.withOpacity(0.3),
+                                    ),
+                                  ),
+                                  child: TextButton.icon(
+                                    onPressed: () {},
+                                    icon: Image.asset(
+                                      'assets/images/logogoogle.png',
+                                      height: 24,
+                                    ),
+                                    label: Text(
+                                      'Continuar con Google',
+                                      style: TextStyle(
+                                        color: textColor.withOpacity(0.9),
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 15),
+                                Container(
+                                  width: double.infinity,
+                                  height: 55,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    border: Border.all(
+                                      color: textColor.withOpacity(0.3),
+                                    ),
+                                  ),
+                                  child: TextButton.icon(
+                                    onPressed: () {},
+                                    icon: Image.asset(
+                                      'assets/images/logoappleblanco.png',
+                                      height: 24,
+                                    ),
+                                    label: Text(
+                                      'Continuar con Apple',
+                                      style: TextStyle(
+                                        color: textColor.withOpacity(0.9),
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 30),
+
+                      // Footer text
+                      Text(
+                        'Tus datos están protegidos',
+                        style: TextStyle(
+                          color: primaryColor.withOpacity(0.9),
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
                   ),
                 ),
               ),
-            );
-          },
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }
