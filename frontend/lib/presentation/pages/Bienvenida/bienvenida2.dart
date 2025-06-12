@@ -26,6 +26,8 @@ class _WelcomePageState extends State<Bienvenida2> {
     },
   ];
 
+
+  //ggg
   @override
   Widget build(BuildContext context) {
     return Scaffold(
