@@ -58,7 +58,6 @@ class _CreateComidasPageState extends State<CreateComidasPage> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    // Aquí puedes implementar la selección de imagen
                   },
                   child: Container(
                     decoration: BoxDecoration(
@@ -122,7 +121,6 @@ class _CreateComidasPageState extends State<CreateComidasPage> {
                     ),
                   ],
                 ),
-                // Carbohidratos
                 Column(
                   children: [
                     Text('$carbohidratos g', style: TextStyle(color: accentColor, fontWeight: FontWeight.bold, fontSize: 16)),
@@ -130,7 +128,6 @@ class _CreateComidasPageState extends State<CreateComidasPage> {
                     const Text('Carbohidratos', style: TextStyle(color: Colors.white70, fontSize: 13)),
                   ],
                 ),
-                // Grasas
                 Column(
                   children: [
                     Text('$grasas g', style: TextStyle(color: Colors.pinkAccent, fontWeight: FontWeight.bold, fontSize: 16)),
@@ -138,7 +135,6 @@ class _CreateComidasPageState extends State<CreateComidasPage> {
                     const Text('Grasas', style: TextStyle(color: Colors.white70, fontSize: 13)),
                   ],
                 ),
-                // Proteínas
                 Column(
                   children: [
                     Text('$proteinas g', style: TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold, fontSize: 16)),
@@ -149,7 +145,6 @@ class _CreateComidasPageState extends State<CreateComidasPage> {
               ],
             ),
           ),
-          // Artículos de la comida
           Container(
             color: cardColor,
             width: double.infinity,
@@ -166,7 +161,6 @@ class _CreateComidasPageState extends State<CreateComidasPage> {
                   ListTile(
                     title: Text('Agregar alimento', style: TextStyle(color: accentColor, fontWeight: FontWeight.bold)),
                     onTap: () {
-                      // Aquí puedes implementar la funcionalidad para agregar alimento
                     },
                   ),
                   ...articulos.map((art) => ListTile(

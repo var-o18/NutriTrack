@@ -73,7 +73,6 @@ class _WelcomePageState extends State<Bienvenida2> with TickerProviderStateMixin
       backgroundColor: backgroundColor,
       body: Stack(
         children: [
-          // Animated gradient background
           Positioned.fill(
             child: AnimatedBuilder(
               animation: _pulseController,
@@ -101,7 +100,6 @@ class _WelcomePageState extends State<Bienvenida2> with TickerProviderStateMixin
             child: Column(
               children: [
                 const SizedBox(height: 20),
-                // Welcome text with modern style
                 AnimatedBuilder(
                   animation: _slideAnimation,
                   builder: (context, child) {
@@ -113,12 +111,12 @@ class _WelcomePageState extends State<Bienvenida2> with TickerProviderStateMixin
                             'Te damos la bienvenida a',
                             style: TextStyle(
                               color: textColor.withOpacity(0.9),
-                              fontSize: 16,
+                              fontSize: 14,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 1.2,
                             ),
                           ),
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 8),
                           ShaderMask(
                             shaderCallback: (bounds) => LinearGradient(
                               colors: [
@@ -130,7 +128,7 @@ class _WelcomePageState extends State<Bienvenida2> with TickerProviderStateMixin
                               'NutriTrack',
                               style: TextStyle(
                                 color: textColor,
-                                fontSize: 32,
+                                fontSize: 20,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 2,
                               ),
@@ -143,7 +141,6 @@ class _WelcomePageState extends State<Bienvenida2> with TickerProviderStateMixin
                 ),
                 const SizedBox(height: 40),
 
-                // Modern carousel with glass effect
                 Expanded(
                   child: PageView.builder(
                     controller: _pageController,
@@ -202,7 +199,6 @@ class _WelcomePageState extends State<Bienvenida2> with TickerProviderStateMixin
                   ),
                 ),
 
-                // Modern page indicator
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   child: Row(
@@ -231,7 +227,6 @@ class _WelcomePageState extends State<Bienvenida2> with TickerProviderStateMixin
                   ),
                 ),
 
-                // Modern registration button with animation
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
                   child: AnimatedBuilder(
@@ -241,7 +236,7 @@ class _WelcomePageState extends State<Bienvenida2> with TickerProviderStateMixin
                         scale: 1 + (_pulseController.value * 0.03),
                         child: Container(
                           width: double.infinity,
-                          height: 60,
+                          height: 50,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
                             gradient: LinearGradient(
@@ -278,7 +273,7 @@ class _WelcomePageState extends State<Bienvenida2> with TickerProviderStateMixin
                                   'REGÍSTRATE GRATIS',
                                   style: TextStyle(
                                     color: textColor,
-                                    fontSize: 18,
+                                    fontSize: 13,
                                     fontWeight: FontWeight.bold,
                                     letterSpacing: 1.5,
                                   ),

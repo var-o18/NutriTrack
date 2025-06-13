@@ -1153,13 +1153,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  void _showRecommendationOverlay(BuildContext context) {
-    // Implementa la lógica para mostrar la ventana de recomendaciones
-  }
+  void _showRecommendationOverlay(BuildContext context) {}
 
-  void _hideRecommendationOverlay() {
-    // Implementa la lógica para ocultar la ventana de recomendaciones
-  }
+  void _hideRecommendationOverlay() {}
 
   Widget _buildModernMacroCircle(String label, String value, Color color, IconData icon) {
     return Column(

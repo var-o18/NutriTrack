@@ -259,7 +259,6 @@ class PremiumPage extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Implementar lógica de prueba gratuita
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: accentColor,

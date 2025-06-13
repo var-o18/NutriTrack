@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../data/models/alimneto_model.dart';
 import '../../data/models/ingesta_model.dart';
-import '../../data/services/alimentos_service.dart';
 import '../../data/services/ingesta_service.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;

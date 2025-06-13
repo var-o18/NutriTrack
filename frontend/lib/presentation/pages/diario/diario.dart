@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../utils/quick_actions.dart';
-import '../registroalimentos/registroalimentos.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../data/models/ingesta_model.dart';
 import '../../../data/models/alimneto_model.dart';
@@ -343,7 +342,6 @@ class _DiarioScreenState extends State<DiarioScreen> {
     );
   }
 
-  /// 📆 Show date picker
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,

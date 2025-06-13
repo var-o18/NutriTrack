@@ -34,7 +34,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   late Animation<double> _fadeAnimation;
   late Animation<double> _slideAnimation;
 
-  // Color palette
   static const Color primaryColor = Color(0xFF5A99D6);
   static const Color backgroundColor = Color(0xFF1E1E1E);
   static const Color textColor = Color(0xFFFFFFFF);
@@ -144,278 +143,261 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
           // Main content
           SafeArea(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: Column(
+            child: Column(
+              children: [
+                // Back button and title
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
                     children: [
-                      const SizedBox(height: 20),
-                      // Back button and title
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.arrow_back, color: textColor),
-                            onPressed: () => Navigator.pop(context, 'bienvenida2'),
-                          ),
-                          const Expanded(
-                            child: Text(
-                              'Iniciar Sesión',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: textColor,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 40), // Para balancear el IconButton
-                        ],
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back, color: textColor),
+                        onPressed: () => Navigator.pop(context, 'bienvenida2'),
                       ),
-                      const SizedBox(height: 40),
-
-                      // Logo with glass effect
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(30),
-                          boxShadow: [
-                            BoxShadow(
-                              color: primaryColor.withOpacity(0.3),
-                              blurRadius: 25,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(30),
-                          child: BackdropFilter(
-                            filter: ui.ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                            child: Container(
-                              padding: const EdgeInsets.all(20),
-                              decoration: BoxDecoration(
-                                color: primaryColor.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(30),
-                                border: Border.all(
-                                  color: textColor.withOpacity(0.1),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Image.asset(
-                                'assets/images/image.png',
-                                height: 150,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 40),
-
-                      // Email field with modern design
-                      AnimatedBuilder(
-                        animation: _slideAnimation,
-                        builder: (context, child) {
-                          return Transform.translate(
-                            offset: Offset(0, _slideAnimation.value),
-                            child: TextField(
-                              controller: _emailController,
-                              style: const TextStyle(color: textColor),
-                              decoration: InputDecoration(
-                                labelText: 'Email',
-                                labelStyle: TextStyle(color: textColor.withOpacity(0.9)),
-                                hintText: 'nutritrack@gmail.com',
-                                hintStyle: TextStyle(color: textColor.withOpacity(0.5)),
-                                filled: true,
-                                fillColor: primaryColor.withOpacity(0.1),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: primaryColor.withOpacity(0.3)),
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: const BorderSide(color: primaryColor),
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                prefixIcon: Icon(Icons.email_outlined, color: textColor.withOpacity(0.9)),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Password field with modern design
-                      AnimatedBuilder(
-                        animation: _slideAnimation,
-                        builder: (context, child) {
-                          return Transform.translate(
-                            offset: Offset(0, _slideAnimation.value),
-                            child: TextField(
-                              controller: _passwordController,
-                              obscureText: true,
-                              style: const TextStyle(color: textColor),
-                              decoration: InputDecoration(
-                                labelText: 'Contraseña',
-                                labelStyle: TextStyle(color: textColor.withOpacity(0.9)),
-                                hintText: 'mínimo 8 caracteres',
-                                hintStyle: TextStyle(color: textColor.withOpacity(0.5)),
-                                filled: true,
-                                fillColor: primaryColor.withOpacity(0.1),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: primaryColor.withOpacity(0.3)),
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: const BorderSide(color: primaryColor),
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                prefixIcon: Icon(Icons.lock_outline, color: textColor.withOpacity(0.9)),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 30),
-
-                      // Login button with gradient
-                      AnimatedBuilder(
-                        animation: _slideAnimation,
-                        builder: (context, child) {
-                          return Transform.translate(
-                            offset: Offset(0, _slideAnimation.value),
-                            child: Container(
-                              width: double.infinity,
-                              height: 55,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15),
-                                gradient: LinearGradient(
-                                  colors: [
-                                    primaryColor.withOpacity(0.8),
-                                    primaryColor,
-                                  ],
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: primaryColor.withOpacity(0.3),
-                                    blurRadius: 15,
-                                    offset: const Offset(0, 8),
-                                  ),
-                                ],
-                              ),
-                              child: ElevatedButton(
-                                onPressed: _handleLogin,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.transparent,
-                                  shadowColor: Colors.transparent,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                ),
-                                child: const Text(
-                                  'Iniciar Sesión',
-                                  style: TextStyle(
-                                    color: textColor,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 1,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Forgot password
-                      TextButton(
-                        onPressed: () {},
+                      const Expanded(
                         child: Text(
-                          '¿Olvidaste la contraseña?',
+                          'Iniciar Sesión',
+                          textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: primaryColor.withOpacity(0.9),
-                            fontSize: 14,
+                            color: textColor,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 20),
-
-                      // Social login buttons
-                      AnimatedBuilder(
-                        animation: _slideAnimation,
-                        builder: (context, child) {
-                          return Transform.translate(
-                            offset: Offset(0, _slideAnimation.value),
-                            child: Column(
-                              children: [
-                                Container(
-                                  width: double.infinity,
-                                  height: 55,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(15),
-                                    border: Border.all(
-                                      color: textColor.withOpacity(0.3),
-                                    ),
-                                  ),
-                                  child: TextButton.icon(
-                                    onPressed: () {},
-                                    icon: Image.asset(
-                                      'assets/images/logogoogle.png',
-                                      height: 24,
-                                    ),
-                                    label: Text(
-                                      'Continuar con Google',
-                                      style: TextStyle(
-                                        color: textColor.withOpacity(0.9),
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 15),
-                                Container(
-                                  width: double.infinity,
-                                  height: 55,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(15),
-                                    border: Border.all(
-                                      color: textColor.withOpacity(0.3),
-                                    ),
-                                  ),
-                                  child: TextButton.icon(
-                                    onPressed: () {},
-                                    icon: Image.asset(
-                                      'assets/images/logoappleblanco.png',
-                                      height: 24,
-                                    ),
-                                    label: Text(
-                                      'Continuar con Apple',
-                                      style: TextStyle(
-                                        color: textColor.withOpacity(0.9),
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 30),
-
-                      // Footer text
-                      Text(
-                        'Tus datos están protegidos',
-                        style: TextStyle(
-                          color: primaryColor.withOpacity(0.9),
-                          fontSize: 14,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
+                      const SizedBox(width: 40),
                     ],
                   ),
                 ),
-              ),
+                const SizedBox(height: 20),
+
+                // Logo
+                Container(
+                  height: 180,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: primaryColor.withOpacity(0.3),
+                        blurRadius: 15,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: BackdropFilter(
+                      filter: ui.ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: primaryColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: textColor.withOpacity(0.1),
+                            width: 1,
+                          ),
+                        ),
+                        child: Image.asset(
+                          'assets/images/image.png',
+                          height: 100,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Login form
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        AnimatedBuilder(
+                          animation: _slideAnimation,
+                          builder: (context, child) {
+                            return Transform.translate(
+                              offset: Offset(0, _slideAnimation.value),
+                              child: TextField(
+                                controller: _emailController,
+                                style: const TextStyle(color: textColor),
+                                decoration: InputDecoration(
+                                  labelText: 'Email',
+                                  labelStyle: TextStyle(color: textColor.withOpacity(0.9)),
+                                  hintText: 'nutritrack@gmail.com',
+                                  hintStyle: TextStyle(color: textColor.withOpacity(0.5)),
+                                  filled: true,
+                                  fillColor: primaryColor.withOpacity(0.1),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: primaryColor.withOpacity(0.3)),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: const BorderSide(color: primaryColor),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  prefixIcon: Icon(Icons.email_outlined, color: textColor.withOpacity(0.9)),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 15),
+
+                        AnimatedBuilder(
+                          animation: _slideAnimation,
+                          builder: (context, child) {
+                            return Transform.translate(
+                              offset: Offset(0, _slideAnimation.value),
+                              child: TextField(
+                                controller: _passwordController,
+                                obscureText: true,
+                                style: const TextStyle(color: textColor),
+                                decoration: InputDecoration(
+                                  labelText: 'Contraseña',
+                                  labelStyle: TextStyle(color: textColor.withOpacity(0.9)),
+                                  hintText: 'mínimo 8 caracteres',
+                                  hintStyle: TextStyle(color: textColor.withOpacity(0.5)),
+                                  filled: true,
+                                  fillColor: primaryColor.withOpacity(0.1),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: primaryColor.withOpacity(0.3)),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: const BorderSide(color: primaryColor),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  prefixIcon: Icon(Icons.lock_outline, color: textColor.withOpacity(0.9)),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 20),
+
+                        AnimatedBuilder(
+                          animation: _slideAnimation,
+                          builder: (context, child) {
+                            return Transform.translate(
+                              offset: Offset(0, _slideAnimation.value),
+                              child: Container(
+                                width: double.infinity,
+                                height: 45,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      primaryColor.withOpacity(0.8),
+                                      primaryColor,
+                                    ],
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: primaryColor.withOpacity(0.3),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 5),
+                                    ),
+                                  ],
+                                ),
+                                child: ElevatedButton(
+                                  onPressed: _handleLogin,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.transparent,
+                                    shadowColor: Colors.transparent,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'Iniciar Sesión',
+                                    style: TextStyle(
+                                      color: textColor,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 15),
+
+                        // Social login buttons
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: textColor.withOpacity(0.3),
+                                ),
+                              ),
+                              child: TextButton(
+                                onPressed: () {},
+                                style: TextButton.styleFrom(
+                                  padding: EdgeInsets.zero,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: Image.asset(
+                                  'assets/images/logogoogle.png',
+                                  height: 18,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 15),
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: textColor.withOpacity(0.3),
+                                ),
+                              ),
+                              child: TextButton(
+                                onPressed: () {},
+                                style: TextButton.styleFrom(
+                                  padding: EdgeInsets.zero,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: Image.asset(
+                                  'assets/images/logoappleblanco.png',
+                                  height: 18,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 15),
+
+                        // Forgot password
+                        TextButton(
+                          onPressed: () {},
+                          child: Text(
+                            '¿Olvidaste la contraseña?',
+                            style: TextStyle(
+                              color: primaryColor.withOpacity(0.9),
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],

@@ -8,7 +8,6 @@ class NotificacionesPage extends StatefulWidget {
 }
 
 class _NotificacionesPageState extends State<NotificacionesPage> {
-  // Estado para cada toggle
   bool recibirMensajes = true;
   bool recibirSolicitudes = true;
   bool registroEjercicio = true;

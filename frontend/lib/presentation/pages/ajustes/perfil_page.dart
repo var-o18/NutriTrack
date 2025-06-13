@@ -16,7 +16,6 @@ class _PerfilPageState extends State<PerfilPage> {
   int? editingIndex;
   TextEditingController editingController = TextEditingController();
 
-  // Opciones para los dropdowns
   final List<String> objetivos = [
     'Ganancia Muscular',
     'Ganancia Muscular Rapida',
@@ -42,7 +41,6 @@ class _PerfilPageState extends State<PerfilPage> {
     final usuario = await getDatosUsuario();
     print('Usuario recibido: $usuario');
     print('Usuario JSON: ${jsonEncode(usuario)}');
-    // Si usuario es un modelo, puedes imprimir los campos relevantes:
     print('Objetivo Personal: ${usuario?.objetivoPersonal}');
     setState(() {
       _usuario = usuario;
@@ -111,7 +109,6 @@ class _PerfilPageState extends State<PerfilPage> {
             break;
         }
       });
-      // Aquí puedes llamar a una función para guardar los cambios en el backend si lo deseas
     }
   }
 
@@ -210,11 +207,11 @@ class _PerfilPageState extends State<PerfilPage> {
       unidad = 'años';
     } else if (key == 'Peso') {
       valorActual = _usuario!.peso ?? 60.0;
-      valores = List.generate(361, (i) => 20.0 + i * 0.5); // 20.0kg a 200.0kg
+      valores = List.generate(361, (i) => 20.0 + i * 0.5);
       unidad = 'kg';
     } else if (key == 'Altura') {
       valorActual = _usuario!.altura ?? 1.60;
-      valores = List.generate(121, (i) => (1.00 + i * 0.01)); // 1.00m a 2.20m
+      valores = List.generate(121, (i) => (1.00 + i * 0.01));
       unidad = 'm';
     }
     int selectedIndex;
@@ -228,9 +225,9 @@ class _PerfilPageState extends State<PerfilPage> {
     if (selectedIndex == -1) selectedIndex = 0;
     int tempIndex = selectedIndex;
 
-    final Color modalBg = const Color(0xFF34495E); // Fondo oscuro
-    final Color accentColor = const Color(0xFF5A99D6); // Azul para el número seleccionado
-    final Color buttonColor = const Color(0xFFFFB74D); // Naranjo para el botón
+    final Color modalBg = const Color(0xFF34495E);
+    final Color accentColor = const Color(0xFF5A99D6);
+    final Color buttonColor = const Color(0xFFFFB74D);
 
     final result = await showModalBottomSheet<double>(
       context: context,

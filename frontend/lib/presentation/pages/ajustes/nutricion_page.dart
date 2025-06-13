@@ -8,7 +8,7 @@ class NutricionPage extends StatefulWidget {
 }
 
 class _NutricionPageState extends State<NutricionPage> {
-  String? selectedOption = 'Jueves'; // Can be 'hace7' or a day name
+  String? selectedOption = 'Jueves';
 
   @override
   Widget build(BuildContext context) {

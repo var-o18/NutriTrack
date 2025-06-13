@@ -93,7 +93,6 @@ class _AgregarAlimentoPageState extends State<AgregarAlimentoPage> {
 
               const SizedBox(height: 32),
 
-              // Círculos de información nutricional editables
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [

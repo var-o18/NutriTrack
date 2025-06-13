@@ -461,7 +461,6 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
                     builder: (context) => EscaneoRapidoPage(scannedAlimento: alimento),
                   ),
                 );
-                // Opcional: refrescar datos después de añadir
                 _initializeData();
               },
               child: _buildAlimentoCard(
@@ -551,7 +550,6 @@ class _RegistroAlimentosPageState extends State<RegistroAlimentosPage> {
                   ],
                 ),
               ),
-              // Ya no hay icono de selección
             ],
           ),
         ),

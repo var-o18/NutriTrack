@@ -8,7 +8,6 @@ class AjustesDiarioPage extends StatefulWidget {
 }
 
 class _AjustesDiarioPageState extends State<AjustesDiarioPage> {
-  // Estado para los switches
   bool mostrarComidas = true;
   bool utilizarAdiciones = false;
   bool mostrarDatosAlimentos = true;
@@ -92,7 +91,6 @@ class _AjustesDiarioPageState extends State<AjustesDiarioPage> {
               color: textColor,
             ),
             onTap: () {
-              // Navegación a implementar
             },
           ),
           Divider(

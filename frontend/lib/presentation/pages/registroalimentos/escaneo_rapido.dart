@@ -53,7 +53,6 @@ class _EscaneoRapidoPageState extends State<EscaneoRapidoPage> {
     print('Carbohidratos por 100g: ${alimento.carbohidratos}');
     print('Grasas por 100g: ${alimento.grasas}');
 
-    // Mostrar valores por 100g directamente
     _caloriasController.text = alimento.calorias.toStringAsFixed(0);
     _carbohidratosController.text = alimento.carbohidratos.toStringAsFixed(1);
     _grasaController.text = alimento.grasas.toStringAsFixed(1);
@@ -70,7 +69,6 @@ class _EscaneoRapidoPageState extends State<EscaneoRapidoPage> {
     print('Tamaño ración: $tamanoRacion g');
     print('Número raciones: $numRaciones');
     
-    // Calcular factor de ajuste (por 100g)
     double factor = (tamanoRacion * numRaciones) / 100.0;
     print('Factor de ajuste: $factor');
 
@@ -115,7 +113,6 @@ class _EscaneoRapidoPageState extends State<EscaneoRapidoPage> {
     print('Número raciones: $numRacionesNum');
     print('Cantidad total: $cantidadTotalGramos g');
 
-    // Calcular valores nutricionales totales
     double factor = cantidadTotalGramos / 100.0;
     print('Factor final: $factor');
 

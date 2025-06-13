@@ -17,11 +17,11 @@ class _Bienvenida1State extends State<Bienvenida1> with TickerProviderStateMixin
   late Animation<double> _scaleAnimation;
 
   // Modern color palette
-  static const Color primaryColor = Color(0xFF5A99D6);    // Color base
-  static const Color accentColor = Color(0xFF5A99D6);     // El mismo color para consistencia
-  static const Color backgroundColor = Color(0xFF1E1E1E); // Fondo oscuro original
-  static const Color textColor = Color(0xFFFFFFFF);      // Blanco puro
-  static const Color highlightColor = Color(0xFF5A99D6);  // El mismo color para consistencia
+  static const Color primaryColor = Color(0xFF5A99D6);
+  static const Color accentColor = Color(0xFF5A99D6);
+  static const Color backgroundColor = Color(0xFF1E1E1E);
+  static const Color textColor = Color(0xFFFFFFFF);
+  static const Color highlightColor = Color(0xFF5A99D6);
 
   @override
   void initState() {
@@ -76,7 +76,7 @@ class _Bienvenida1State extends State<Bienvenida1> with TickerProviderStateMixin
                   end: Alignment.bottomRight,
                   colors: [
                     backgroundColor,
-                    primaryColor.withOpacity(0.3), // 30% opacidad como solicitado
+                    primaryColor.withOpacity(0.3),
                     backgroundColor,
                   ],
                 ),
@@ -104,7 +104,7 @@ class _Bienvenida1State extends State<Bienvenida1> with TickerProviderStateMixin
                         shape: BoxShape.circle,
                         gradient: RadialGradient(
                           colors: [
-                            primaryColor.withOpacity(0.3), // 30% opacidad
+                            primaryColor.withOpacity(0.3),
                             primaryColor.withOpacity(0.2),
                             Colors.transparent,
                           ],
@@ -139,7 +139,7 @@ class _Bienvenida1State extends State<Bienvenida1> with TickerProviderStateMixin
                                   borderRadius: BorderRadius.circular(30),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: primaryColor.withOpacity(0.3), // 30% opacidad
+                                      color: primaryColor.withOpacity(0.3),
                                       blurRadius: 25,
                                       offset: const Offset(0, 10),
                                     ),
@@ -152,7 +152,7 @@ class _Bienvenida1State extends State<Bienvenida1> with TickerProviderStateMixin
                                     child: Container(
                                       padding: const EdgeInsets.all(20),
                                       decoration: BoxDecoration(
-                                        color: primaryColor.withOpacity(0.3), // 30% opacidad
+                                        color: primaryColor.withOpacity(0.3),
                                         borderRadius: BorderRadius.circular(30),
                                         border: Border.all(
                                           color: textColor.withOpacity(0.1),
@@ -227,13 +227,13 @@ class _Bienvenida1State extends State<Bienvenida1> with TickerProviderStateMixin
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            primaryColor.withOpacity(0.3), // 30% opacidad
+                            primaryColor.withOpacity(0.3),
                             primaryColor,
                           ],
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: primaryColor.withOpacity(0.3), // 30% opacidad
+                            color: primaryColor.withOpacity(0.3),
                             blurRadius: 15,
                             offset: const Offset(0, 8),
                           ),

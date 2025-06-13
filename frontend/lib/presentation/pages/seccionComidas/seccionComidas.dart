@@ -9,7 +9,7 @@ class SeccionComidasPage extends StatefulWidget {
 }
 
 class _SeccionComidasPageState extends State<SeccionComidasPage> {
-  int _selectedMenu = 1; // 0: Todo, 1: Mis Comidas, 2: Mis Alimentos
+  int _selectedMenu = 1;
   final List<String> _menus = ['Todo', 'Mis Comidas', 'Mis Alimentos'];
 
   @override
@@ -55,7 +55,6 @@ class _SeccionComidasPageState extends State<SeccionComidasPage> {
             ),
           ),
           const SizedBox(height: 32),
-          // Mensaje informativo
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             child: Column(
@@ -107,7 +106,7 @@ class VShapeClipper extends CustomClipper<Path> {
   Path getClip(Size size) {
     final path = Path();
     path.moveTo(0, 0);
-    path.lineTo(size.width / 2, 60); // Profundidad del pico
+    path.lineTo(size.width / 2, 60);
     path.lineTo(size.width, 0);
     path.lineTo(size.width, size.height);
     path.lineTo(0, size.height);
@@ -124,15 +123,15 @@ class BottomRectWithTopTriangleClipper extends CustomClipper<Path> {
   Path getClip(Size size) {
     final double width = size.width;
     final double height = size.height;
-    final double leftPeakHeight = height * 0.28; // Más alto
-    final double centerValleyHeight = height * 0.36; // Mantener el centro
+    final double leftPeakHeight = height * 0.28;
+    final double centerValleyHeight = height * 0.36;
 
     final path = Path();
-    path.moveTo(0, leftPeakHeight); // Inicio en el lateral izquierdo
-    path.lineTo(width * 0.15, leftPeakHeight); // Pico izquierdo más cerca del borde
-    path.lineTo(width * 0.5, centerValleyHeight); // Pico central hacia abajo
-    path.lineTo(width * 0.85, leftPeakHeight); // Pico derecho más cerca del borde
-    path.lineTo(width, leftPeakHeight); // Lateral derecho
+    path.moveTo(0, leftPeakHeight);
+    path.lineTo(width * 0.15, leftPeakHeight);
+    path.lineTo(width * 0.5, centerValleyHeight);
+    path.lineTo(width * 0.85, leftPeakHeight);
+    path.lineTo(width, leftPeakHeight);
     path.lineTo(width, height);
     path.lineTo(0, height);
     path.close();
@@ -148,8 +147,7 @@ class SvgTriangleClipper extends CustomClipper<Path> {
   Path getClip(Size size) {
     final double width = size.width;
     final double height = size.height;
-    // El vértice del triángulo debe estar en el borde inferior
-    final double trianglePeakY = height; // Ahora el pico está en el borde inferior
+    final double trianglePeakY = height;
     final double trianglePeakX = width / 2;
 
     final path = Path();

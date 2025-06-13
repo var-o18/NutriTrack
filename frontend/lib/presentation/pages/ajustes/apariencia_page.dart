@@ -8,7 +8,7 @@ class AparienciaPage extends StatefulWidget {
 }
 
 class _AparienciaPageState extends State<AparienciaPage> {
-  String selectedTheme = 'claro'; // Default theme
+  String selectedTheme = 'claro';
 
   @override
   Widget build(BuildContext context) {

@@ -14,8 +14,8 @@ class LectorCodigoBarrasPage extends StatefulWidget {
 class _LectorCodigoBarrasPageState extends State<LectorCodigoBarrasPage> {
   late MobileScannerController controller;
   bool _isScanning = true;
-  bool _isLoading = false; // Added for loading state
-  final AlimentoService _alimentoService = AlimentoService(); // Instantiate AlimentoService
+  bool _isLoading = false;
+  final AlimentoService _alimentoService = AlimentoService();
 
   @override
   void initState() {
@@ -32,7 +32,7 @@ class _LectorCodigoBarrasPageState extends State<LectorCodigoBarrasPage> {
     super.dispose();
   }
 
-  Future<void> _onBarcodeDetected(String? barcode) async { // Changed to Future<void> and async
+  Future<void> _onBarcodeDetected(String? barcode) async {
     if (!_isScanning || barcode == null || barcode.isEmpty) return;
     
     setState(() {
@@ -49,7 +49,7 @@ class _LectorCodigoBarrasPageState extends State<LectorCodigoBarrasPage> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => EscaneoRapidoPage(scannedAlimento: alimento), // Placeholder
+              builder: (context) => EscaneoRapidoPage(scannedAlimento: alimento),
             ),
           );
         } else {
@@ -58,7 +58,7 @@ class _LectorCodigoBarrasPageState extends State<LectorCodigoBarrasPage> {
           );
           setState(() {
             _isScanning = true;
-            _isLoading = false; // Stop loading
+            _isLoading = false;
           });
           controller.start();
         }

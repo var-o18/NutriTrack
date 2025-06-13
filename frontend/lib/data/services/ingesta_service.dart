@@ -1,9 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../models/ingesta_model.dart';
-import '../models/alimneto_model.dart';
 import 'alimentos_service.dart';
 
 class IngestaService {
@@ -152,8 +150,7 @@ class IngestaService {
     try {
       final ingestas = await obtenerIngestasDelUsuario();
       final now = DateTime.now();
-      
-      // Obtener todos los alimentos para evitar múltiples consultas
+
       final todosLosAlimentos = await _alimentoService.getAllAlimentos();
       final mapaAlimentos = {
         for (var alimento in todosLosAlimentos) alimento.id!: alimento
@@ -181,7 +178,7 @@ class IngestaService {
       for (var ingesta in ingestasHoy) {
         final alimento = mapaAlimentos[ingesta.alimentoId];
         if (alimento != null) {
-          double factor = ingesta.cantidad / 100.0; // Convertir a proporción
+          double factor = ingesta.cantidad / 100.0;
           caloriasConsumidas += alimento.calorias * factor;
           carbohidratosConsumidos += alimento.carbohidratos * factor;
           proteinasConsumidas += alimento.proteinas * factor;
@@ -217,7 +214,6 @@ class IngestaService {
       final ingestas = await obtenerIngestasDelUsuario();
       final now = DateTime.now();
       
-      // Obtener todos los alimentos para evitar múltiples consultas
       final todosLosAlimentos = await _alimentoService.getAllAlimentos();
       final mapaAlimentos = {
         for (var alimento in todosLosAlimentos) alimento.id!: alimento
@@ -244,7 +240,6 @@ class IngestaService {
         }
       }
 
-      // Guardar en SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('today_calories_consumed', caloriasTotales);
       print('Calorías guardadas: $caloriasTotales');

@@ -41,17 +41,14 @@ class _DescubrePageState extends State<DescubrePage> {
   Future<void> _cargarDatos() async {
     setState(() => _isLoading = true);
     try {
-      // Obtener datos del usuario
       final usuario = await getDatosUsuario();
       if (usuario != null) {
         setState(() => _usuario = usuario);
       }
 
-      // Obtener resumen diario
       final resumen = await _ingestaService.getResumenDiario();
       setState(() => _resumenDiario = resumen);
 
-      // Obtener sugerencias de alimentos
       final sugerencias = await _alimentoService.getSugerencias(5, 0.1);
       setState(() => _sugerencias = sugerencias);
     } catch (e) {
@@ -724,12 +721,3 @@ class _DescubrePageState extends State<DescubrePage> {
     );
   }
 }
-
-// Ejemplo de uso:
-// DescubrePage(
-//   caloriasRestantes: 500,
-//   recomendaciones: [
-//     {'nombre': 'Manzana', 'calorias': 52, 'imagen': 'assets/images/manzana.png'},
-//     {'nombre': 'Yogur natural', 'calorias': 80, 'imagen': 'assets/images/yogur.png'},
-//   ],
-// )

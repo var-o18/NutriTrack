@@ -43,25 +43,25 @@ class _Registro2State extends State<Registro2> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 10),
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 20),
                       const Center(
                         child: Text(
                           'Bienvenido',
                           style: TextStyle(
                             color: Colors.black,
-                            fontSize: 14,
+                            fontSize: 12,
                             fontFamily: 'Montserrat',
                           ),
                         ),
                       ),
-                      const SizedBox(height: 15),
+                      const SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: List.generate(5, (index) {
                           return Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 4),
-                            width: 30,
-                            height: 4,
+                            margin: const EdgeInsets.symmetric(horizontal: 3),
+                            width: 25,
+                            height: 3,
                             decoration: BoxDecoration(
                               color: index == 0 ? const Color(0xFF5A99D6) : const Color(0xFFD3E3F1),
                               borderRadius: BorderRadius.circular(2),
@@ -69,38 +69,38 @@ class _Registro2State extends State<Registro2> {
                           );
                         }),
                       ),
-                      const SizedBox(height: 50),
+                      const SizedBox(height: 30),
                       const Text(
                         'Hola, \nqueremos \nsaber \ncomo te \nllamas',
                         style: TextStyle(
-                          fontSize: 40,
+                          fontSize: 32,
                           fontFamily: 'Montserrat',
                           color: Colors.black,
                           fontWeight: FontWeight.w600,
                           height: 1.2,
                         ),
                       ),
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 25),
                       const Text(
                         'Nombre preferido',
                         style: TextStyle(
                           color: Color(0xFF979797),
-                          fontSize: 15,
+                          fontSize: 13,
                           fontFamily: 'Montserrat',
                         ),
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 8),
                       TextField(
                         controller: _nombreController,
                         decoration: InputDecoration(
                           hintText: 'Ingresa tu nombre',
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(8),
                             borderSide: const BorderSide(color: Color(0xFF909090)),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 15),
                     ],
                   ),
                 ),
@@ -115,16 +115,16 @@ class _Registro2State extends State<Registro2> {
                       );
                     },
                     child: Container(
-                      width: 40,
-                      height: 40,
+                      width: 35,
+                      height: 35,
                       decoration: const BoxDecoration(
                         color: Color(0xFFCCE1F6),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.arrow_back, color: Color(0xFF1E1E1E)),
+                      child: const Icon(Icons.arrow_back, color: Color(0xFF1E1E1E), size: 20),
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: GestureDetector(
                       onTap: () async {
@@ -157,10 +157,10 @@ class _Registro2State extends State<Registro2> {
                         }
                       },
                       child: Container(
-                        height: 50,
+                        height: 40,
                         decoration: BoxDecoration(
                           color: const Color(0xFF5A99D6),
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(8),
                           boxShadow: const [
                             BoxShadow(
                               color: Color(0x3F000000),
@@ -174,7 +174,7 @@ class _Registro2State extends State<Registro2> {
                             'Siguiente',
                             style: TextStyle(
                               color: Color(0xFF232323),
-                              fontSize: 15,
+                              fontSize: 14,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w600,
                             ),
