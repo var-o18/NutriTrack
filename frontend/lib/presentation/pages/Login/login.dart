@@ -173,7 +173,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
                 // Logo
                 Container(
-                  height: 180,
+                  height: 140,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
@@ -200,13 +200,13 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         ),
                         child: Image.asset(
                           'assets/images/image.png',
-                          height: 100,
+                          height: 80,
                         ),
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 15),
 
                 // Login form
                 Expanded(
@@ -244,7 +244,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                             );
                           },
                         ),
-                        const SizedBox(height: 15),
+                        const SizedBox(height: 12),
 
                         AnimatedBuilder(
                           animation: _slideAnimation,
@@ -276,7 +276,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                             );
                           },
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 15),
 
                         AnimatedBuilder(
                           animation: _slideAnimation,
@@ -285,7 +285,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                               offset: Offset(0, _slideAnimation.value),
                               child: Container(
                                 width: double.infinity,
-                                height: 45,
+                                height: 40,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(12),
                                   gradient: LinearGradient(
@@ -315,7 +315,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                     'Iniciar Sesión',
                                     style: TextStyle(
                                       color: textColor,
-                                      fontSize: 16,
+                                      fontSize: 15,
                                       fontWeight: FontWeight.bold,
                                       letterSpacing: 1,
                                     ),
@@ -325,15 +325,15 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                             );
                           },
                         ),
-                        const SizedBox(height: 15),
+                        const SizedBox(height: 12),
 
                         // Social login buttons
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Container(
-                              width: 40,
-                              height: 40,
+                              width: 35,
+                              height: 35,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
@@ -350,14 +350,14 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                 ),
                                 child: Image.asset(
                                   'assets/images/logogoogle.png',
-                                  height: 18,
+                                  height: 16,
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 15),
+                            const SizedBox(width: 12),
                             Container(
-                              width: 40,
-                              height: 40,
+                              width: 35,
+                              height: 35,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
@@ -374,13 +374,13 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                 ),
                                 child: Image.asset(
                                   'assets/images/logoappleblanco.png',
-                                  height: 18,
+                                  height: 16,
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 15),
+                        const SizedBox(height: 12),
 
                         // Forgot password
                         TextButton(
@@ -389,7 +389,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                             '¿Olvidaste la contraseña?',
                             style: TextStyle(
                               color: primaryColor.withOpacity(0.9),
-                              fontSize: 14,
+                              fontSize: 13,
                             ),
                           ),
                         ),
