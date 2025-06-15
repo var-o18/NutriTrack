@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/registro_model.dart';
 
 Future<bool> loginUsuario(String correo, String contrasena) async {
-  final url = Uri.parse('http://192.168.18.110:8080/api/usuarios/login');
+  final url = Uri.parse('https://nutritrack-production-4645.up.railway.app/api/usuarios/login');
 
   final response = await http.post(
     url,
@@ -46,7 +46,7 @@ Future<RegistroModel?> getDatosUsuario() async {
 
   print('Consultando datos del usuario con ID: $userId');
 
-  final url = Uri.parse('http://192.168.18.110:8080/api/usuarios/$userId');
+  final url = Uri.parse('https://nutritrack-production-4645.up.railway.app/api/usuarios/$userId');
   final response = await http.get(
     url,
     headers: {
@@ -109,7 +109,7 @@ Future<bool> patchUsuario(Map<String, dynamic> patchData) async {
     return false;
   }
 
-  final url = Uri.parse('http://192.168.18.110:8080/api/usuarios/$userId');
+  final url = Uri.parse('https://nutritrack-production-4645.up.railway.app/api/usuarios/$userId');
   try {
     final response = await http.patch(
       url,

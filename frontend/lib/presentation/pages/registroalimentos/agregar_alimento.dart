@@ -102,6 +102,85 @@ class _AgregarAlimentoPageState extends State<AgregarAlimentoPage> {
                   _buildEditableNutritionCircle(_proteinaController, 'g', 'Proteína', accentColor, textColor),
                 ],
               ),
+              const SizedBox(height: 32),
+              
+              // Botón de guardar
+              Container(
+                width: double.infinity,
+                height: 45,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      accentColor.withOpacity(0.8),
+                      accentColor,
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: accentColor.withOpacity(0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Validar campos
+                    if (_nombreController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Por favor ingresa el nombre del alimento'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+
+                    // Crear objeto con los datos
+                    final alimento = {
+                      'nombre': _nombreController.text,
+                      'tamanoRacion': _tamanoRacionController.text,
+                      'numeroRaciones': _numeroRacionesController.text,
+                      'tipoComida': _tipoComida,
+                      'calorias': _caloriasController.text,
+                      'carbohidratos': _carbohidratosController.text,
+                      'grasa': _grasaController.text,
+                      'proteina': _proteinaController.text,
+                    };
+
+                    // TODO: Implementar la lógica de inserción en la base de datos
+                    print('Datos del alimento: $alimento');
+
+                    // Mostrar mensaje de éxito
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Alimento agregado correctamente'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+
+                    // Volver a la pantalla anterior
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Guardar Alimento',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),

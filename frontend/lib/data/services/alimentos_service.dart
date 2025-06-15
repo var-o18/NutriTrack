@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/alimneto_model.dart';
 
 class AlimentoService {
-  final String _baseUrl = 'http://192.168.18.110:8080/api/alimentos';
+  final String _baseUrl = 'https://nutritrack-production-4645.up.railway.app/api/alimentos';
 
   Future<Map<String, dynamic>?> getAlimentoRaw(int id) async {
     final prefs = await SharedPreferences.getInstance();

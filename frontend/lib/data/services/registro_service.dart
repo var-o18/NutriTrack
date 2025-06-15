@@ -16,7 +16,7 @@ Future<RegistroModel?> getDatosUsuario() async {
 
   print('Consultando datos del usuario con ID: $userId');
 
-  final url = Uri.parse('http://192.168.18.110:8080/api/usuarios/$userId');
+  final url = Uri.parse('https://nutritrack-production-4645.up.railway.app/api/usuarios/$userId');
   final response = await http.get(
     url,
     headers: {
@@ -37,7 +37,7 @@ Future<RegistroModel?> getDatosUsuario() async {
 }
 
 Future<Map<String, dynamic>> registrarUsuario(RegistroModel registro) async {
-  final url = Uri.parse('http://192.168.18.110:8080/api/usuarios/registro');
+  final url = Uri.parse('https://nutritrack-production-4645.up.railway.app/api/usuarios/registro');
 
   try {
     final response = await http.post(

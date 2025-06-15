@@ -5,7 +5,7 @@ import '../models/ingesta_model.dart';
 import 'alimentos_service.dart';
 
 class IngestaService {
-  final String baseUrl = 'http://192.168.18.110:8080/api/ingestas';
+  final String baseUrl = 'https://nutritrack-production-4645.up.railway.app/api/ingestas';
   final AlimentoService _alimentoService = AlimentoService();
 
   Future<bool> registrarIngesta(Ingesta ingesta) async {

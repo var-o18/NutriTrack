@@ -25,6 +25,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   RegistroModel? usuarioDatos;
   late Stream<StepCount> _stepCountStream;
   int _stepCount = 0;
+  List<int> _stepHistory = [0, 0, 0, 0]; // Historial de los últimos 4 días
   int _caloriasConsumidasHoy = 0;
   double _totalCarbs = 0;
   double _totalProtein = 0;
@@ -44,29 +45,59 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _loadConsumedCalories();
       _loadTodayMacros();
       _loadHeartHealthMetrics();
+      _loadStepHistory();
+      _loadCurrentStepCount(); // Cargar el contador actual de pasos
     });
+  }
+
+  Future<void> _loadCurrentStepCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final today = DateTime.now();
+    final dateKey = '${today.year}-${today.month}-${today.day}';
+    
+    setState(() {
+      _stepCount = prefs.getInt(dateKey) ?? 0;
+    });
+  }
+
+  void _onStepCount(StepCount event) async {
+    final prefs = await SharedPreferences.getInstance();
+    final today = DateTime.now();
+    final dateKey = '${today.year}-${today.month}-${today.day}';
+    
+    // Obtener el valor base guardado
+    final baseSteps = prefs.getInt('${dateKey}_base') ?? 0;
+    
+    // Calcular la diferencia desde el último reinicio
+    final stepDifference = event.steps - baseSteps;
+    
+    // Actualizar el contador total
+    final newTotalSteps = _stepCount + stepDifference;
+    
+    setState(() {
+      _stepCount = newTotalSteps;
+    });
+    
+    // Guardar el nuevo total
+    await prefs.setInt(dateKey, newTotalSteps);
+    
+    // Actualizar el valor base para el próximo cálculo
+    await prefs.setInt('${dateKey}_base', event.steps);
+    
+    _saveStepCount();
+    print('Pasos actualizados: $_stepCount');
   }
 
   void _initPedometer() {
     print('[DEBUG Pedometer] Inicializando pedómetro...');
     _stepCountStream = Pedometer.stepCountStream;
-    _stepCountStream.listen(
-      _onStepCount,
-      onError: _onStepCountError,
-      onDone: () => print('[DEBUG Pedometer] Stream de pasos terminado.'),
-      cancelOnError: true,
-    );
+    _stepCountStream.listen(_onStepCount);
   }
 
-  void _onStepCount(StepCount event) {
-    setState(() {
-      _stepCount = event.steps;
-    });
-    print('Pasos actualizados: $_stepCount');
-  }
-
-  void _onStepCountError(error) {
-    print('[ERROR Pedometer] Error del pedómetro: $error');
+  @override
+  void dispose() {
+    _stepCountStream.drain();
+    super.dispose();
   }
 
   Future<void> _loadDatosUsuario() async {
@@ -213,6 +244,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
     } catch (e) {
       print('Error loading heart health metrics: $e');
     }
+  }
+
+  Future<void> _loadStepHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    final today = DateTime.now();
+    
+    // Cargar historial de los últimos 4 días
+    for (int i = 0; i < 4; i++) {
+      final date = today.subtract(Duration(days: i));
+      final dateKey = '${date.year}-${date.month}-${date.day}';
+      _stepHistory[i] = prefs.getInt(dateKey) ?? 0;
+    }
+    
+    setState(() {});
+  }
+
+  Future<void> _saveStepCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final today = DateTime.now();
+    final dateKey = '${today.year}-${today.month}-${today.day}';
+    
+    // Guardar pasos de hoy
+    await prefs.setInt(dateKey, _stepCount);
+    
+    // Actualizar historial
+    _stepHistory[0] = _stepCount;
+    setState(() {});
   }
 
   @override
@@ -727,6 +785,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildStepsChartCard(Size size, String subtitle) {
+    // Encontrar el máximo para la escala
+    int maxPasos = _stepHistory.reduce((a, b) => a > b ? a : b);
+    maxPasos = ((maxPasos / 100).ceil() * 100); // Redondear al siguiente múltiplo de 100
+    if (maxPasos == 0) maxPasos = 10000; // Valor por defecto si no hay pasos
+
     return Card(
       color: DashboardScreen.kCardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -745,9 +808,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: ["96", "90", "84", "78"]
-                    .map(_buildChartRow)
-                    .toList(),
+                children: [
+                  _buildStepsBar(_stepHistory[0], maxPasos, "Hoy"),
+                  _buildStepsBar(_stepHistory[1], maxPasos, "Ayer"),
+                  _buildStepsBar(_stepHistory[2], maxPasos, "Hace 2 días"),
+                  _buildStepsBar(_stepHistory[3], maxPasos, "Hace 3 días"),
+                ],
               ),
             ),
           ],
@@ -756,14 +822,60 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildChartRow(String label) {
-    return Row(
+  Widget _buildStepsBar(int pasos, int maxPasos, String label) {
+    double porcentaje = pasos / maxPasos;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-            width: 30,
-            child: Text(label,
-                style: const TextStyle(color: Colors.white70, fontSize: 12))),
-        const Expanded(child: Divider(color: Colors.white24)),
+        Row(
+          children: [
+            SizedBox(
+              width: 70,
+              child: Text(
+                label,
+                style: const TextStyle(color: Colors.white70, fontSize: 12),
+              ),
+            ),
+            Expanded(
+              child: Stack(
+                children: [
+                  Container(
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                  FractionallySizedBox(
+                    widthFactor: porcentaje,
+                    child: Container(
+                      height: 12,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            const Color(0xFF5A99D6).withOpacity(0.8),
+                            const Color(0xFF5A99D6),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              pasos.toString(),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
       ],
     );
   }
