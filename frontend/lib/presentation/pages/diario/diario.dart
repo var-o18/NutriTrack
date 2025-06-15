@@ -88,15 +88,19 @@ class _DiarioScreenState extends State<DiarioScreen> {
       for (var ingesta in ingestasDelUsuario) {
         DateTime fechaIngesta;
         try {
-          fechaIngesta = DateTime.parse(ingesta.fechaConsumo);
+          fechaIngesta = DateTime.parse('${ingesta.fechaConsumo} ${ingesta.horaConsumo}');
+          fechaIngesta = fechaIngesta.add(const Duration(hours: 2));
+          print('[INFO] _cargarDatosDelDiario: Fecha original: ${ingesta.fechaConsumo} ${ingesta.horaConsumo}');
+          print('[INFO] _cargarDatosDelDiario: Fecha ajustada: ${fechaIngesta.toIso8601String()}');
         } catch (e) {
+          print('[ERROR] _cargarDatosDelDiario: Error al parsear fecha: ${ingesta.fechaConsumo} ${ingesta.horaConsumo}');
           continue;
         }
 
         if (fechaIngesta.year != _selectedDate.year ||
             fechaIngesta.month != _selectedDate.month ||
             fechaIngesta.day != _selectedDate.day) {
-            continue;
+          continue;
         }
 
         final Alimento? alimentoBase = mapaAlimentos[ingesta.alimentoId];
@@ -112,24 +116,23 @@ class _DiarioScreenState extends State<DiarioScreen> {
           if (_meals.containsKey(ingesta.tipoIngesta)) {
             _meals[ingesta.tipoIngesta]?.add(mealMap);
           } else {
+            print('[WARNING] _cargarDatosDelDiario: Tipo de ingesta desconocido: ${ingesta.tipoIngesta}');
           }
         }
       }
 
-      final int currentTotalCaloriesForSelectedDate = _getTotalCalories();
-
       if (isSelectedDateToday) {
-        _saveCaloriesToPrefs(currentTotalCaloriesForSelectedDate);
-      } else {
+        _saveCaloriesToPrefs(_getTotalCalories());
       }
+
+      setState(() {
+        _isLoading = false;
+      });
     } catch (e) {
-      print(" Error cargando datos: $e");
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      print('Error al cargar datos del diario: $e');
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 

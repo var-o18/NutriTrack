@@ -16,9 +16,29 @@ class IngestaService {
       return false;
     }
 
+    // Ajustar la fecha para compensar la diferencia horaria con Railway
+    final now = DateTime.now();
+    final adjustedDate = now.add(const Duration(hours: 2)); // Ajustar para UTC+2 (España)
+    final fechaConsumo = "${adjustedDate.year}-${adjustedDate.month.toString().padLeft(2, '0')}-${adjustedDate.day.toString().padLeft(2, '0')}";
+    final horaConsumo = "${adjustedDate.hour.toString().padLeft(2, '0')}:${adjustedDate.minute.toString().padLeft(2, '0')}:${adjustedDate.second.toString().padLeft(2, '0')}";
+
+    print('[INFO] registrarIngesta: Fecha local: ${now.toIso8601String()}');
+    print('[INFO] registrarIngesta: Fecha ajustada: ${adjustedDate.toIso8601String()}');
+    print('[INFO] registrarIngesta: Fecha y hora a enviar: $fechaConsumo $horaConsumo');
+
+    final ingestaLocal = Ingesta(
+      id: ingesta.id,
+      usuarioId: ingesta.usuarioId,
+      alimentoId: ingesta.alimentoId,
+      cantidad: ingesta.cantidad,
+      fechaConsumo: fechaConsumo,
+      horaConsumo: horaConsumo,
+      tipoIngesta: ingesta.tipoIngesta,
+    );
+
     final url = Uri.parse(baseUrl);
     print('[INFO] registrarIngesta: Posting to $url');
-    print('[INFO] registrarIngesta: Body: ${jsonEncode(ingesta.toMap())}');
+    print('[INFO] registrarIngesta: Body: ${jsonEncode(ingestaLocal.toMap())}');
 
     try {
       final response = await http.post(
@@ -27,11 +47,12 @@ class IngestaService {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: jsonEncode(ingesta.toMap()),
+        body: jsonEncode(ingestaLocal.toMap()),
       );
 
       if (response.statusCode == 201) {
         print('[INFO] registrarIngesta: Success (201 Created).');
+        print('[INFO] registrarIngesta: Response body: ${response.body}');
         return true;
       } else {
         print('[ERROR] registrarIngesta: Failed. Status: ${response.statusCode}, Body: ${response.body}');
@@ -56,20 +77,37 @@ class IngestaService {
     final url = Uri.parse('$baseUrl?usuarioId=$usuarioId');
     print('GET $url');
 
-    final response = await http.get(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
 
-    if (response.statusCode == 200) {
-      final String responseBodyUtf8 = utf8.decode(response.bodyBytes);
-      final List<dynamic> listaJson = jsonDecode(responseBodyUtf8);
-      return listaJson.map((json) => Ingesta.fromMap(json)).toList();
-    } else {
-      print('Error al obtener ingestas: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        final List<Ingesta> ingestas = data.map((json) => Ingesta.fromJson(json)).toList();
+        
+        // Ajustar las fechas recibidas para mostrarlas en la zona horaria local
+        for (var ingesta in ingestas) {
+          try {
+            final fechaIngesta = DateTime.parse('${ingesta.fechaConsumo} ${ingesta.horaConsumo}');
+            final fechaLocal = fechaIngesta.add(const Duration(hours: 2)); // Ajustar para UTC+2
+            print('[INFO] obtenerIngestasDelUsuario: Fecha original: ${ingesta.fechaConsumo} ${ingesta.horaConsumo}');
+            print('[INFO] obtenerIngestasDelUsuario: Fecha ajustada: ${fechaLocal.toIso8601String()}');
+          } catch (e) {
+            print('[ERROR] obtenerIngestasDelUsuario: Error al parsear fecha: ${ingesta.fechaConsumo} ${ingesta.horaConsumo}');
+          }
+        }
+        
+        return ingestas;
+      } else {
+        print('Error al obtener ingestas: ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      print('Error al obtener ingestas: $e');
       return [];
     }
   }
@@ -111,17 +149,33 @@ class IngestaService {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('jwt_token');
     if (token == null) {
+      print('[ERROR] actualizarIngesta: No token available.');
       return false;
     }
 
-    if (ingesta.id == null) {
-      print('[ERROR] actualizarIngesta: No ingesta ID provided.');
-      return false;
-    }
+    // Ajustar la fecha para compensar la diferencia horaria con Railway
+    final now = DateTime.now();
+    final adjustedDate = now.add(const Duration(hours: 2)); // Ajustar para UTC+2 (España)
+    final fechaConsumo = "${adjustedDate.year}-${adjustedDate.month.toString().padLeft(2, '0')}-${adjustedDate.day.toString().padLeft(2, '0')}";
+    final horaConsumo = "${adjustedDate.hour.toString().padLeft(2, '0')}:${adjustedDate.minute.toString().padLeft(2, '0')}:${adjustedDate.second.toString().padLeft(2, '0')}";
+
+    print('[INFO] actualizarIngesta: Fecha local: ${now.toIso8601String()}');
+    print('[INFO] actualizarIngesta: Fecha ajustada: ${adjustedDate.toIso8601String()}');
+    print('[INFO] actualizarIngesta: Fecha y hora a enviar: $fechaConsumo $horaConsumo');
+
+    final ingestaLocal = Ingesta(
+      id: ingesta.id,
+      usuarioId: ingesta.usuarioId,
+      alimentoId: ingesta.alimentoId,
+      cantidad: ingesta.cantidad,
+      fechaConsumo: fechaConsumo,
+      horaConsumo: horaConsumo,
+      tipoIngesta: ingesta.tipoIngesta,
+    );
 
     final url = Uri.parse('$baseUrl/${ingesta.id}');
     print('[INFO] actualizarIngesta: Updating at $baseUrl/${ingesta.id}');
-    print('[INFO] actualizarIngesta: Body: ${jsonEncode(ingesta.toMap())}');
+    print('[INFO] actualizarIngesta: Body: ${jsonEncode(ingestaLocal.toMap())}');
 
     try {
       final response = await http.patch(
@@ -130,11 +184,12 @@ class IngestaService {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: jsonEncode(ingesta.toMap()),
+        body: jsonEncode(ingestaLocal.toMap()),
       );
 
       if (response.statusCode == 200 || response.statusCode == 204) {
         print('[INFO] actualizarIngesta: Success (Status: ${response.statusCode}).');
+        print('[INFO] actualizarIngesta: Response body: ${response.body}');
         return true;
       } else {
         print('[ERROR] actualizarIngesta: Failed. Status: ${response.statusCode}, Body: ${response.body}');
