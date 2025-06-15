@@ -70,12 +70,12 @@ class IngestaService {
     final usuarioId = prefs.getInt('jwt_id');
 
     if (token == null || usuarioId == null) {
-      print('No hay token o usuarioId disponible');
+      print('[ERROR] obtenerIngestasDelUsuario: No hay token o usuarioId disponible');
       return [];
     }
 
     final url = Uri.parse('$baseUrl?usuarioId=$usuarioId');
-    print('GET $url');
+    print('[INFO] obtenerIngestasDelUsuario: GET $url');
 
     try {
       final response = await http.get(
@@ -87,27 +87,27 @@ class IngestaService {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        final List<Ingesta> ingestas = data.map((json) => Ingesta.fromJson(json)).toList();
+        print('[INFO] obtenerIngestasDelUsuario: Recibidas ${data.length} ingestas');
         
-        // Ajustar las fechas recibidas para mostrarlas en la zona horaria local
-        for (var ingesta in ingestas) {
-          try {
-            final fechaIngesta = DateTime.parse('${ingesta.fechaConsumo} ${ingesta.horaConsumo}');
-            final fechaLocal = fechaIngesta.add(const Duration(hours: 2)); // Ajustar para UTC+2
-            print('[INFO] obtenerIngestasDelUsuario: Fecha original: ${ingesta.fechaConsumo} ${ingesta.horaConsumo}');
-            print('[INFO] obtenerIngestasDelUsuario: Fecha ajustada: ${fechaLocal.toIso8601String()}');
-          } catch (e) {
-            print('[ERROR] obtenerIngestasDelUsuario: Error al parsear fecha: ${ingesta.fechaConsumo} ${ingesta.horaConsumo}');
-          }
-        }
+        final List<Ingesta> ingestas = data.map((json) {
+          final ingesta = Ingesta.fromJson(json);
+          print('[INFO] obtenerIngestasDelUsuario: Procesando ingesta:');
+          print('[INFO] obtenerIngestasDelUsuario: - ID: ${ingesta.id}');
+          print('[INFO] obtenerIngestasDelUsuario: - Fecha: ${ingesta.fechaConsumo}');
+          print('[INFO] obtenerIngestasDelUsuario: - Hora: ${ingesta.horaConsumo}');
+          print('[INFO] obtenerIngestasDelUsuario: - Alimento ID: ${ingesta.alimentoId}');
+          print('[INFO] obtenerIngestasDelUsuario: - Cantidad: ${ingesta.cantidad}');
+          return ingesta;
+        }).toList();
         
         return ingestas;
       } else {
-        print('Error al obtener ingestas: ${response.statusCode}');
+        print('[ERROR] obtenerIngestasDelUsuario: Error ${response.statusCode}');
+        print('[ERROR] obtenerIngestasDelUsuario: ${response.body}');
         return [];
       }
     } catch (e) {
-      print('Error al obtener ingestas: $e');
+      print('[ERROR] obtenerIngestasDelUsuario: Exception: $e');
       return [];
     }
   }
@@ -269,6 +269,9 @@ class IngestaService {
       final ingestas = await obtenerIngestasDelUsuario();
       final now = DateTime.now();
       
+      print('[INFO] calcularYGuardarCaloriasConsumidas: Fecha actual: ${now.toIso8601String()}');
+      print('[INFO] calcularYGuardarCaloriasConsumidas: Total ingestas recibidas: ${ingestas.length}');
+      
       final todosLosAlimentos = await _alimentoService.getAllAlimentos();
       final mapaAlimentos = {
         for (var alimento in todosLosAlimentos) alimento.id!: alimento
@@ -278,30 +281,42 @@ class IngestaService {
 
       for (var ingesta in ingestas) {
         try {
-          final fechaIngesta = DateTime.parse(ingesta.fechaConsumo);
-          if (fechaIngesta.year == now.year &&
-              fechaIngesta.month == now.month &&
-              fechaIngesta.day == now.day) {
+          final fechaIngesta = DateTime.parse('${ingesta.fechaConsumo} ${ingesta.horaConsumo}');
+          final fechaIngestaAjustada = fechaIngesta.add(const Duration(hours: 2));
+          
+          print('[INFO] calcularYGuardarCaloriasConsumidas: Procesando ingesta:');
+          print('[INFO] calcularYGuardarCaloriasConsumidas: - Fecha original: ${ingesta.fechaConsumo} ${ingesta.horaConsumo}');
+          print('[INFO] calcularYGuardarCaloriasConsumidas: - Fecha ajustada: ${fechaIngestaAjustada.toIso8601String()}');
+
+          if (fechaIngestaAjustada.year == now.year &&
+              fechaIngestaAjustada.month == now.month &&
+              fechaIngestaAjustada.day == now.day) {
             
             final alimento = mapaAlimentos[ingesta.alimentoId];
             if (alimento != null) {
               double factor = ingesta.cantidad / 100.0;
-              caloriasTotales += (alimento.calorias * factor).round();
+              int caloriasIngesta = (alimento.calorias * factor).round();
+              caloriasTotales += caloriasIngesta;
+              print('[INFO] calcularYGuardarCaloriasConsumidas: Añadiendo ${caloriasIngesta} calorías de ${alimento.nombre}');
+            } else {
+              print('[WARNING] calcularYGuardarCaloriasConsumidas: No se encontró el alimento con ID ${ingesta.alimentoId}');
             }
+          } else {
+            print('[INFO] calcularYGuardarCaloriasConsumidas: Ingesta no es del día actual');
           }
         } catch (e) {
-          print('Error al procesar ingesta: $e');
+          print('[ERROR] calcularYGuardarCaloriasConsumidas: Error al procesar ingesta: $e');
           continue;
         }
       }
 
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('today_calories_consumed', caloriasTotales);
-      print('Calorías guardadas: $caloriasTotales');
+      print('[INFO] calcularYGuardarCaloriasConsumidas: Total de calorías guardadas: $caloriasTotales');
 
       return caloriasTotales;
     } catch (e) {
-      print('Error al calcular calorías: $e');
+      print('[ERROR] calcularYGuardarCaloriasConsumidas: Error al calcular calorías: $e');
       return 0;
     }
   }

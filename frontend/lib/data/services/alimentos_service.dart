@@ -10,11 +10,13 @@ class AlimentoService {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('jwt_token');
     if (token == null) {
-      print('No hay token disponible');
+      print('[ERROR] getAlimentoRaw: No token available');
       return null;
     }
 
     final url = Uri.parse('$_baseUrl/$id');
+    print('[DEBUG] getAlimentoRaw: Fetching from $url');
+    
     final response = await http.get(
       url,
       headers: {
@@ -25,9 +27,10 @@ class AlimentoService {
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> jsonBody = jsonDecode(utf8.decode(response.bodyBytes));
+      print('[DEBUG] getAlimentoRaw: Successfully fetched alimento with ID $id');
       return {'data': jsonBody};
     } else {
-      print('Error ${response.statusCode}: ${response.body}');
+      print('[ERROR] getAlimentoRaw: Error ${response.statusCode}: ${response.body}');
       return null;
     }
   }
@@ -36,11 +39,13 @@ class AlimentoService {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('jwt_token');
     if (token == null) {
-      print('No hay token disponible para getAllAlimentos');
+      print('[ERROR] getAllAlimentos: No token available');
       return [];
     }
 
     final url = Uri.parse(_baseUrl); 
+    print('[DEBUG] getAllAlimentos: Fetching from $url');
+    
     try {
       final response = await http.get(
         url,
@@ -54,13 +59,14 @@ class AlimentoService {
         final String responseBodyUtf8 = utf8.decode(response.bodyBytes);
         List<dynamic> jsonList = jsonDecode(responseBodyUtf8);
         List<Alimento> alimentos = jsonList.map((json) => Alimento.fromJson(json)).toList();
+        print('[DEBUG] getAllAlimentos: Successfully fetched ${alimentos.length} alimentos');
         return alimentos;
       } else {
-        print('Error al obtener todos los alimentos: ${response.statusCode} - ${response.body}');
+        print('[ERROR] getAllAlimentos: Error ${response.statusCode} - ${response.body}');
         return [];
       }
     } catch (e) {
-      print('Excepción al obtener todos los alimentos: $e');
+      print('[ERROR] getAllAlimentos: Exception: $e');
       return [];
     }
   }
@@ -69,43 +75,38 @@ class AlimentoService {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('jwt_token');
     if (token == null) {
-      print('[DEBUG AlimentoService] No hay token disponible para getAlimentoByCodigoBarras');
+      print('[ERROR] getAlimentoByCodigoBarras: No token available');
       return null;
     }
 
     final url = Uri.parse('$_baseUrl/codigo/$codigoBarras');
-    
-    print('[DEBUG AlimentoService] Llamando a URL: $url');
-    print('[DEBUG AlimentoService] Token: $token');
-
-    final headers = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
-    };
-    print('[DEBUG AlimentoService] Headers: $headers');
+    print('[DEBUG] getAlimentoByCodigoBarras: Fetching from $url');
 
     try {
       final response = await http.get(
         url,
-        headers: headers,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
       );
 
-      print('[DEBUG AlimentoService] Respuesta del backend - Status: ${response.statusCode}');
-      print('[DEBUG AlimentoService] Respuesta del backend - Body: ${response.body}');
+      print('[DEBUG] getAlimentoByCodigoBarras: Response status: ${response.statusCode}');
+      print('[DEBUG] getAlimentoByCodigoBarras: Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonBody = jsonDecode(utf8.decode(response.bodyBytes));
-        print('[DEBUG AlimentoService] JSON decodificado: $jsonBody');
+        print('[DEBUG] getAlimentoByCodigoBarras: Successfully fetched alimento with barcode $codigoBarras');
         return Alimento.fromJson(jsonBody);
       } else if (response.statusCode == 404) {
-        print('Alimento con código de barras $codigoBarras no encontrado.');
+        print('[INFO] getAlimentoByCodigoBarras: Alimento with barcode $codigoBarras not found');
         return null;
       } else {
-        print('Error al obtener alimento por código de barras: ${response.statusCode} - ${response.body}');
+        print('[ERROR] getAlimentoByCodigoBarras: Error ${response.statusCode} - ${response.body}');
         return null;
       }
     } catch (e) {
-      print('Excepción al obtener alimento por código de barras: $e');
+      print('[ERROR] getAlimentoByCodigoBarras: Exception: $e');
       return null;
     }
   }
@@ -114,38 +115,34 @@ class AlimentoService {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('jwt_token');
     if (token == null) {
-      print('[DEBUG AlimentoService] No hay token disponible para saveAlimento');
+      print('[ERROR] saveAlimento: No token available');
       return null;
     }
     
     final url = Uri.parse(_baseUrl);
-    print('[DEBUG AlimentoService - saveAlimento] POST a URL: $url');
+    print('[DEBUG] saveAlimento: Saving to $url');
     
     final body = alimento.toJson();
-
-    print('[DEBUG AlimentoService - saveAlimento] Body: ${jsonEncode(body)}');
-
-    final headers = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
-    };
-    print('[DEBUG AlimentoService - saveAlimento] Headers: $headers');
+    print('[DEBUG] saveAlimento: Request body: ${jsonEncode(body)}');
 
     try {
       final response = await http.post(
         url,
-        headers: headers,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
         body: jsonEncode(body),
       );
 
-      print('[DEBUG AlimentoService - saveAlimento] Respuesta del backend - Status: ${response.statusCode}');
-      print('[DEBUG AlimentoService - saveAlimento] Respuesta del backend - Body: ${response.body}');
+      print('[DEBUG] saveAlimento: Response status: ${response.statusCode}');
+      print('[DEBUG] saveAlimento: Response body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) { 
         final String responseBody = response.body;
         final int? nuevoId = int.tryParse(responseBody);
         if (nuevoId != null) {
-          print('[DEBUG AlimentoService - saveAlimento] Alimento guardado con ID: $nuevoId');
+          print('[DEBUG] saveAlimento: Successfully saved alimento with ID: $nuevoId');
           return Alimento(
             id: nuevoId,
             nombre: alimento.nombre,
@@ -154,18 +151,20 @@ class AlimentoService {
             carbohidratos: alimento.carbohidratos,
             grasas: alimento.grasas,
             codigoBarras: alimento.codigoBarras,
-            ingredientes: alimento.ingredientes
+            ingredientes: alimento.ingredientes,
+            sodio: alimento.sodio,
+            grasasSaludables: alimento.grasasSaludables
           );
         } else {
-          print('[DEBUG AlimentoService - saveAlimento] Error al parsear ID de respuesta: $responseBody');
+          print('[ERROR] saveAlimento: Failed to parse ID from response: $responseBody');
           return null;
         }
       } else {
-        print('[DEBUG AlimentoService - saveAlimento] Error al guardar alimento: ${response.statusCode}');
+        print('[ERROR] saveAlimento: Error ${response.statusCode} - ${response.body}');
         return null;
       }
     } catch (e) {
-      print('[DEBUG AlimentoService - saveAlimento] Excepción al guardar alimento: $e');
+      print('[ERROR] saveAlimento: Exception: $e');
       return null;
     }
   }
@@ -173,8 +172,10 @@ class AlimentoService {
   Future<Alimento?> getAlimentoById(int id) async {
     final raw = await getAlimentoRaw(id);
     if (raw != null && raw['data'] != null) {
+      print('[DEBUG] getAlimentoById: Successfully fetched alimento with ID $id');
       return Alimento.fromJson(raw['data']);
     }
+    print('[ERROR] getAlimentoById: Failed to fetch alimento with ID $id');
     return null;
   }
 
@@ -183,10 +184,12 @@ class AlimentoService {
     final token = prefs.getString('jwt_token');
 
     if (token == null) {
+      print('[ERROR] getSugerencias: No token available');
       throw Exception('No hay token de autenticación');
     }
 
     final url = Uri.parse('$_baseUrl/sugerencias?limite=$limite&margenPorcentaje=$margenPorcentaje');
+    print('[DEBUG] getSugerencias: Fetching from $url');
 
     try {
       final response = await http.get(
@@ -200,13 +203,15 @@ class AlimentoService {
       if (response.statusCode == 200) {
         final String responseBodyUtf8 = utf8.decode(response.bodyBytes);
         final List<dynamic> alimentosJson = jsonDecode(responseBodyUtf8);
-        return alimentosJson.map((json) => Alimento.fromJson(json)).toList();
+        final List<Alimento> alimentos = alimentosJson.map((json) => Alimento.fromJson(json)).toList();
+        print('[DEBUG] getSugerencias: Successfully fetched ${alimentos.length} sugerencias');
+        return alimentos;
       } else {
-        print('Error al obtener sugerencias: ${response.statusCode} - ${response.body}');
+        print('[ERROR] getSugerencias: Error ${response.statusCode} - ${response.body}');
         throw Exception('Error al obtener sugerencias: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error en la petición de sugerencias: $e');
+      print('[ERROR] getSugerencias: Exception: $e');
       throw Exception('Error al obtener sugerencias: $e');
     }
   }

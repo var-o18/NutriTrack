@@ -24,6 +24,18 @@ class Alimento {
   });
 
   factory Alimento.fromJson(Map<String, dynamic> json) {
+    print('[DEBUG] Alimento.fromJson: Mapeando datos:');
+    print('[DEBUG] Alimento.fromJson: - id: ${json['id']}');
+    print('[DEBUG] Alimento.fromJson: - nombre: ${json['nombre']}');
+    print('[DEBUG] Alimento.fromJson: - calorias: ${json['calorias']}');
+    print('[DEBUG] Alimento.fromJson: - proteinas: ${json['proteinas']}');
+    print('[DEBUG] Alimento.fromJson: - carbohidratos: ${json['carbohidratos']}');
+    print('[DEBUG] Alimento.fromJson: - grasas: ${json['grasas']}');
+    print('[DEBUG] Alimento.fromJson: - codigoBarras: ${json['codigo_barras']}');
+    print('[DEBUG] Alimento.fromJson: - ingredientes: ${json['ingredientes']}');
+    print('[DEBUG] Alimento.fromJson: - sodio: ${json['sodio']}');
+    print('[DEBUG] Alimento.fromJson: - grasasSaludables: ${json['grasas_saludables']}');
+
     double toDoubleSafe(dynamic value) {
       if (value == null) return 0.0;
       if (value is num) return value.toDouble();
@@ -31,7 +43,7 @@ class Alimento {
       return 0.0;
     }
 
-    return Alimento(
+    final alimento = Alimento(
       id: json['id'] as int?,
       nombre: json['nombre'] ?? '',
       calorias: (toDoubleSafe(json['calorias'])).round().toDouble(),
@@ -43,10 +55,31 @@ class Alimento {
       sodio: toDoubleSafe(json['sodio']),
       grasasSaludables: toDoubleSafe(json['grasas_saludables']),
     );
+
+    print('[DEBUG] Alimento.fromJson: Alimento creado:');
+    print('[DEBUG] Alimento.fromJson: - id: ${alimento.id}');
+    print('[DEBUG] Alimento.fromJson: - nombre: ${alimento.nombre}');
+    print('[DEBUG] Alimento.fromJson: - calorias: ${alimento.calorias}');
+    print('[DEBUG] Alimento.fromJson: - proteinas: ${alimento.proteinas}');
+    print('[DEBUG] Alimento.fromJson: - carbohidratos: ${alimento.carbohidratos}');
+    print('[DEBUG] Alimento.fromJson: - grasas: ${alimento.grasas}');
+    print('[DEBUG] Alimento.fromJson: - sodio: ${alimento.sodio}');
+    print('[DEBUG] Alimento.fromJson: - grasasSaludables: ${alimento.grasasSaludables}');
+
+    return alimento;
   }
 
-
   Map<String, dynamic> toJson() {
+    print('[DEBUG] Alimento.toJson: Convirtiendo a JSON:');
+    print('[DEBUG] Alimento.toJson: - id: $id');
+    print('[DEBUG] Alimento.toJson: - nombre: $nombre');
+    print('[DEBUG] Alimento.toJson: - calorias: $calorias');
+    print('[DEBUG] Alimento.toJson: - proteinas: $proteinas');
+    print('[DEBUG] Alimento.toJson: - carbohidratos: $carbohidratos');
+    print('[DEBUG] Alimento.toJson: - grasas: $grasas');
+    print('[DEBUG] Alimento.toJson: - sodio: $sodio');
+    print('[DEBUG] Alimento.toJson: - grasasSaludables: $grasasSaludables');
+
     final Map<String, dynamic> data = {
       'nombre': nombre,
       'calorias': calorias,
@@ -60,7 +93,7 @@ class Alimento {
       data['id'] = id;
     }
     if (codigoBarras != null) {
-      data['codigoBarras'] = codigoBarras;
+      data['codigo_barras'] = codigoBarras;
     }
     if (ingredientes != null) {
       data['ingredientes'] = ingredientes;

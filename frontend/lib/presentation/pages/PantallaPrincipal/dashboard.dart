@@ -38,16 +38,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
+    _initPedometer();
+    _loadDatosUsuario();
+    _loadConsumedCalories();
+    _loadTodayMacros();
+    _loadHeartHealthMetrics();
+    _loadStepHistory();
+    _loadCurrentStepCount(); // Cargar el contador actual de pasos
+  }
 
-    _requestActivityRecognitionPermission().then((_) {
-      _loadDatosUsuario();
-      _initPedometer();
-      _loadConsumedCalories();
-      _loadTodayMacros();
-      _loadHeartHealthMetrics();
-      _loadStepHistory();
-      _loadCurrentStepCount(); // Cargar el contador actual de pasos
-    });
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadConsumedCalories(); // Recargar calorías cuando cambian las dependencias
   }
 
   Future<void> _loadCurrentStepCount() async {
@@ -119,10 +122,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final IngestaService ingestaService = IngestaService();
       final calorias = await ingestaService.calcularYGuardarCaloriasConsumidas();
       print('[DashboardScreen] Calorías calculadas: $calorias');
+      
       if (mounted) {
         setState(() {
           _caloriasConsumidasHoy = calorias;
         });
+        print('[DashboardScreen] Estado actualizado con $_caloriasConsumidasHoy calorías');
       }
     } catch (e) {
       print('[DashboardScreen] Error al cargar calorías: $e');
@@ -134,13 +139,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final AlimentoService alimentoService = AlimentoService();
 
     try {
+      print('[DEBUG] _loadTodayMacros: Fetching all foods...');
       final List<Alimento> todosLosAlimentos = await alimentoService.getAllAlimentos();
+      print('[DEBUG] _loadTodayMacros: Fetched ${todosLosAlimentos.length} foods');
+      
       final Map<int, Alimento> mapaAlimentos = {
         for (var alimento in todosLosAlimentos) alimento.id!: alimento
       };
+      print('[DEBUG] _loadTodayMacros: Created food map with ${mapaAlimentos.length} entries');
 
+      print('[DEBUG] _loadTodayMacros: Fetching user intakes...');
       final List<Ingesta> ingestasDelUsuario = await ingestaService.obtenerIngestasDelUsuario();
+      print('[DEBUG] _loadTodayMacros: Fetched ${ingestasDelUsuario.length} intakes');
+
       final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      print('[DEBUG] _loadTodayMacros: Current date: ${today.toIso8601String()}');
 
       double totalCarbs = 0;
       double totalProtein = 0;
@@ -149,25 +163,62 @@ class _DashboardScreenState extends State<DashboardScreen> {
       for (var ingesta in ingestasDelUsuario) {
         DateTime fechaIngesta;
         try {
-          fechaIngesta = DateTime.parse(ingesta.fechaConsumo);
+          // Parsear la fecha y hora de la ingesta
+          fechaIngesta = DateTime.parse('${ingesta.fechaConsumo} ${ingesta.horaConsumo}');
+          // Ajustar a UTC+2
+          fechaIngesta = fechaIngesta.add(const Duration(hours: 2));
+          // Normalizar a inicio del día para comparación
+          fechaIngesta = DateTime(fechaIngesta.year, fechaIngesta.month, fechaIngesta.day);
+          
+          print('[DEBUG] _loadTodayMacros: Processing intake:');
+          print('[DEBUG] _loadTodayMacros: - Original date: ${ingesta.fechaConsumo} ${ingesta.horaConsumo}');
+          print('[DEBUG] _loadTodayMacros: - Adjusted date: ${fechaIngesta.toIso8601String()}');
+          print('[DEBUG] _loadTodayMacros: - Today: ${today.toIso8601String()}');
+          print('[DEBUG] _loadTodayMacros: - Is same day: ${fechaIngesta.isAtSameMomentAs(today)}');
         } catch (e) {
+          print('[ERROR] _loadTodayMacros: Error parsing date: ${ingesta.fechaConsumo} ${ingesta.horaConsumo}');
           continue;
         }
 
-        if (fechaIngesta.year != now.year ||
-            fechaIngesta.month != now.month ||
-            fechaIngesta.day != now.day) {
+        if (!fechaIngesta.isAtSameMomentAs(today)) {
+          print('[DEBUG] _loadTodayMacros: Skipping intake from different day');
           continue;
         }
 
         final Alimento? alimento = mapaAlimentos[ingesta.alimentoId];
         if (alimento != null) {
           double factor = ingesta.cantidad / 100.0;
-          totalCarbs += alimento.carbohidratos * factor;
-          totalProtein += alimento.proteinas * factor;
-          totalFat += alimento.grasas * factor;
+          print('[DEBUG] _loadTodayMacros: Processing food:');
+          print('[DEBUG] _loadTodayMacros: - Food ID: ${alimento.id}');
+          print('[DEBUG] _loadTodayMacros: - Food name: ${alimento.nombre}');
+          print('[DEBUG] _loadTodayMacros: - Quantity: ${ingesta.cantidad}g');
+          print('[DEBUG] _loadTodayMacros: - Factor: $factor');
+          print('[DEBUG] _loadTodayMacros: - Base values (per 100g):');
+          print('[DEBUG] _loadTodayMacros:   * Carbs: ${alimento.carbohidratos}g');
+          print('[DEBUG] _loadTodayMacros:   * Protein: ${alimento.proteinas}g');
+          print('[DEBUG] _loadTodayMacros:   * Fat: ${alimento.grasas}g');
+
+          double carbs = alimento.carbohidratos * factor;
+          double protein = alimento.proteinas * factor;
+          double fat = alimento.grasas * factor;
+
+          print('[DEBUG] _loadTodayMacros: - Calculated values:');
+          print('[DEBUG] _loadTodayMacros:   * Carbs: ${carbs.toStringAsFixed(1)}g');
+          print('[DEBUG] _loadTodayMacros:   * Protein: ${protein.toStringAsFixed(1)}g');
+          print('[DEBUG] _loadTodayMacros:   * Fat: ${fat.toStringAsFixed(1)}g');
+
+          totalCarbs += carbs;
+          totalProtein += protein;
+          totalFat += fat;
+        } else {
+          print('[WARNING] _loadTodayMacros: Food not found for ID: ${ingesta.alimentoId}');
         }
       }
+
+      print('[DEBUG] _loadTodayMacros: Final totals:');
+      print('[DEBUG] _loadTodayMacros: - Total carbs: ${totalCarbs.toStringAsFixed(1)}g');
+      print('[DEBUG] _loadTodayMacros: - Total protein: ${totalProtein.toStringAsFixed(1)}g');
+      print('[DEBUG] _loadTodayMacros: - Total fat: ${totalFat.toStringAsFixed(1)}g');
 
       if (mounted) {
         setState(() {
@@ -175,9 +226,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           _totalProtein = totalProtein;
           _totalFat = totalFat;
         });
+        print('[DEBUG] _loadTodayMacros: State updated with new values');
       }
     } catch (e) {
-      print('Error loading macros: $e');
+      print('[ERROR] _loadTodayMacros: Error loading macros: $e');
     }
   }
 
@@ -186,13 +238,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final AlimentoService alimentoService = AlimentoService();
 
     try {
+      print('[DEBUG] _loadHeartHealthMetrics: Fetching all foods...');
       final List<Alimento> todosLosAlimentos = await alimentoService.getAllAlimentos();
+      print('[DEBUG] _loadHeartHealthMetrics: Fetched ${todosLosAlimentos.length} foods');
+      
       final Map<int, Alimento> mapaAlimentos = {
         for (var alimento in todosLosAlimentos) alimento.id!: alimento
       };
+      print('[DEBUG] _loadHeartHealthMetrics: Created food map with ${mapaAlimentos.length} entries');
 
+      print('[DEBUG] _loadHeartHealthMetrics: Fetching user intakes...');
       final List<Ingesta> ingestasDelUsuario = await ingestaService.obtenerIngestasDelUsuario();
+      print('[DEBUG] _loadHeartHealthMetrics: Fetched ${ingestasDelUsuario.length} intakes');
+
       final now = DateTime.now();
+      print('[DEBUG] _loadHeartHealthMetrics: Current date: ${now.toIso8601String()}');
 
       double totalSodium = 0;
       double totalHealthyFat = 0;
@@ -201,48 +261,70 @@ class _DashboardScreenState extends State<DashboardScreen> {
       for (var ingesta in ingestasDelUsuario) {
         DateTime fechaIngesta;
         try {
-          fechaIngesta = DateTime.parse(ingesta.fechaConsumo);
+          fechaIngesta = DateTime.parse('${ingesta.fechaConsumo} ${ingesta.horaConsumo}');
+          fechaIngesta = fechaIngesta.add(const Duration(hours: 2)); // Ajustar a UTC+2
+          print('[DEBUG] _loadHeartHealthMetrics: Processing intake:');
+          print('[DEBUG] _loadHeartHealthMetrics: - Original date: ${ingesta.fechaConsumo} ${ingesta.horaConsumo}');
+          print('[DEBUG] _loadHeartHealthMetrics: - Adjusted date: ${fechaIngesta.toIso8601String()}');
         } catch (e) {
+          print('[ERROR] _loadHeartHealthMetrics: Error parsing date: ${ingesta.fechaConsumo} ${ingesta.horaConsumo}');
           continue;
         }
 
         if (fechaIngesta.year != now.year ||
             fechaIngesta.month != now.month ||
             fechaIngesta.day != now.day) {
+          print('[DEBUG] _loadHeartHealthMetrics: Skipping intake from different day');
           continue;
         }
 
         final Alimento? alimento = mapaAlimentos[ingesta.alimentoId];
         if (alimento != null) {
           double factor = ingesta.cantidad / 100.0;
-          totalSodium += alimento.sodio * factor;
-          totalHealthyFat += alimento.grasasSaludables * factor;
-          totalFat += alimento.grasas * factor;
+          print('[DEBUG] _loadHeartHealthMetrics: Processing food:');
+          print('[DEBUG] _loadHeartHealthMetrics: - Food ID: ${alimento.id}');
+          print('[DEBUG] _loadHeartHealthMetrics: - Food name: ${alimento.nombre}');
+          print('[DEBUG] _loadHeartHealthMetrics: - Quantity: ${ingesta.cantidad}g');
+          print('[DEBUG] _loadHeartHealthMetrics: - Factor: $factor');
+          print('[DEBUG] _loadHeartHealthMetrics: - Base values (per 100g):');
+          print('[DEBUG] _loadHeartHealthMetrics:   * Sodium: ${alimento.sodio}mg');
+          print('[DEBUG] _loadHeartHealthMetrics:   * Healthy fat: ${alimento.grasasSaludables}g');
+          print('[DEBUG] _loadHeartHealthMetrics:   * Total fat: ${alimento.grasas}g');
 
-          print('--- Ingesta de Alimento: ${alimento.nombre} ---');
-          print('Cantidad ingesta: ${ingesta.cantidad}g');
-          print('Factor: $factor');
-          print('Sodio por 100g (alimento): ${alimento.sodio}');
-          print('Grasas Saludables por 100g (alimento): ${alimento.grasasSaludables}');
-          print('Sodio total sumado (ingesta): ${alimento.sodio * factor}');
-          print('Grasas Saludables total sumado (ingesta): ${alimento.grasasSaludables * factor}');
-          print('-------------------------------------');
+          double sodium = alimento.sodio * factor;
+          double healthyFat = alimento.grasasSaludables * factor;
+          double fat = alimento.grasas * factor;
+
+          print('[DEBUG] _loadHeartHealthMetrics: - Calculated values:');
+          print('[DEBUG] _loadHeartHealthMetrics:   * Sodium: ${sodium.toStringAsFixed(1)}mg');
+          print('[DEBUG] _loadHeartHealthMetrics:   * Healthy fat: ${healthyFat.toStringAsFixed(1)}g');
+          print('[DEBUG] _loadHeartHealthMetrics:   * Total fat: ${fat.toStringAsFixed(1)}g');
+
+          totalSodium += sodium;
+          totalHealthyFat += healthyFat;
+          totalFat += fat;
+        } else {
+          print('[WARNING] _loadHeartHealthMetrics: Food not found for ID: ${ingesta.alimentoId}');
         }
       }
 
-      print('\n--- Totales de Salud del Corazón ---');
-      print('Total Sodio: $_totalSodium');
-      print('Total Grasas Saludables: $_healthyFatPercentage');
-      print('-------------------------------------');
+      print('[DEBUG] _loadHeartHealthMetrics: Final totals:');
+      print('[DEBUG] _loadHeartHealthMetrics: - Total sodium: ${totalSodium.toStringAsFixed(1)}mg');
+      print('[DEBUG] _loadHeartHealthMetrics: - Total healthy fat: ${totalHealthyFat.toStringAsFixed(1)}g');
+      print('[DEBUG] _loadHeartHealthMetrics: - Total fat: ${totalFat.toStringAsFixed(1)}g');
+
+      double healthyFatPercentage = totalFat > 0 ? (totalHealthyFat / totalFat) * 100 : 0;
+      print('[DEBUG] _loadHeartHealthMetrics: - Healthy fat percentage: ${healthyFatPercentage.toStringAsFixed(1)}%');
 
       if (mounted) {
         setState(() {
           _totalSodium = totalSodium;
-          _healthyFatPercentage = totalFat > 0 ? (totalHealthyFat / totalFat) * 100 : 0;
+          _healthyFatPercentage = healthyFatPercentage;
         });
+        print('[DEBUG] _loadHeartHealthMetrics: State updated with new values');
       }
     } catch (e) {
-      print('Error loading heart health metrics: $e');
+      print('[ERROR] _loadHeartHealthMetrics: Error loading heart health metrics: $e');
     }
   }
 
