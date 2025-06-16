@@ -39,13 +39,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    _initPedometer();
+    _requestPermissionAndInitPedometer();
     _loadDatosUsuario();
     _loadConsumedCalories();
     _loadTodayMacros();
     _loadHeartHealthMetrics();
     _loadStepHistory();
-    _loadCurrentStepCount(); // Cargar el contador actual de pasos
+    _loadCurrentStepCount();
   }
 
   @override
@@ -1298,18 +1298,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Future<void> _requestActivityRecognitionPermission() async {
+  Future<void> _requestPermissionAndInitPedometer() async {
+    // Solicitar permiso de actividad física
     final status = await Permission.activityRecognition.status;
-
+    
     if (!status.isGranted) {
-      final result = await Permission.activityRecognition.request();
-      if (result.isGranted) {
-        print('Permiso ACTIVITY_RECOGNITION concedido');
-      } else {
-        print('Permiso ACTIVITY_RECOGNITION denegado');
+      // Si no está concedido, mostrar diálogo de solicitud
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Permiso necesario'),
+              content: const Text('Para contar tus pasos, necesitamos acceso a los sensores de actividad física.'),
+              actions: [
+                TextButton(
+                  child: const Text('Permitir'),
+                  onPressed: () async {
+                    Navigator.of(context).pop();
+                    final result = await Permission.activityRecognition.request();
+                    if (result.isGranted) {
+                      _initPedometer();
+                    }
+                  },
+                ),
+              ],
+            );
+          },
+        );
       }
     } else {
-      print('Permiso ACTIVITY_RECOGNITION ya estaba concedido');
+      // Si ya está concedido, inicializar el pedómetro
+      _initPedometer();
     }
   }
 
