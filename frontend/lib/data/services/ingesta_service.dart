@@ -16,7 +16,6 @@ class IngestaService {
       return false;
     }
 
-    // Ajustar la fecha para compensar la diferencia horaria con Railway
     final now = DateTime.now();
     final adjustedDate = now.add(const Duration(hours: 2)); // Ajustar para UTC+2 (España)
     final fechaConsumo = "${adjustedDate.year}-${adjustedDate.month.toString().padLeft(2, '0')}-${adjustedDate.day.toString().padLeft(2, '0')}";
@@ -91,13 +90,33 @@ class IngestaService {
         
         final List<Ingesta> ingestas = data.map((json) {
           final ingesta = Ingesta.fromJson(json);
-          print('[INFO] obtenerIngestasDelUsuario: Procesando ingesta:');
-          print('[INFO] obtenerIngestasDelUsuario: - ID: ${ingesta.id}');
-          print('[INFO] obtenerIngestasDelUsuario: - Fecha: ${ingesta.fechaConsumo}');
-          print('[INFO] obtenerIngestasDelUsuario: - Hora: ${ingesta.horaConsumo}');
-          print('[INFO] obtenerIngestasDelUsuario: - Alimento ID: ${ingesta.alimentoId}');
-          print('[INFO] obtenerIngestasDelUsuario: - Cantidad: ${ingesta.cantidad}');
-          return ingesta;
+          
+          try {
+            final fechaHora = DateTime.parse('${ingesta.fechaConsumo} ${ingesta.horaConsumo}');
+            final adjustedDate = fechaHora.add(const Duration(hours: 2)); // Ajustar para UTC+2 (España)
+            final fechaConsumo = "${adjustedDate.year}-${adjustedDate.month.toString().padLeft(2, '0')}-${adjustedDate.day.toString().padLeft(2, '0')}";
+            final horaConsumo = "${adjustedDate.hour.toString().padLeft(2, '0')}:${adjustedDate.minute.toString().padLeft(2, '0')}:${adjustedDate.second.toString().padLeft(2, '0')}";
+            
+            print('[INFO] obtenerIngestasDelUsuario: Procesando ingesta:');
+            print('[INFO] obtenerIngestasDelUsuario: - ID: ${ingesta.id}');
+            print('[INFO] obtenerIngestasDelUsuario: - Fecha original: ${ingesta.fechaConsumo} ${ingesta.horaConsumo}');
+            print('[INFO] obtenerIngestasDelUsuario: - Fecha ajustada: $fechaConsumo $horaConsumo');
+            print('[INFO] obtenerIngestasDelUsuario: - Alimento ID: ${ingesta.alimentoId}');
+            print('[INFO] obtenerIngestasDelUsuario: - Cantidad: ${ingesta.cantidad}');
+            
+            return Ingesta(
+              id: ingesta.id,
+              usuarioId: ingesta.usuarioId,
+              alimentoId: ingesta.alimentoId,
+              cantidad: ingesta.cantidad,
+              fechaConsumo: fechaConsumo,
+              horaConsumo: horaConsumo,
+              tipoIngesta: ingesta.tipoIngesta,
+            );
+          } catch (e) {
+            print('[ERROR] obtenerIngestasDelUsuario: Error al ajustar fecha: $e');
+            return ingesta;
+          }
         }).toList();
         
         return ingestas;
@@ -140,7 +159,7 @@ class IngestaService {
         return false;
       }
     } catch (e) {
-      print('[ERROR] registrarIngesta: Exception: $e');
+      print('[ERROR] eliminarIngesta: Exception: $e');
       return false;
     }
   }
@@ -153,7 +172,6 @@ class IngestaService {
       return false;
     }
 
-    // Ajustar la fecha para compensar la diferencia horaria con Railway
     final now = DateTime.now();
     final adjustedDate = now.add(const Duration(hours: 2)); // Ajustar para UTC+2 (España)
     final fechaConsumo = "${adjustedDate.year}-${adjustedDate.month.toString().padLeft(2, '0')}-${adjustedDate.day.toString().padLeft(2, '0')}";
@@ -205,6 +223,7 @@ class IngestaService {
     try {
       final ingestas = await obtenerIngestasDelUsuario();
       final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
 
       final todosLosAlimentos = await _alimentoService.getAllAlimentos();
       final mapaAlimentos = {
@@ -213,17 +232,25 @@ class IngestaService {
 
       final ingestasHoy = ingestas.where((ingesta) {
         try {
-          final fechaIngesta = DateTime.parse(ingesta.fechaConsumo);
-          return fechaIngesta.year == now.year &&
-                 fechaIngesta.month == now.month &&
-                 fechaIngesta.day == now.day;
+          final fechaHora = DateTime.parse('${ingesta.fechaConsumo} ${ingesta.horaConsumo}');
+          final adjustedDate = fechaHora.add(const Duration(hours: 2)); // Ajustar para UTC+2 (España)
+          final fechaIngestaNormalizada = DateTime(adjustedDate.year, adjustedDate.month, adjustedDate.day);
+          
+          print('[INFO] getResumenDiario: Procesando ingesta:');
+          print('[INFO] getResumenDiario: - Fecha ingesta: ${fechaHora.toIso8601String()}');
+          print('[INFO] getResumenDiario: - Fecha ajustada: ${adjustedDate.toIso8601String()}');
+          print('[INFO] getResumenDiario: - Fecha normalizada: ${fechaIngestaNormalizada.toIso8601String()}');
+          print('[INFO] getResumenDiario: - Fecha hoy: ${today.toIso8601String()}');
+          print('[INFO] getResumenDiario: - Es hoy: ${fechaIngestaNormalizada.isAtSameMomentAs(today)}');
+          
+          return fechaIngestaNormalizada.isAtSameMomentAs(today);
         } catch (e) {
-          print('Error al parsear fecha: ${ingesta.fechaConsumo}');
+          print('[ERROR] getResumenDiario: Error al parsear fecha: ${ingesta.fechaConsumo} ${ingesta.horaConsumo}');
           return false;
         }
       }).toList();
 
-      print('Ingestas de hoy: ${ingestasHoy.length}');
+      print('[INFO] getResumenDiario: Ingestas de hoy: ${ingestasHoy.length}');
 
       double caloriasConsumidas = 0;
       double carbohidratosConsumidos = 0;
@@ -238,14 +265,23 @@ class IngestaService {
           carbohidratosConsumidos += alimento.carbohidratos * factor;
           proteinasConsumidas += alimento.proteinas * factor;
           grasasConsumidas += alimento.grasas * factor;
+          
+          print('[INFO] getResumenDiario: Procesando alimento:');
+          print('[INFO] getResumenDiario: - Nombre: ${alimento.nombre}');
+          print('[INFO] getResumenDiario: - Cantidad: ${ingesta.cantidad}g');
+          print('[INFO] getResumenDiario: - Factor: $factor');
+          print('[INFO] getResumenDiario: - Calorías: ${alimento.calorias * factor}');
+          print('[INFO] getResumenDiario: - Carbohidratos: ${alimento.carbohidratos * factor}');
+          print('[INFO] getResumenDiario: - Proteínas: ${alimento.proteinas * factor}');
+          print('[INFO] getResumenDiario: - Grasas: ${alimento.grasas * factor}');
         }
       }
 
-      print('Resumen calculado:');
-      print('Calorías: $caloriasConsumidas');
-      print('Carbohidratos: $carbohidratosConsumidos');
-      print('Proteínas: $proteinasConsumidas');
-      print('Grasas: $grasasConsumidas');
+      print('[INFO] getResumenDiario: Resumen calculado:');
+      print('[INFO] getResumenDiario: - Calorías: $caloriasConsumidas');
+      print('[INFO] getResumenDiario: - Carbohidratos: $carbohidratosConsumidos');
+      print('[INFO] getResumenDiario: - Proteínas: $proteinasConsumidas');
+      print('[INFO] getResumenDiario: - Grasas: $grasasConsumidas');
 
       return {
         'caloriasConsumidas': caloriasConsumidas,
@@ -254,7 +290,7 @@ class IngestaService {
         'grasasConsumidas': grasasConsumidas,
       };
     } catch (e) {
-      print('Error al calcular resumen diario: $e');
+      print('[ERROR] getResumenDiario: Error al calcular resumen diario: $e');
       return {
         'caloriasConsumidas': 0,
         'carbohidratosConsumidos': 0,
@@ -268,6 +304,7 @@ class IngestaService {
     try {
       final ingestas = await obtenerIngestasDelUsuario();
       final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
       
       print('[INFO] calcularYGuardarCaloriasConsumidas: Fecha actual: ${now.toIso8601String()}');
       print('[INFO] calcularYGuardarCaloriasConsumidas: Total ingestas recibidas: ${ingestas.length}');
@@ -281,17 +318,18 @@ class IngestaService {
 
       for (var ingesta in ingestas) {
         try {
-          final fechaIngesta = DateTime.parse('${ingesta.fechaConsumo} ${ingesta.horaConsumo}');
-          final fechaIngestaAjustada = fechaIngesta.add(const Duration(hours: 2));
+          final fechaHora = DateTime.parse('${ingesta.fechaConsumo} ${ingesta.horaConsumo}');
+          final adjustedDate = fechaHora.add(const Duration(hours: 2)); // Ajustar para UTC+2 (España)
+          final fechaIngestaNormalizada = DateTime(adjustedDate.year, adjustedDate.month, adjustedDate.day);
           
           print('[INFO] calcularYGuardarCaloriasConsumidas: Procesando ingesta:');
-          print('[INFO] calcularYGuardarCaloriasConsumidas: - Fecha original: ${ingesta.fechaConsumo} ${ingesta.horaConsumo}');
-          print('[INFO] calcularYGuardarCaloriasConsumidas: - Fecha ajustada: ${fechaIngestaAjustada.toIso8601String()}');
+          print('[INFO] calcularYGuardarCaloriasConsumidas: - Fecha ingesta: ${fechaHora.toIso8601String()}');
+          print('[INFO] calcularYGuardarCaloriasConsumidas: - Fecha ajustada: ${adjustedDate.toIso8601String()}');
+          print('[INFO] calcularYGuardarCaloriasConsumidas: - Fecha normalizada: ${fechaIngestaNormalizada.toIso8601String()}');
+          print('[INFO] calcularYGuardarCaloriasConsumidas: - Fecha hoy: ${today.toIso8601String()}');
+          print('[INFO] calcularYGuardarCaloriasConsumidas: - Es hoy: ${fechaIngestaNormalizada.isAtSameMomentAs(today)}');
 
-          if (fechaIngestaAjustada.year == now.year &&
-              fechaIngestaAjustada.month == now.month &&
-              fechaIngestaAjustada.day == now.day) {
-            
+          if (fechaIngestaNormalizada.isAtSameMomentAs(today)) {
             final alimento = mapaAlimentos[ingesta.alimentoId];
             if (alimento != null) {
               double factor = ingesta.cantidad / 100.0;
@@ -326,7 +364,7 @@ class IngestaService {
       final prefs = await SharedPreferences.getInstance();
       return prefs.getInt('today_calories_consumed') ?? 0;
     } catch (e) {
-      print('Error al obtener calorías: $e');
+      print('[ERROR] obtenerCaloriasConsumidas: Error al obtener calorías: $e');
       return 0;
     }
   }

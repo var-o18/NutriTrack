@@ -6,6 +6,20 @@ import '../models/alimneto_model.dart';
 class AlimentoService {
   final String _baseUrl = 'https://nutritrack-production-4645.up.railway.app/api/alimentos';
 
+  // Función auxiliar para ajustar fechas a UTC+2
+  DateTime _ajustarFechaUTC2(DateTime fecha) {
+    return fecha.add(const Duration(hours: 2));
+  }
+
+  // Función auxiliar para formatear fecha y hora
+  Map<String, String> _formatearFechaHora(DateTime fecha) {
+    final fechaAjustada = _ajustarFechaUTC2(fecha);
+    return {
+      'fecha': "${fechaAjustada.year}-${fechaAjustada.month.toString().padLeft(2, '0')}-${fechaAjustada.day.toString().padLeft(2, '0')}",
+      'hora': "${fechaAjustada.hour.toString().padLeft(2, '0')}:${fechaAjustada.minute.toString().padLeft(2, '0')}:${fechaAjustada.second.toString().padLeft(2, '0')}"
+    };
+  }
+
   Future<Map<String, dynamic>?> getAlimentoRaw(int id) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('jwt_token');
@@ -20,7 +34,7 @@ class AlimentoService {
     final response = await http.get(
       url,
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer $token',
       },
     );
@@ -50,7 +64,7 @@ class AlimentoService {
       final response = await http.get(
         url,
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
         },
       );
@@ -58,7 +72,14 @@ class AlimentoService {
       if (response.statusCode == 200) {
         final String responseBodyUtf8 = utf8.decode(response.bodyBytes);
         List<dynamic> jsonList = jsonDecode(responseBodyUtf8);
-        List<Alimento> alimentos = jsonList.map((json) => Alimento.fromJson(json)).toList();
+        List<Alimento> alimentos = jsonList.map((json) {
+          final alimento = Alimento.fromJson(json);
+          print('[DEBUG] getAllAlimentos: Procesando alimento:');
+          print('[DEBUG] getAllAlimentos: - ID: ${alimento.id}');
+          print('[DEBUG] getAllAlimentos: - Nombre: ${utf8.decode(alimento.nombre.codeUnits)}');
+          print('[DEBUG] getAllAlimentos: - Calorías: ${alimento.calorias}');
+          return alimento;
+        }).toList();
         print('[DEBUG] getAllAlimentos: Successfully fetched ${alimentos.length} alimentos');
         return alimentos;
       } else {
@@ -86,13 +107,13 @@ class AlimentoService {
       final response = await http.get(
         url,
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
         },
       );
 
       print('[DEBUG] getAlimentoByCodigoBarras: Response status: ${response.statusCode}');
-      print('[DEBUG] getAlimentoByCodigoBarras: Response body: ${response.body}');
+      print('[DEBUG] getAlimentoByCodigoBarras: Response body: ${utf8.decode(response.bodyBytes)}');
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonBody = jsonDecode(utf8.decode(response.bodyBytes));
@@ -122,6 +143,11 @@ class AlimentoService {
     final url = Uri.parse(_baseUrl);
     print('[DEBUG] saveAlimento: Saving to $url');
     
+    final now = DateTime.now();
+    final adjustedDate = now.add(const Duration(hours: 2)); // Ajustar para UTC+2 (España)
+    print('[DEBUG] saveAlimento: Fecha local: ${now.toIso8601String()}');
+    print('[DEBUG] saveAlimento: Fecha ajustada: ${adjustedDate.toIso8601String()}');
+    
     final body = alimento.toJson();
     print('[DEBUG] saveAlimento: Request body: ${jsonEncode(body)}');
 
@@ -129,17 +155,17 @@ class AlimentoService {
       final response = await http.post(
         url,
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
         },
         body: jsonEncode(body),
       );
 
       print('[DEBUG] saveAlimento: Response status: ${response.statusCode}');
-      print('[DEBUG] saveAlimento: Response body: ${response.body}');
+      print('[DEBUG] saveAlimento: Response body: ${utf8.decode(response.bodyBytes)}');
 
       if (response.statusCode == 200 || response.statusCode == 201) { 
-        final String responseBody = response.body;
+        final String responseBody = utf8.decode(response.bodyBytes);
         final int? nuevoId = int.tryParse(responseBody);
         if (nuevoId != null) {
           print('[DEBUG] saveAlimento: Successfully saved alimento with ID: $nuevoId');
@@ -195,7 +221,7 @@ class AlimentoService {
       final response = await http.get(
         url,
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token',
         },
       );
@@ -203,7 +229,14 @@ class AlimentoService {
       if (response.statusCode == 200) {
         final String responseBodyUtf8 = utf8.decode(response.bodyBytes);
         final List<dynamic> alimentosJson = jsonDecode(responseBodyUtf8);
-        final List<Alimento> alimentos = alimentosJson.map((json) => Alimento.fromJson(json)).toList();
+        final List<Alimento> alimentos = alimentosJson.map((json) {
+          final alimento = Alimento.fromJson(json);
+          print('[DEBUG] getSugerencias: Procesando sugerencia:');
+          print('[DEBUG] getSugerencias: - ID: ${alimento.id}');
+          print('[DEBUG] getSugerencias: - Nombre: ${utf8.decode(alimento.nombre.codeUnits)}');
+          print('[DEBUG] getSugerencias: - Calorías: ${alimento.calorias}');
+          return alimento;
+        }).toList();
         print('[DEBUG] getSugerencias: Successfully fetched ${alimentos.length} sugerencias');
         return alimentos;
       } else {

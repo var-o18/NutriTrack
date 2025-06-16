@@ -213,6 +213,7 @@ class _DescubrePageState extends State<DescubrePage> {
 
     final caloriasConsumidas = _resumenDiario['caloriasConsumidas'] ?? 0;
     final caloriasRestantes = (_usuario!.caloriasDiarias ?? 0) - caloriasConsumidas;
+    final caloriasRestantesFinal = caloriasRestantes < 0 ? 0 : caloriasRestantes;
     final carbohidratosConsumidos = _resumenDiario['carbohidratosConsumidos'] ?? 0;
     final proteinasConsumidas = _resumenDiario['proteinasConsumidas'] ?? 0;
     final grasasConsumidas = _resumenDiario['grasasConsumidas'] ?? 0;
@@ -261,7 +262,7 @@ class _DescubrePageState extends State<DescubrePage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          caloriasRestantes.round().toString(),
+                          caloriasRestantesFinal.round().toString(),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 30,
@@ -357,7 +358,6 @@ class _DescubrePageState extends State<DescubrePage> {
   }
 
   Widget _buildNutrientBar(String label, double value, double goal, Color color) {
-    final percentage = (value / goal).clamp(0.0, 1.0);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -371,7 +371,7 @@ class _DescubrePageState extends State<DescubrePage> {
               ),
             ),
             Text(
-              '${value.toInt()}/${goal.toInt()}g',
+              '${value.toInt()}g',
               style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 12),
             ),
           ],
@@ -386,14 +386,12 @@ class _DescubrePageState extends State<DescubrePage> {
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
-            FractionallySizedBox(
-              widthFactor: percentage,
-              child: Container(
-                height: 8,
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(4),
-                ),
+            Container(
+              height: 8,
+              width: 100, // Ancho fijo para la barra de progreso
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(4),
               ),
             ),
           ],

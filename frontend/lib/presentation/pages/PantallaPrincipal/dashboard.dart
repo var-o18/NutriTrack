@@ -34,6 +34,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   double _healthyFatPercentage = 0;
   int _currentCardIndex = 0;
   int _currentStepsCardIndex = 0;
+  int _pasosHoy = 0;
 
   @override
   void initState() {
@@ -467,6 +468,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildCaloriesCard() {
     int? caloriasObjetivo = usuarioDatos?.caloriasDiarias;
     int caloriasRestantes = (caloriasObjetivo ?? 0) - _caloriasConsumidasHoy;
+    caloriasRestantes = caloriasRestantes < 0 ? 0 : caloriasRestantes; // Aseguramos que no sea negativo
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 10),

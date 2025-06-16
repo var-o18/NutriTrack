@@ -50,13 +50,14 @@ Future<RegistroModel?> getDatosUsuario() async {
   final response = await http.get(
     url,
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     },
   );
 
   if (response.statusCode == 200) {
-    final datosUsuarioJson = jsonDecode(response.body);
+    final String decodedBody = utf8.decode(response.bodyBytes);
+    final datosUsuarioJson = jsonDecode(decodedBody);
     final usuario = RegistroModel.fromJson(datosUsuarioJson);
     print('Datos recibidos del backend: $datosUsuarioJson');
     return usuario;
