@@ -34,7 +34,7 @@ class AlimentoService {
     final response = await http.get(
       url,
       headers: {
-        'Content-Type': 'application/json; charset=UTF-8',
+        'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
       },
     );
@@ -64,7 +64,7 @@ class AlimentoService {
       final response = await http.get(
         url,
         headers: {
-          'Content-Type': 'application/json; charset=UTF-8',
+          'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
       );
@@ -76,7 +76,7 @@ class AlimentoService {
           final alimento = Alimento.fromJson(json);
           print('[DEBUG] getAllAlimentos: Procesando alimento:');
           print('[DEBUG] getAllAlimentos: - ID: ${alimento.id}');
-          print('[DEBUG] getAllAlimentos: - Nombre: ${utf8.decode(alimento.nombre.codeUnits)}');
+          print('[DEBUG] getAllAlimentos: - Nombre: ${alimento.nombre}');
           print('[DEBUG] getAllAlimentos: - Calorías: ${alimento.calorias}');
           return alimento;
         }).toList();
@@ -107,13 +107,13 @@ class AlimentoService {
       final response = await http.get(
         url,
         headers: {
-          'Content-Type': 'application/json; charset=UTF-8',
+          'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
       );
 
       print('[DEBUG] getAlimentoByCodigoBarras: Response status: ${response.statusCode}');
-      print('[DEBUG] getAlimentoByCodigoBarras: Response body: ${utf8.decode(response.bodyBytes)}');
+      print('[DEBUG] getAlimentoByCodigoBarras: Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonBody = jsonDecode(utf8.decode(response.bodyBytes));
@@ -155,17 +155,17 @@ class AlimentoService {
       final response = await http.post(
         url,
         headers: {
-          'Content-Type': 'application/json; charset=UTF-8',
+          'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
         body: jsonEncode(body),
       );
 
       print('[DEBUG] saveAlimento: Response status: ${response.statusCode}');
-      print('[DEBUG] saveAlimento: Response body: ${utf8.decode(response.bodyBytes)}');
+      print('[DEBUG] saveAlimento: Response body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) { 
-        final String responseBody = utf8.decode(response.bodyBytes);
+        final String responseBody = response.body;
         final int? nuevoId = int.tryParse(responseBody);
         if (nuevoId != null) {
           print('[DEBUG] saveAlimento: Successfully saved alimento with ID: $nuevoId');
@@ -221,7 +221,7 @@ class AlimentoService {
       final response = await http.get(
         url,
         headers: {
-          'Content-Type': 'application/json; charset=UTF-8',
+          'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
       );
@@ -233,7 +233,7 @@ class AlimentoService {
           final alimento = Alimento.fromJson(json);
           print('[DEBUG] getSugerencias: Procesando sugerencia:');
           print('[DEBUG] getSugerencias: - ID: ${alimento.id}');
-          print('[DEBUG] getSugerencias: - Nombre: ${utf8.decode(alimento.nombre.codeUnits)}');
+          print('[DEBUG] getSugerencias: - Nombre: ${alimento.nombre}');
           print('[DEBUG] getSugerencias: - Calorías: ${alimento.calorias}');
           return alimento;
         }).toList();
